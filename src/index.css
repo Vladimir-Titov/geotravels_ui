@@ -1,15 +1,15 @@
 :root {
-  --surface: #f4f9fb;
-  --surface-strong: #ffffff;
-  --surface-contrast: #0f2942;
-  --ink: #113347;
-  --muted: #5f7280;
-  --accent: #0f766e;
-  --accent-soft: #c7f3eb;
+  --surface: #f5f0e7;
+  --surface-strong: #fcfaf5;
+  --surface-contrast: #3d4c57;
+  --ink: #364751;
+  --muted: #7f847d;
+  --accent: #8d6646;
+  --accent-soft: #e7dac9;
   --danger: #b42318;
-  --border: #d8e4eb;
-  --radius: 14px;
-  font-family: 'Space Grotesk', 'Avenir Next', 'Segoe UI', sans-serif;
+  --border: #d7cec0;
+  --radius: 18px;
+  font-family: 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', serif;
   line-height: 1.45;
   font-weight: 400;
   color: var(--ink);
@@ -28,9 +28,9 @@ body {
   min-width: 320px;
   min-height: 100vh;
   background:
-    radial-gradient(circle at 12% 10%, #cff3ec 0%, transparent 28%),
-    radial-gradient(circle at 88% 5%, #d3e7f8 0%, transparent 32%),
-    linear-gradient(160deg, #f0f7fa 0%, #e8f0f8 60%, #e5edf4 100%);
+    radial-gradient(circle at 12% 12%, rgba(211, 193, 162, 0.28) 0%, transparent 26%),
+    radial-gradient(circle at 84% 4%, rgba(182, 203, 214, 0.28) 0%, transparent 28%),
+    linear-gradient(180deg, #f8f4eb 0%, #f0e9dd 100%);
 }
 
 a {
@@ -161,7 +161,7 @@ button {
   align-items: center;
   padding: 0.9rem 1.1rem;
   border-bottom: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(252, 250, 245, 0.82);
   backdrop-filter: blur(7px);
 }
 
@@ -180,25 +180,25 @@ button {
 .shell-nav {
   display: inline-flex;
   gap: 0.45rem;
-  background: #f2f6f8;
+  background: #efe6d7;
   border-radius: 999px;
   padding: 0.18rem;
 }
 
 .nav-link {
-  color: #385061;
+  color: #6a6256;
   font-weight: 600;
   padding: 0.35rem 0.68rem;
   border-radius: 999px;
 }
 
 .nav-link.active {
-  background: #fff;
-  color: #0d3f60;
+  background: #faf6ef;
+  color: #5e4835;
 }
 
 .logout-button {
-  background: #163753;
+  background: #6f5136;
 }
 
 .shell-content {
@@ -208,7 +208,7 @@ button {
 
 .map-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 280px;
+  grid-template-columns: minmax(0, 1fr) 300px;
   gap: 1rem;
 }
 
@@ -218,16 +218,20 @@ button {
   background: var(--surface-strong);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  box-shadow: 0 16px 42px rgba(19, 52, 77, 0.12);
+  box-shadow: 0 18px 36px rgba(87, 68, 45, 0.12);
 }
 
 .map-card {
-  padding: 0.8rem;
+  padding: 1rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.45)),
+    linear-gradient(180deg, #f8f3ea 0%, #f3ecdf 100%);
 }
 
 .map-heading h1 {
   margin: 0;
-  font-size: 1.32rem;
+  font-size: 1.52rem;
+  letter-spacing: 0.02em;
 }
 
 .map-heading p {
@@ -235,20 +239,89 @@ button {
   color: var(--muted);
 }
 
-.world-map {
-  height: calc(100vh - 220px);
-  min-height: 420px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
+.atlas-shell {
+  position: relative;
+  border-radius: 20px;
+  border: 1px solid rgba(132, 120, 104, 0.4);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.2)),
+    #f7f0e5;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45);
+}
+
+.atlas-toolbar {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 2;
+  display: inline-flex;
+  gap: 0.45rem;
+}
+
+.atlas-toolbar button {
+  min-width: 2.6rem;
+  border: 1px solid rgba(112, 95, 74, 0.35);
+  border-radius: 999px;
+  padding: 0.45rem 0.75rem;
+  background: rgba(251, 248, 241, 0.92);
+  color: #5f4b39;
+  font-weight: 700;
+}
+
+.atlas-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 440px;
+  aspect-ratio: 5 / 3;
+  touch-action: none;
+}
+
+.atlas-canvas-zoomed {
+  cursor: grab;
+}
+
+.atlas-paper {
+  fill: #f4ede2;
+}
+
+.atlas-ocean {
+  fill: #d4e1e6;
+}
+
+.atlas-graticule {
+  fill: none;
+  stroke: rgba(122, 118, 109, 0.3);
+  stroke-width: 0.7;
+  vector-effect: non-scaling-stroke;
+}
+
+.atlas-country {
+  cursor: pointer;
+  transition:
+    opacity 0.15s ease,
+    stroke-width 0.15s ease,
+    fill 0.15s ease;
+  vector-effect: non-scaling-stroke;
+}
+
+.atlas-country:focus-visible {
+  outline: none;
+  stroke: #314e67;
+  stroke-width: 2.4;
 }
 
 .map-sidebar {
-  padding: 0.9rem;
+  padding: 1rem;
   align-self: start;
   position: sticky;
   top: 90px;
   display: grid;
   gap: 0.75rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5)),
+    #fbf8f3;
 }
 
 .map-sidebar h2,
@@ -268,6 +341,7 @@ button {
 .country-code {
   color: var(--muted);
   text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
 .map-sidebar input {
@@ -352,9 +426,8 @@ button {
     position: static;
   }
 
-  .world-map {
-    height: 60vh;
-    min-height: 360px;
+  .atlas-canvas {
+    min-height: 320px;
   }
 
   .visit-item {

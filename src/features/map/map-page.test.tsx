@@ -7,34 +7,18 @@ const fetchCountriesGeoJsonMock = vi.fn()
 const fetchVisitsMock = vi.fn()
 const createVisitMock = vi.fn()
 
-vi.mock('./countries-api', () => ({
-  fetchCountries: (...args: unknown[]) => fetchCountriesMock(...args),
-  fetchCountriesGeoJson: (...args: unknown[]) => fetchCountriesGeoJsonMock(...args),
-}))
+vi.mock('./countries-api', async () => {
+  const actual = await vi.importActual<typeof import('./countries-api')>('./countries-api')
+  return {
+    ...actual,
+    fetchCountries: (...args: unknown[]) => fetchCountriesMock(...args),
+    fetchCountriesGeoJson: (...args: unknown[]) => fetchCountriesGeoJsonMock(...args),
+  }
+})
 
 vi.mock('../visits/visits-api', () => ({
   fetchVisits: (...args: unknown[]) => fetchVisitsMock(...args),
   createVisit: (...args: unknown[]) => createVisitMock(...args),
-}))
-
-vi.mock('react-leaflet', () => ({
-  MapContainer: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  TileLayer: () => <div />,
-  GeoJSON: ({ data, onEachFeature }: { data: { features: Array<Record<string, unknown>>; onEachFeature?: unknown }; onEachFeature: (feature: Record<string, unknown>, layer: { on: (handlers: { click: () => void }) => void }) => void }) => {
-    const feature = data.features[0] as Record<string, unknown>
-    const layerHandlers: { click?: () => void } = {}
-    onEachFeature(feature, {
-      on: (handlers) => {
-        layerHandlers.click = handlers.click
-      },
-    })
-
-    return (
-      <button type='button' onClick={() => layerHandlers.click?.()}>
-        Feature click
-      </button>
-    )
-  },
 }))
 
 describe('MapPage', () => {
@@ -54,8 +38,19 @@ describe('MapPage', () => {
       features: [
         {
           type: 'Feature',
-          properties: { iso_a2: 'FR', name: 'France' },
-          geometry: null,
+          properties: { iso_a2: 'FR', name: 'France', mapcolor13: 1 },
+          geometry: {
+            type: 'Polygon',
+            coordinates: [
+              [
+                [-5, 42],
+                [8, 42],
+                [8, 51],
+                [-5, 51],
+                [-5, 42],
+              ],
+            ],
+          },
         },
       ],
     })
@@ -64,9 +59,7 @@ describe('MapPage', () => {
 
     render(<MapPage />)
 
-    expect(await screen.findByText('Feature click')).toBeInTheDocument()
-
-    fireEvent.click(screen.getByText('Feature click'))
+    fireEvent.click(await screen.findByRole('button', { name: 'France' }))
 
     await screen.findByText('France')
 
