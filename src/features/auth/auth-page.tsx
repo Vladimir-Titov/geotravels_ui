@@ -1,17 +1,41 @@
-import { useMemo, useState } from 'react'
+import { useState, type ChangeEvent, type FormEvent } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { ApiError } from '../../shared/api/http'
+import type { TelegramAuthData } from '../../shared/api/types'
 import { useAuth } from './auth-context'
-import { loginUser, registerUser } from './auth-api'
+import { loginUser, registerUser, telegramLogin } from './auth-api'
+import { TelegramLoginButton } from './telegram-login-button'
 
 type AuthMode = 'login' | 'register'
 
 interface FormErrors {
   email?: string
   password?: string
+  confirmPassword?: string
 }
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+const AUTH_COPY = {
+  login: {
+    title: 'Sign in to Tripmark',
+    subtitle: 'Mark visited countries and keep your travel map close at hand.',
+    submitLabel: 'Sign in',
+    submitPendingLabel: 'Signing in...',
+    switchPrompt: 'Need an account?',
+    switchAction: 'Register',
+    helperText: 'Your saved atlas and visit history stay ready on this device.',
+  },
+  register: {
+    title: 'Create your Tripmark account',
+    subtitle: 'Start a personal atlas for the countries and memories you collect.',
+    submitLabel: 'Create account',
+    submitPendingLabel: 'Creating account...',
+    switchPrompt: 'Already have an account?',
+    switchAction: 'Sign in',
+    helperText: 'Create an account once and keep building the same travel story over time.',
+  },
+} as const
 
 export const AuthPage = () => {
   const navigate = useNavigate()
@@ -20,11 +44,13 @@ export const AuthPage = () => {
   const [mode, setMode] = useState<AuthMode>('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [formErrors, setFormErrors] = useState<FormErrors>({})
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isTelegramPending, setIsTelegramPending] = useState(false)
 
-  const title = useMemo(() => (mode === 'login' ? 'Sign in to GeoTravels' : 'Create a GeoTravels account'), [mode])
+  const copy = AUTH_COPY[mode]
 
   if (isAuthenticated) {
     return <Navigate replace to='/map' />
@@ -41,11 +67,63 @@ export const AuthPage = () => {
       nextErrors.password = 'Password must be at least 6 characters.'
     }
 
+    if (mode === 'register' && confirmPassword !== password) {
+      nextErrors.confirmPassword = 'Passwords must match.'
+    }
+
     setFormErrors(nextErrors)
     return Object.keys(nextErrors).length === 0
   }
 
-  const submitForm = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
+  const switchMode = (nextMode: AuthMode): void => {
+    if (nextMode === mode) {
+      return
+    }
+
+    setMode(nextMode)
+    setPassword('')
+    setConfirmPassword('')
+    setFormErrors({})
+    setError(null)
+  }
+
+  const handleEmailChange = (event: ChangeEvent<HTMLInputElement>): void => {
+    setEmail(event.target.value)
+    setError(null)
+    setFormErrors((current) => ({ ...current, email: undefined }))
+  }
+
+  const handlePasswordChange = (event: ChangeEvent<HTMLInputElement>): void => {
+    setPassword(event.target.value)
+    setError(null)
+    setFormErrors((current) => ({ ...current, password: undefined, confirmPassword: undefined }))
+  }
+
+  const handleConfirmPasswordChange = (event: ChangeEvent<HTMLInputElement>): void => {
+    setConfirmPassword(event.target.value)
+    setError(null)
+    setFormErrors((current) => ({ ...current, confirmPassword: undefined }))
+  }
+
+  const handleTelegramAuth = async (data: TelegramAuthData): Promise<void> => {
+    setError(null)
+    setIsTelegramPending(true)
+    try {
+      const response = await telegramLogin(data)
+      onAuthSuccess({
+        accessToken: response.access_token,
+        refreshToken: response.refresh_token,
+        tokenType: response.token_type,
+      })
+      navigate('/map', { replace: true })
+    } catch (caught) {
+      setError(caught instanceof ApiError ? caught.message : 'Telegram sign-in failed.')
+    } finally {
+      setIsTelegramPending(false)
+    }
+  }
+
+  const submitForm = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault()
     setError(null)
 
@@ -78,54 +156,113 @@ export const AuthPage = () => {
 
   return (
     <div className='auth-page'>
-      <section className='auth-card'>
-        <p className='auth-eyebrow'>GeoTravels</p>
-        <h1>{title}</h1>
-        <p className='auth-subtitle'>Track every country you have visited and keep your travel history in one place.</p>
+      <div className='auth-page__glow auth-page__glow--left' aria-hidden='true' />
+      <div className='auth-page__glow auth-page__glow--right' aria-hidden='true' />
 
-        <form onSubmit={submitForm} className='auth-form'>
-          <label htmlFor='auth-email'>Email</label>
-          <input
-            id='auth-email'
-            type='email'
-            autoComplete='email'
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            placeholder='you@example.com'
-            required
-          />
-          {formErrors.email && <p className='field-error'>{formErrors.email}</p>}
+      <div className='auth-shell'>
+        <section className='auth-card'>
+          <div className='auth-mode-switch' role='group' aria-label='Authentication mode'>
+            <button
+              type='button'
+              className={mode === 'login' ? 'auth-mode-switch__button is-active' : 'auth-mode-switch__button'}
+              aria-label='Switch to sign in form'
+              aria-pressed={mode === 'login'}
+              onClick={() => switchMode('login')}
+            >
+              Sign in
+            </button>
+            <button
+              type='button'
+              className={mode === 'register' ? 'auth-mode-switch__button is-active' : 'auth-mode-switch__button'}
+              aria-label='Switch to registration form'
+              aria-pressed={mode === 'register'}
+              onClick={() => switchMode('register')}
+            >
+              Register
+            </button>
+          </div>
 
-          <label htmlFor='auth-password'>Password</label>
-          <input
-            id='auth-password'
-            type='password'
-            autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            placeholder='At least 6 characters'
-            required
-          />
-          {formErrors.password && <p className='field-error'>{formErrors.password}</p>}
+          <div className='auth-card-header'>
+            <h1>{copy.title}</h1>
+            <p className='auth-subtitle'>{copy.subtitle}</p>
+          </div>
 
-          {error && <p role='alert' className='form-error'>{error}</p>}
+          <form onSubmit={submitForm} className='auth-form'>
+            <div className='auth-field'>
+              <label htmlFor='auth-email'>Email</label>
+              <input
+                id='auth-email'
+                className={formErrors.email ? 'auth-input auth-input--error' : 'auth-input'}
+                type='email'
+                autoComplete='email'
+                value={email}
+                onChange={handleEmailChange}
+                placeholder='you@example.com'
+                required
+              />
+              {formErrors.email && <p className='field-error'>{formErrors.email}</p>}
+            </div>
 
-          <button type='submit' disabled={isSubmitting}>
-            {isSubmitting ? 'Please wait...' : mode === 'login' ? 'Sign in' : 'Create account'}
-          </button>
-        </form>
+            <div className='auth-field'>
+              <label htmlFor='auth-password'>Password</label>
+              <input
+                id='auth-password'
+                className={formErrors.password ? 'auth-input auth-input--error' : 'auth-input'}
+                type='password'
+                autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+                value={password}
+                onChange={handlePasswordChange}
+                placeholder='At least 6 characters'
+                required
+              />
+              {formErrors.password && <p className='field-error'>{formErrors.password}</p>}
+            </div>
 
-        <div className='auth-switch'>
-          <span>{mode === 'login' ? 'Need an account?' : 'Already have an account?'}</span>
-          <button
-            type='button'
-            className='text-button'
-            onClick={() => setMode((current) => (current === 'login' ? 'register' : 'login'))}
-          >
-            {mode === 'login' ? 'Register' : 'Sign in'}
-          </button>
-        </div>
-      </section>
+            <div className={mode === 'register' ? 'auth-field-collapse is-open' : 'auth-field-collapse'}>
+              <div className='auth-field'>
+                <label htmlFor='auth-confirm-password'>Confirm password</label>
+                <input
+                  id='auth-confirm-password'
+                  className={formErrors.confirmPassword ? 'auth-input auth-input--error' : 'auth-input'}
+                  type='password'
+                  autoComplete='new-password'
+                  value={confirmPassword}
+                  onChange={handleConfirmPasswordChange}
+                  placeholder='Must match your password'
+                  tabIndex={mode === 'register' ? 0 : -1}
+                />
+                {formErrors.confirmPassword && <p className='field-error'>{formErrors.confirmPassword}</p>}
+              </div>
+            </div>
+
+            {error && <p role='alert' className='form-error'>{error}</p>}
+
+            <button type='submit' className='auth-submit' disabled={isSubmitting}>
+              {isSubmitting ? copy.submitPendingLabel : copy.submitLabel}
+            </button>
+          </form>
+
+          <p className='auth-form-note'>{copy.helperText}</p>
+
+          <div className='auth-divider'><span>or</span></div>
+          <div className='auth-tg-section'>
+            {isTelegramPending
+              ? <p className='auth-tg-pending'>Signing in with Telegram…</p>
+              : <TelegramLoginButton onAuth={handleTelegramAuth} />}
+          </div>
+
+          <div className='auth-switch'>
+            <span>{copy.switchPrompt}</span>
+            <button
+              type='button'
+              className='text-button'
+              onClick={() => switchMode(mode === 'login' ? 'register' : 'login')}
+            >
+              {copy.switchAction}
+            </button>
+          </div>
+        </section>
+      </div>
     </div>
   )
 }

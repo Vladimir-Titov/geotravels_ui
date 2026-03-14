@@ -46,4 +46,38 @@ describe('AuthPage', () => {
     expect(await screen.findByText('Map Screen')).toBeInTheDocument()
     expect(loginUserMock).toHaveBeenCalledWith({ email: 'test@example.com', password: 'secret123' })
   })
+
+  it('validates password confirmation before registering', async () => {
+    registerUserMock.mockResolvedValue({
+      access_token: 'access',
+      refresh_token: 'refresh',
+      token_type: 'bearer',
+    })
+
+    render(
+      <AuthProvider>
+        <MemoryRouter initialEntries={['/auth']}>
+          <Routes>
+            <Route path='/auth' element={<AuthPage />} />
+            <Route path='/map' element={<div>Map Screen</div>} />
+          </Routes>
+        </MemoryRouter>
+      </AuthProvider>,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Switch to registration form' }))
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'traveler@example.com' } })
+    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'secret123' } })
+    fireEvent.change(screen.getByLabelText('Confirm password'), { target: { value: 'secret456' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Create account' }))
+
+    expect(await screen.findByText('Passwords must match.')).toBeInTheDocument()
+    expect(registerUserMock).not.toHaveBeenCalled()
+
+    fireEvent.change(screen.getByLabelText('Confirm password'), { target: { value: 'secret123' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Create account' }))
+
+    expect(await screen.findByText('Map Screen')).toBeInTheDocument()
+    expect(registerUserMock).toHaveBeenCalledWith({ email: 'traveler@example.com', password: 'secret123' })
+  })
 })

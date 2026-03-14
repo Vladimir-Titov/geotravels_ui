@@ -1,5 +1,5 @@
 import { requestJson } from '../../shared/api/http'
-import type { LoginRequest, TokenPairResponse } from '../../shared/api/types'
+import type { LoginRequest, TelegramAuthData, TokenPairResponse } from '../../shared/api/types'
 
 export const registerUser = async (payload: LoginRequest): Promise<TokenPairResponse> => {
   return requestJson<TokenPairResponse>('/api/v1/auth/register', {
@@ -14,5 +14,13 @@ export const loginUser = async (payload: LoginRequest): Promise<TokenPairRespons
     method: 'POST',
     auth: false,
     body: payload,
+  })
+}
+
+export const telegramLogin = async (data: TelegramAuthData): Promise<TokenPairResponse> => {
+  return requestJson<TokenPairResponse>('/api/v1/auth/telegram', {
+    method: 'POST',
+    auth: false,
+    body: data,
   })
 }
