@@ -15,7 +15,7 @@ export const TelegramLoginButton = ({ onAuth }: Props) => {
     }, [onAuth])
 
     useEffect(() => {
-        ; (window as Record<string, unknown>)['__tgOnAuth'] = (user: TelegramAuthData) =>
+        ; (window as unknown as Record<string, unknown>)['__tgOnAuth'] = (user: TelegramAuthData) =>
             onAuthRef.current(user)
 
 
@@ -32,7 +32,7 @@ export const TelegramLoginButton = ({ onAuth }: Props) => {
 
         return () => {
             container?.removeChild(script)
-            delete (window as Record<string, unknown>)['__tgOnAuth']
+            delete (window as unknown as Record<string, unknown>)['__tgOnAuth']
         }
     }, [])
 
