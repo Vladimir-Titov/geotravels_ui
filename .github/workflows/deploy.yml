@@ -74,6 +74,6 @@ jobs:
                   script: |
                       cd ${{ env.DEPLOY_DIR }}/infra
                       git pull
-                      docker compose -f docker-compose.prod.yml pull frontend
-                      docker compose -f docker-compose.prod.yml up -d frontend
+                      docker compose -f prod/docker-compose.prod.yml pull frontend
+                      docker compose -f prod/docker-compose.prod.yml up -d --no-deps frontend
                       docker image prune -f
