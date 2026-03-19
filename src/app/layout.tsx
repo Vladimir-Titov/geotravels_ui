@@ -1,40 +1,43 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../features/auth/auth-context'
+import logo from '../assets/logo.png'
 
 export const AppLayout = () => {
-  const navigate = useNavigate()
-  const { logout } = useAuth()
+    const navigate = useNavigate()
+    const { logout } = useAuth()
 
-  const signOut = (): void => {
-    logout()
-    navigate('/auth', { replace: true })
-  }
+    const signOut = (): void => {
+        logout()
+        navigate('/auth', { replace: true })
+    }
 
-  return (
-    <div className='shell'>
-      <header className='shell-header'>
-        <div>
-          <p className='shell-brand'>GeoTravels</p>
-          <p className='shell-subtitle'>Travel tracker MVP</p>
+    return (
+        <div className='shell'>
+            <header className='shell-header'>
+                <div className='shell-brand-wrapper'>
+                    <NavLink to='/' className='shell-brand'>
+                        TripMark
+                    </NavLink>
+                    <img src={logo} alt='logo' height={64} />
+                </div>
+
+                <nav className='shell-nav'>
+                    <NavLink to='/map' className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
+                        Map
+                    </NavLink>
+                    <NavLink to='/history' className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
+                        History
+                    </NavLink>
+                </nav>
+
+                <button onClick={signOut} className='logout-button'>
+                    Logout
+                </button>
+            </header>
+
+            <main className='shell-content'>
+                <Outlet />
+            </main>
         </div>
-
-        <nav className='shell-nav'>
-          <NavLink to='/map' className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
-            Map
-          </NavLink>
-          <NavLink to='/history' className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
-            History
-          </NavLink>
-        </nav>
-
-        <button onClick={signOut} className='logout-button'>
-          Logout
-        </button>
-      </header>
-
-      <main className='shell-content'>
-        <Outlet />
-      </main>
-    </div>
-  )
+    )
 }

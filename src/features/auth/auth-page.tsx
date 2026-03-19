@@ -2,8 +2,8 @@ import { useState, type ChangeEvent, type FormEvent } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { ApiError } from '../../shared/api/http'
 import type { TelegramAuthData } from '../../shared/api/types'
-import { useAuth } from './auth-context'
 import { loginUser, registerUser, telegramLogin } from './auth-api'
+import { useAuth } from './auth-context'
 import { TelegramLoginButton } from './telegram-login-button'
 
 type AuthMode = 'login' | 'register'
@@ -19,21 +19,17 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const AUTH_COPY = {
     login: {
         title: 'Sign in to Tripmark',
-        subtitle: 'Mark visited countries and keep your travel map close at hand.',
         submitLabel: 'Sign in',
         submitPendingLabel: 'Signing in...',
         switchPrompt: 'Need an account?',
         switchAction: 'Register',
-        helperText: 'Your saved atlas and visit history stay ready on this device.',
     },
     register: {
         title: 'Create your Tripmark account',
-        subtitle: 'Start a personal atlas for the countries and memories you collect.',
         submitLabel: 'Create account',
         submitPendingLabel: 'Creating account...',
         switchPrompt: 'Already have an account?',
         switchAction: 'Sign in',
-        helperText: 'Create an account once and keep building the same travel story over time.',
     },
 } as const
 
@@ -184,7 +180,6 @@ export const AuthPage = () => {
 
                     <div className='auth-card-header'>
                         <h1>{copy.title}</h1>
-                        <p className='auth-subtitle'>{copy.subtitle}</p>
                     </div>
 
                     <form onSubmit={submitForm} className='auth-form'>
@@ -241,8 +236,6 @@ export const AuthPage = () => {
                             {isSubmitting ? copy.submitPendingLabel : copy.submitLabel}
                         </button>
                     </form>
-
-                    <p className='auth-form-note'>{copy.helperText}</p>
 
                     <div className='auth-divider'><span>or</span></div>
                     <div className='auth-tg-section'>

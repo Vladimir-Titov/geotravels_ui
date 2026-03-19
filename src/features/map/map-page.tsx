@@ -94,11 +94,6 @@ export const MapPage = () => {
     return (
         <div className='map-layout'>
             <section className='map-card'>
-                <div className='map-heading'>
-                    <h1>Atlas View</h1>
-                    <p>Explore the world, zoom lightly, and mark countries as visited.</p>
-                </div>
-
                 <AtlasMap
                     geoJson={geoJson}
                     selectedCountryCode={selectedCountry?.code ?? null}
@@ -119,7 +114,7 @@ export const MapPage = () => {
                         <p className='country-name'>{selectedCountry.name}</p>
                         <p className='country-code'>{selectedCountry.code}</p>
 
-                        <label htmlFor='trip-date'>Trip date (optional)</label>
+                        <label htmlFor='trip-date'>Trip date</label>
                         <input
                             id='trip-date'
                             type='date'
