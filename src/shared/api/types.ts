@@ -19,7 +19,6 @@ export interface RegisterRequest {
 
 export interface LoginRequest {
     email: string
-    password: string
 }
 
 export interface RefreshRequest {
@@ -63,3 +62,18 @@ export interface VisitsResponse {
     visits: VisitEvent[]
     visited_country_codes: string[]
 }
+
+
+export interface OtpRequest {
+    email: string
+}
+
+export interface OtpResponse {
+    message: string
+}
+
+export interface ConfirmOtpRequest {
+    email: string
+    otp: string
+}
+
