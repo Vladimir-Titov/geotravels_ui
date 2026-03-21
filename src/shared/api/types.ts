@@ -12,15 +12,6 @@ export interface TelegramAuthData {
     hash: string
 }
 
-export interface RegisterRequest {
-    email: string
-    password: string
-}
-
-export interface LoginRequest {
-    email: string
-}
-
 export interface RefreshRequest {
     refresh_token: string
 }
@@ -65,15 +56,16 @@ export interface VisitsResponse {
 
 
 export interface OtpRequest {
-    email: string
+    contact: string
 }
 
 export interface OtpResponse {
+    otp_id: string
     message: string
 }
 
 export interface ConfirmOtpRequest {
-    email: string
-    otp: string
+    otp_id: string
+    code: string
 }
 

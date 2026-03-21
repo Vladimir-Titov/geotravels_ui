@@ -13,13 +13,15 @@ export const AuthPage = () => {
     const { isAuthenticated, onAuthSuccess } = useAuth()
     const [step, setStep] = useState<Step>('email')
     const [email, setEmail] = useState('')
+    const [otpId, setOtpId] = useState('')
 
     if (isAuthenticated) {
         return <Navigate replace to="/map" />
     }
 
-    const handleEmailSuccess = (submittedEmail: string) => {
+    const handleEmailSuccess = (submittedEmail: string, submittedOtpId: string) => {
         setEmail(submittedEmail)
+        setOtpId(submittedOtpId)
         setStep('otp')
     }
 
@@ -47,6 +49,7 @@ export const AuthPage = () => {
                 {step === 'otp' && (
                     <OtpForm
                         email={email}
+                        otpId={otpId}
                         onOtpConfirmed={handleSuccess}
                         onBack={() => setStep('email')}
                     />

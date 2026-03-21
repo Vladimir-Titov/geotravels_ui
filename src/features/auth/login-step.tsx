@@ -7,7 +7,7 @@ import { YandexAuthButton } from './yandex-auth-button'
 import { GoogleAuthButton } from './google-auth-button'
 
 interface LoginStepProps {
-    onEmailSuccess: (email: string) => void
+    onEmailSuccess: (email: string, otpId: string) => void
     onSocialSuccess: (tokens: TokenPairResponse) => void
 }
 
@@ -64,8 +64,8 @@ export const LoginStep = ({ onEmailSuccess, onSocialSuccess }: LoginStepProps) =
 
         setIsSubmitting(true)
         try {
-            await getOtp({ email: email.trim() })
-            onEmailSuccess(email.trim())
+            const response = await getOtp({ contact: email.trim() })
+            onEmailSuccess(email.trim(), response.otp_id)
         } catch (caught) {
             if (caught instanceof ApiError) {
                 setError(caught.message)

@@ -5,6 +5,7 @@ import { confirmOtp, getOtp } from './auth-api'
 
 interface OtpFormProps {
     email: string
+    otpId: string
     onOtpConfirmed: (tokens: TokenPairResponse) => void
     onBack: () => void
 }
@@ -12,7 +13,8 @@ interface OtpFormProps {
 const OTP_LENGTH = 6
 const RESEND_TIMEOUT = 60
 
-export const OtpForm = ({ email, onOtpConfirmed, onBack }: OtpFormProps) => {
+export const OtpForm = ({ email, otpId: initialOtpId, onOtpConfirmed, onBack }: OtpFormProps) => {
+    const [currentOtpId, setCurrentOtpId] = useState(initialOtpId)
     const [digits, setDigits] = useState<string[]>(Array(OTP_LENGTH).fill(''))
     const [error, setError] = useState<string | null>(null)
     const [isSubmitting, setIsSubmitting] = useState(false)
@@ -61,7 +63,8 @@ export const OtpForm = ({ email, onOtpConfirmed, onBack }: OtpFormProps) => {
 
     const handleResend = async () => {
         try {
-            await getOtp({ email })
+            const response = await getOtp({ contact: email })
+            setCurrentOtpId(response.otp_id)
             setResendCountdown(RESEND_TIMEOUT)
             setDigits(Array(OTP_LENGTH).fill(''))
             setError(null)
@@ -82,7 +85,7 @@ export const OtpForm = ({ email, onOtpConfirmed, onBack }: OtpFormProps) => {
         setIsSubmitting(true)
         setError(null)
         try {
-            const tokens = await confirmOtp({ email, otp })
+            const tokens = await confirmOtp({ otp_id: currentOtpId, code: otp })
             onOtpConfirmed(tokens)
         } catch (caught) {
             setError(caught instanceof ApiError ? caught.message : 'Invalid code. Please try again.')
