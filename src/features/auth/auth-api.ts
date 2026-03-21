@@ -1,5 +1,11 @@
 import { requestJson } from '../../shared/api/http'
-import type { ConfirmOtpRequest, OtpRequest, OtpResponse, TelegramAuthData, TokenPairResponse } from '../../shared/api/types'
+import type {
+    ConfirmOtpRequest,
+    OtpRequest,
+    OtpResponse,
+    TelegramAuthData,
+    TokenPairResponse,
+} from '../../shared/api/types'
 
 export const getOtp = async (data: OtpRequest): Promise<OtpResponse> => {
     return requestJson<OtpResponse>('/api/v1/auth/otp/request', {

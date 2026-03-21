@@ -56,7 +56,9 @@ export const OtpForm = ({ email, otpId: initialOtpId, onOtpConfirmed, onBack }: 
         const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, OTP_LENGTH)
         if (!pasted) return
         const next = [...Array(OTP_LENGTH).fill('')]
-        pasted.split('').forEach((ch, i) => { next[i] = ch })
+        pasted.split('').forEach((ch, i) => {
+            next[i] = ch
+        })
         setDigits(next)
         inputRefs.current[Math.min(pasted.length, OTP_LENGTH - 1)]?.focus()
     }
@@ -88,7 +90,9 @@ export const OtpForm = ({ email, otpId: initialOtpId, onOtpConfirmed, onBack }: 
             const tokens = await confirmOtp({ otp_id: currentOtpId, code: otp })
             onOtpConfirmed(tokens)
         } catch (caught) {
-            setError(caught instanceof ApiError ? caught.message : 'Invalid code. Please try again.')
+            setError(
+                caught instanceof ApiError ? caught.message : 'Invalid code. Please try again.',
+            )
             setDigits(Array(OTP_LENGTH).fill(''))
             inputRefs.current[0]?.focus()
         } finally {
@@ -105,7 +109,8 @@ export const OtpForm = ({ email, otpId: initialOtpId, onOtpConfirmed, onBack }: 
             <div className="auth-card-header">
                 <h1>Enter the code</h1>
                 <p className="auth-subtitle">
-                    We sent a 6-digit code to<br />
+                    We sent a 6-digit code to
+                    <br />
                     <strong>{email}</strong>
                 </p>
             </div>
@@ -115,7 +120,9 @@ export const OtpForm = ({ email, otpId: initialOtpId, onOtpConfirmed, onBack }: 
                     {digits.map((digit, i) => (
                         <input
                             key={i}
-                            ref={(el) => { inputRefs.current[i] = el }}
+                            ref={(el) => {
+                                inputRefs.current[i] = el
+                            }}
                             className={`otp-input${digit ? ' otp-input--filled' : ''}`}
                             type="text"
                             inputMode="numeric"

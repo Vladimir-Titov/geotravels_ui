@@ -54,7 +54,6 @@ export interface VisitsResponse {
     visited_country_codes: string[]
 }
 
-
 export interface OtpRequest {
     contact: string
 }
@@ -68,4 +67,3 @@ export interface ConfirmOtpRequest {
     otp_id: string
     code: string
 }
-

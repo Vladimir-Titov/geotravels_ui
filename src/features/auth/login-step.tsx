@@ -18,7 +18,6 @@ interface FormErrors {
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export const LoginStep = ({ onEmailSuccess, onSocialSuccess }: LoginStepProps) => {
-
     const [email, setEmail] = useState('')
     const [formErrors, setFormErrors] = useState<FormErrors>({})
     const [error, setError] = useState<string | null>(null)
@@ -107,9 +106,7 @@ export const LoginStep = ({ onEmailSuccess, onSocialSuccess }: LoginStepProps) =
                     <label htmlFor="auth-email">Email</label>
                     <input
                         id="auth-email"
-                        className={
-                            formErrors.email ? 'auth-input auth-input--error' : 'auth-input'
-                        }
+                        className={formErrors.email ? 'auth-input auth-input--error' : 'auth-input'}
                         type="email"
                         autoComplete="email"
                         value={email}

@@ -54,7 +54,6 @@ export const AuthPage = () => {
                         onBack={() => setStep('email')}
                     />
                 )}
-
             </div>
         </div>
     )
