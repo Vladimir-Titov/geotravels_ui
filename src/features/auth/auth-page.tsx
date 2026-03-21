@@ -31,7 +31,7 @@ export const AuthPage = () => {
             refreshToken: tokens.refresh_token,
             tokenType: tokens.token_type,
         })
-        navigate('/map')
+        navigate('/map', { replace: true })
     }
 
     return (
