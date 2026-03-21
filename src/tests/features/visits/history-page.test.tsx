@@ -1,10 +1,10 @@
 import { render, screen } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { HistoryPage } from './history-page'
+import { HistoryPage } from '../../../features/visits/history-page'
 
 const fetchVisitsMock = vi.fn()
 
-vi.mock('./visits-api', () => ({
+vi.mock('../../../features/visits/visits-api', () => ({
   fetchVisits: (...args: unknown[]) => fetchVisitsMock(...args),
 }))
 

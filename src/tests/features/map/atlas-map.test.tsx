@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-import { AtlasMap } from './atlas-map'
-import type { CountriesGeoJson } from './countries-api'
+import { AtlasMap } from '../../../features/map/atlas-map'
+import type { CountriesGeoJson } from '../../../features/map/countries-api'
 
 const geoJsonFixture: CountriesGeoJson = {
   type: 'FeatureCollection',

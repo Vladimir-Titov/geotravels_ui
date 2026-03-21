@@ -1,3 +1,4 @@
+import './auth-page.css'
 import { useState, type ChangeEvent, type FormEvent } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { ApiError } from '../../shared/api/http'

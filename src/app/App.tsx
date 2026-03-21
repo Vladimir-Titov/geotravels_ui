@@ -1,10 +1,8 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { AppLayout } from './layout'
-import { AuthPage } from '../features/auth/auth-page'
-import { RequireAuth } from '../features/auth/require-auth'
-import { useAuth } from '../features/auth/auth-context'
-import { MapPage } from '../features/map/map-page'
-import { HistoryPage } from '../features/visits/history-page'
+import { AuthPage, RequireAuth, useAuth } from '../features/auth'
+import { MapPage } from '../features/map'
+import { HistoryPage } from '../features/visits'
 
 const RootRedirect = () => {
   const { isAuthenticated } = useAuth()

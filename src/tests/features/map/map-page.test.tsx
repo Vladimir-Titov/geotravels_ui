@@ -1,14 +1,14 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { MapPage } from './map-page'
+import { MapPage } from '../../../features/map/map-page'
 
 const fetchCountriesMock = vi.fn()
 const fetchCountriesGeoJsonMock = vi.fn()
 const fetchVisitsMock = vi.fn()
 const createVisitMock = vi.fn()
 
-vi.mock('./countries-api', async () => {
-    const actual = await vi.importActual<typeof import('./countries-api')>('./countries-api')
+vi.mock('../../../features/map/countries-api', async () => {
+    const actual = await vi.importActual<typeof import('../../../features/map/countries-api')>('../../../features/map/countries-api')
     return {
         ...actual,
         fetchCountries: (...args: unknown[]) => fetchCountriesMock(...args),
@@ -16,7 +16,7 @@ vi.mock('./countries-api', async () => {
     }
 })
 
-vi.mock('../visits/visits-api', () => ({
+vi.mock('../../../features/visits/visits-api', () => ({
     fetchVisits: (...args: unknown[]) => fetchVisitsMock(...args),
     createVisit: (...args: unknown[]) => createVisitMock(...args),
 }))

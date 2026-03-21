@@ -5,7 +5,7 @@ import {
   resetSessionStateForTests,
   setSessionTokens,
   type AuthTokens,
-} from './session'
+} from '../../../features/auth/session'
 
 const tokenPayload: AuthTokens = {
   accessToken: 'access-token',

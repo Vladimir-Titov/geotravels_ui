@@ -1,3 +1,4 @@
+import './history-page.css'
 import { useEffect, useState } from 'react'
 import { ApiError, AuthExpiredError } from '../../shared/api/http'
 import type { VisitEvent, VisitsResponse } from '../../shared/api/types'

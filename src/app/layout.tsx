@@ -1,4 +1,5 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import './layout.css'
 import { useAuth } from '../features/auth/auth-context'
 import logo from '../assets/logo.png'
 

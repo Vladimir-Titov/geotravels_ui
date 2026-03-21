@@ -1,14 +1,14 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { AuthProvider } from './auth-context'
-import { AuthPage } from './auth-page'
-import { clearSessionTokens } from './session'
+import { AuthProvider } from '../../../features/auth/auth-context'
+import { AuthPage } from '../../../features/auth/auth-page'
+import { clearSessionTokens } from '../../../features/auth/session'
 
 const loginUserMock = vi.fn()
 const registerUserMock = vi.fn()
 
-vi.mock('./auth-api', () => ({
+vi.mock('../../../features/auth/auth-api', () => ({
   loginUser: (...args: unknown[]) => loginUserMock(...args),
   registerUser: (...args: unknown[]) => registerUserMock(...args),
 }))
