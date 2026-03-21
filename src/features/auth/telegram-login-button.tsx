@@ -15,9 +15,8 @@ export const TelegramLoginButton = ({ onAuth }: Props) => {
     }, [onAuth])
 
     useEffect(() => {
-        ; (window as unknown as Record<string, unknown>)['__tgOnAuth'] = (user: TelegramAuthData) =>
+        ;(window as unknown as Record<string, unknown>)['__tgOnAuth'] = (user: TelegramAuthData) =>
             onAuthRef.current(user)
-
 
         const script = document.createElement('script')
         script.src = 'https://telegram.org/js/telegram-widget.js?22'
@@ -36,5 +35,5 @@ export const TelegramLoginButton = ({ onAuth }: Props) => {
         }
     }, [])
 
-    return <div ref={containerRef} className='tg-login-widget' />
+    return <div ref={containerRef} className="tg-login-widget" />
 }

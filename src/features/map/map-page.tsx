@@ -37,7 +37,9 @@ export const MapPage = () => {
 
     const reloadVisitedCodes = useCallback(async (): Promise<void> => {
         const visitsPayload = await fetchVisits()
-        setVisitedCodes(new Set(visitsPayload.visited_country_codes.map((code) => code.toUpperCase())))
+        setVisitedCodes(
+            new Set(visitsPayload.visited_country_codes.map((code) => code.toUpperCase())),
+        )
     }, [])
 
     const loadInitialState = useCallback(async (): Promise<void> => {
@@ -45,7 +47,10 @@ export const MapPage = () => {
         setError(null)
 
         try {
-            const [countriesPayload, geoPayload] = await Promise.all([fetchCountries(), fetchCountriesGeoJson()])
+            const [countriesPayload, geoPayload] = await Promise.all([
+                fetchCountries(),
+                fetchCountriesGeoJson(),
+            ])
 
             setCountries(countriesPayload.items)
             setGeoJson(geoPayload)
@@ -85,16 +90,16 @@ export const MapPage = () => {
     }, [reloadVisitedCodes, selectedCountry, tripDate])
 
     if (loading) {
-        return <p className='state-message'>Loading map data...</p>
+        return <p className="state-message">Loading map data...</p>
     }
 
     if (!geoJson) {
-        return <p className='state-message'>GeoJSON is unavailable.</p>
+        return <p className="state-message">GeoJSON is unavailable.</p>
     }
 
     return (
-        <div className='map-layout'>
-            <section className='map-card'>
+        <div className="map-layout">
+            <section className="map-card">
                 <AtlasMap
                     geoJson={geoJson}
                     selectedCountryCode={selectedCountry?.code ?? null}
@@ -108,17 +113,17 @@ export const MapPage = () => {
                 />
             </section>
 
-            <aside className='map-sidebar'>
+            <aside className="map-sidebar">
                 <h2>Selection</h2>
                 {selectedCountry ? (
                     <>
-                        <p className='country-name'>{selectedCountry.name}</p>
-                        <p className='country-code'>{selectedCountry.code}</p>
+                        <p className="country-name">{selectedCountry.name}</p>
+                        <p className="country-code">{selectedCountry.code}</p>
 
-                        <label htmlFor='trip-date'>Trip date</label>
+                        <label htmlFor="trip-date">Trip date</label>
                         <input
-                            id='trip-date'
-                            type='date'
+                            id="trip-date"
+                            type="date"
                             value={tripDate}
                             onChange={(event) => setTripDate(event.target.value)}
                         />
@@ -131,12 +136,12 @@ export const MapPage = () => {
                     <p>Pick a country on the map to create a visit event.</p>
                 )}
 
-                <div className='visited-summary'>
+                <div className="visited-summary">
                     <h3>Visited countries</h3>
                     <p>{visitedCodes.size} total</p>
                 </div>
 
-                {error && <p className='form-error'>{error}</p>}
+                {error && <p className="form-error">{error}</p>}
             </aside>
         </div>
     )

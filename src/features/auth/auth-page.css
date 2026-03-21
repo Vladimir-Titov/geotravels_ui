@@ -9,7 +9,12 @@
     color: #24352f;
     font-family: 'Avenir Next', 'Trebuchet MS', 'Segoe UI', sans-serif;
     background:
-        radial-gradient(circle at top, rgba(255, 255, 255, 0.82), rgba(244, 239, 231, 0.95) 42%, rgba(236, 229, 218, 1) 100%),
+        radial-gradient(
+            circle at top,
+            rgba(255, 255, 255, 0.82),
+            rgba(244, 239, 231, 0.95) 42%,
+            rgba(236, 229, 218, 1) 100%
+        ),
         linear-gradient(180deg, #f7f2e9 0%, #efe6da 100%);
 }
 
@@ -23,8 +28,18 @@
         radial-gradient(circle at 18% 28%, rgba(36, 53, 47, 0.08) 0 1px, transparent 1px),
         radial-gradient(circle at 70% 62%, rgba(36, 53, 47, 0.08) 0 1px, transparent 1px),
         radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.12), transparent 55%);
-    background-size: 120px 120px, 120px 120px, 260px 260px, 320px 320px, auto;
-    background-position: 0 0, 0 0, 0 0, 42px 64px, center;
+    background-size:
+        120px 120px,
+        120px 120px,
+        260px 260px,
+        320px 320px,
+        auto;
+    background-position:
+        0 0,
+        0 0,
+        0 0,
+        42px 64px,
+        center;
     opacity: 0.17;
     pointer-events: none;
 }

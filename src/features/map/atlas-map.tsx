@@ -68,7 +68,8 @@ const getBaseCountryFill = (feature: GeoFeature): string => {
     const paletteIndex =
         typeof mapColor === 'number' && Number.isFinite(mapColor)
             ? Math.abs(mapColor) % PALETTE.length
-            : countryCode.split('').reduce((total, char) => total + char.charCodeAt(0), 0) % PALETTE.length
+            : countryCode.split('').reduce((total, char) => total + char.charCodeAt(0), 0) %
+              PALETTE.length
 
     return PALETTE[paletteIndex] ?? PALETTE[0]
 }
@@ -109,7 +110,11 @@ export const AtlasMap = ({
     const zoomLevel = MAP_WIDTH / viewBox.width
     const isZoomed = zoomLevel > 1.02
 
-    const updateZoom = (nextZoom: number, focusX = MAP_WIDTH / 2, focusY = MAP_HEIGHT / 2): void => {
+    const updateZoom = (
+        nextZoom: number,
+        focusX = MAP_WIDTH / 2,
+        focusY = MAP_HEIGHT / 2,
+    ): void => {
         setViewBox((currentViewBox) => {
             const clampedZoom = clamp(nextZoom, MIN_ZOOM, MAX_ZOOM)
             const nextWidth = MAP_WIDTH / clampedZoom
@@ -152,7 +157,8 @@ export const AtlasMap = ({
 
         const rect = event.currentTarget.getBoundingClientRect()
         const deltaX = ((event.clientX - dragState.clientX) / rect.width) * dragState.viewBox.width
-        const deltaY = ((event.clientY - dragState.clientY) / rect.height) * dragState.viewBox.height
+        const deltaY =
+            ((event.clientY - dragState.clientY) / rect.height) * dragState.viewBox.height
 
         setViewBox(
             clampViewBox({
@@ -182,15 +188,23 @@ export const AtlasMap = ({
     }
 
     return (
-        <div className='atlas-shell'>
-            <div className='atlas-toolbar'>
-                <button type='button' onClick={() => updateZoom(zoomLevel * ZOOM_STEP)} aria-label='Zoom in'>
+        <div className="atlas-shell">
+            <div className="atlas-toolbar">
+                <button
+                    type="button"
+                    onClick={() => updateZoom(zoomLevel * ZOOM_STEP)}
+                    aria-label="Zoom in"
+                >
                     +
                 </button>
-                <button type='button' onClick={() => updateZoom(zoomLevel / ZOOM_STEP)} aria-label='Zoom out'>
+                <button
+                    type="button"
+                    onClick={() => updateZoom(zoomLevel / ZOOM_STEP)}
+                    aria-label="Zoom out"
+                >
                     -
                 </button>
-                <button type='button' onClick={resetView} aria-label='Reset map view'>
+                <button type="button" onClick={resetView} aria-label="Reset map view">
                     Reset
                 </button>
             </div>
@@ -198,7 +212,7 @@ export const AtlasMap = ({
             <svg
                 viewBox={`${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`}
                 className={isZoomed ? 'atlas-canvas atlas-canvas-zoomed' : 'atlas-canvas'}
-                data-testid='atlas-map'
+                data-testid="atlas-map"
                 onPointerDown={beginPan}
                 onPointerMove={movePan}
                 onPointerUp={endPan}
@@ -211,18 +225,25 @@ export const AtlasMap = ({
             >
                 <defs>
                     <clipPath id={clipPathId}>
-                        <rect x='0' y='0' width={MAP_WIDTH} height={MAP_HEIGHT} rx='28' ry='28' />
+                        <rect x="0" y="0" width={MAP_WIDTH} height={MAP_HEIGHT} rx="28" ry="28" />
                     </clipPath>
                 </defs>
 
                 <g clipPath={`url(#${clipPathId})`}>
-                    <rect x='0' y='0' width={MAP_WIDTH} height={MAP_HEIGHT} className='atlas-paper' />
-                    <path d={spherePath} className='atlas-ocean' />
-                    <path d={graticulePath} className='atlas-graticule' />
+                    <rect
+                        x="0"
+                        y="0"
+                        width={MAP_WIDTH}
+                        height={MAP_HEIGHT}
+                        className="atlas-paper"
+                    />
+                    <path d={spherePath} className="atlas-ocean" />
+                    <path d={graticulePath} className="atlas-graticule" />
 
                     {geoJson.features.map((feature) => {
                         const countryCode = feature.properties?.iso_a2?.toUpperCase()
-                        const countryName = feature.properties?.name ?? countryCode ?? 'Unknown country'
+                        const countryName =
+                            feature.properties?.name ?? countryCode ?? 'Unknown country'
                         const countryPath = pathGenerator(feature)
 
                         if (!countryCode || !countryPath) {
@@ -240,21 +261,27 @@ export const AtlasMap = ({
                             <path
                                 key={countryCode}
                                 d={countryPath}
-                                role='button'
+                                role="button"
                                 tabIndex={0}
                                 aria-label={countryName}
                                 aria-pressed={isSelected}
                                 data-country-code={countryCode}
-                                className='atlas-country'
+                                className="atlas-country"
                                 style={{
                                     fill,
                                     stroke,
                                     strokeWidth,
                                     opacity: isHovered || isSelected ? 1 : 0.95,
                                 }}
-                                onClick={() => onCountrySelect({ code: countryCode, name: countryName })}
+                                onClick={() =>
+                                    onCountrySelect({ code: countryCode, name: countryName })
+                                }
                                 onMouseEnter={() => setHoveredCountryCode(countryCode)}
-                                onMouseLeave={() => setHoveredCountryCode((currentValue) => (currentValue === countryCode ? null : currentValue))}
+                                onMouseLeave={() =>
+                                    setHoveredCountryCode((currentValue) =>
+                                        currentValue === countryCode ? null : currentValue,
+                                    )
+                                }
                                 onKeyDown={(event) => {
                                     if (event.key === 'Enter' || event.key === ' ') {
                                         event.preventDefault()
