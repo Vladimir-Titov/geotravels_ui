@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { clearSessionTokens, getSessionTokens, setSessionTokens } from '../../features/auth/session'
-import { requestJson, resetHttpStateForTests } from './http'
+import { clearSessionTokens, getSessionTokens, setSessionTokens } from '../../../features/auth/session'
+import { requestJson, resetHttpStateForTests } from '../../../shared/api/http'
 
 const jsonResponse = (status: number, payload: unknown): Response => {
   return new Response(JSON.stringify(payload), {

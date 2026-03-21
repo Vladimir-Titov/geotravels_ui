@@ -1,3 +1,4 @@
+import './map-page.css'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ApiError, AuthExpiredError } from '../../shared/api/http'
 import type { Country } from '../../shared/api/types'

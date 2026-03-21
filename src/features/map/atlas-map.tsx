@@ -1,3 +1,4 @@
+import './atlas-map.css'
 import { geoGraticule10, geoNaturalEarth1, geoPath } from 'd3-geo'
 import type { PointerEvent as ReactPointerEvent, WheelEvent as ReactWheelEvent } from 'react'
 import { useId, useMemo, useRef, useState } from 'react'

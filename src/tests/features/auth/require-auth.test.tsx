@@ -1,9 +1,9 @@
 import { render, screen } from '@testing-library/react'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { AuthProvider } from './auth-context'
-import { RequireAuth } from './require-auth'
-import { clearSessionTokens, setSessionTokens } from './session'
+import { AuthProvider } from '../../../features/auth/auth-context'
+import { RequireAuth } from '../../../features/auth/require-auth'
+import { clearSessionTokens, setSessionTokens } from '../../../features/auth/session'
 
 describe('RequireAuth', () => {
   beforeEach(() => {
