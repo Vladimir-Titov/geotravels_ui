@@ -1,19 +1,25 @@
 import { requestJson } from '../../shared/api/http'
-import type { LoginRequest, TelegramAuthData, TokenPairResponse } from '../../shared/api/types'
+import type {
+    ConfirmOtpRequest,
+    OtpRequest,
+    OtpResponse,
+    TelegramAuthData,
+    TokenPairResponse,
+} from '../../shared/api/types'
 
-export const registerUser = async (payload: LoginRequest): Promise<TokenPairResponse> => {
-    return requestJson<TokenPairResponse>('/api/v1/auth/register', {
+export const getOtp = async (data: OtpRequest): Promise<OtpResponse> => {
+    return requestJson<OtpResponse>('/api/v1/auth/otp/request', {
         method: 'POST',
         auth: false,
-        body: payload,
+        body: data,
     })
 }
 
-export const loginUser = async (payload: LoginRequest): Promise<TokenPairResponse> => {
-    return requestJson<TokenPairResponse>('/api/v1/auth/login', {
+export const confirmOtp = async (data: ConfirmOtpRequest): Promise<TokenPairResponse> => {
+    return requestJson<TokenPairResponse>('/api/v1/auth/otp/verify', {
         method: 'POST',
         auth: false,
-        body: payload,
+        body: data,
     })
 }
 

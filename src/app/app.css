@@ -9,7 +9,7 @@
     --danger: #b42318;
     --border: #d7cec0;
     --radius: 18px;
-    font-family: 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', serif;
+    font-family: 'Inter', sans-serif;
     line-height: 1.45;
     font-weight: 400;
     color: var(--ink);
