@@ -13,30 +13,36 @@ export const AppLayout = () => {
     }
 
     return (
-        <div className='shell'>
-            <header className='shell-header'>
-                <div className='shell-brand-wrapper'>
-                    <NavLink to='/' className='shell-brand'>
+        <div className="shell">
+            <header className="shell-header">
+                <div className="shell-brand-wrapper">
+                    <NavLink to="/" className="shell-brand">
                         TripMark
                     </NavLink>
-                    <img src={logo} alt='logo' height={64} />
+                    <img src={logo} alt="logo" height={64} />
                 </div>
 
-                <nav className='shell-nav'>
-                    <NavLink to='/map' className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
+                <nav className="shell-nav">
+                    <NavLink
+                        to="/map"
+                        className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
+                    >
                         Map
                     </NavLink>
-                    <NavLink to='/history' className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
+                    <NavLink
+                        to="/history"
+                        className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
+                    >
                         History
                     </NavLink>
                 </nav>
 
-                <button onClick={signOut} className='logout-button'>
+                <button onClick={signOut} className="logout-button">
                     Logout
                 </button>
             </header>
 
-            <main className='shell-content'>
+            <main className="shell-content">
                 <Outlet />
             </main>
         </div>

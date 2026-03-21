@@ -50,7 +50,7 @@ export const AuthPage = () => {
     const copy = AUTH_COPY[mode]
 
     if (isAuthenticated) {
-        return <Navigate replace to='/map' />
+        return <Navigate replace to="/map" />
     }
 
     const validate = (): boolean => {
@@ -93,7 +93,11 @@ export const AuthPage = () => {
     const handlePasswordChange = (event: ChangeEvent<HTMLInputElement>): void => {
         setPassword(event.target.value)
         setError(null)
-        setFormErrors((current) => ({ ...current, password: undefined, confirmPassword: undefined }))
+        setFormErrors((current) => ({
+            ...current,
+            password: undefined,
+            confirmPassword: undefined,
+        }))
     }
 
     const handleConfirmPasswordChange = (event: ChangeEvent<HTMLInputElement>): void => {
@@ -131,7 +135,8 @@ export const AuthPage = () => {
         setIsSubmitting(true)
         try {
             const payload = { email: email.trim(), password }
-            const response = mode === 'login' ? await loginUser(payload) : await registerUser(payload)
+            const response =
+                mode === 'login' ? await loginUser(payload) : await registerUser(payload)
 
             onAuthSuccess({
                 accessToken: response.access_token,
@@ -152,26 +157,34 @@ export const AuthPage = () => {
     }
 
     return (
-        <div className='auth-page'>
-            <div className='auth-page__glow auth-page__glow--left' aria-hidden='true' />
-            <div className='auth-page__glow auth-page__glow--right' aria-hidden='true' />
+        <div className="auth-page">
+            <div className="auth-page__glow auth-page__glow--left" aria-hidden="true" />
+            <div className="auth-page__glow auth-page__glow--right" aria-hidden="true" />
 
-            <div className='auth-shell'>
-                <section className='auth-card'>
-                    <div className='auth-mode-switch' role='group' aria-label='Authentication mode'>
+            <div className="auth-shell">
+                <section className="auth-card">
+                    <div className="auth-mode-switch" role="group" aria-label="Authentication mode">
                         <button
-                            type='button'
-                            className={mode === 'login' ? 'auth-mode-switch__button is-active' : 'auth-mode-switch__button'}
-                            aria-label='Switch to sign in form'
+                            type="button"
+                            className={
+                                mode === 'login'
+                                    ? 'auth-mode-switch__button is-active'
+                                    : 'auth-mode-switch__button'
+                            }
+                            aria-label="Switch to sign in form"
                             aria-pressed={mode === 'login'}
                             onClick={() => switchMode('login')}
                         >
                             Sign in
                         </button>
                         <button
-                            type='button'
-                            className={mode === 'register' ? 'auth-mode-switch__button is-active' : 'auth-mode-switch__button'}
-                            aria-label='Switch to registration form'
+                            type="button"
+                            className={
+                                mode === 'register'
+                                    ? 'auth-mode-switch__button is-active'
+                                    : 'auth-mode-switch__button'
+                            }
+                            aria-label="Switch to registration form"
                             aria-pressed={mode === 'register'}
                             onClick={() => switchMode('register')}
                         >
@@ -179,77 +192,107 @@ export const AuthPage = () => {
                         </button>
                     </div>
 
-                    <div className='auth-card-header'>
+                    <div className="auth-card-header">
                         <h1>{copy.title}</h1>
                     </div>
 
-                    <form onSubmit={submitForm} className='auth-form'>
-                        <div className='auth-field'>
-                            <label htmlFor='auth-email'>Email</label>
+                    <form onSubmit={submitForm} className="auth-form">
+                        <div className="auth-field">
+                            <label htmlFor="auth-email">Email</label>
                             <input
-                                id='auth-email'
-                                className={formErrors.email ? 'auth-input auth-input--error' : 'auth-input'}
-                                type='email'
-                                autoComplete='email'
+                                id="auth-email"
+                                className={
+                                    formErrors.email ? 'auth-input auth-input--error' : 'auth-input'
+                                }
+                                type="email"
+                                autoComplete="email"
                                 value={email}
                                 onChange={handleEmailChange}
-                                placeholder='you@example.com'
+                                placeholder="you@example.com"
                                 required
                             />
-                            {formErrors.email && <p className='field-error'>{formErrors.email}</p>}
+                            {formErrors.email && <p className="field-error">{formErrors.email}</p>}
                         </div>
 
-                        <div className='auth-field'>
-                            <label htmlFor='auth-password'>Password</label>
+                        <div className="auth-field">
+                            <label htmlFor="auth-password">Password</label>
                             <input
-                                id='auth-password'
-                                className={formErrors.password ? 'auth-input auth-input--error' : 'auth-input'}
-                                type='password'
-                                autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+                                id="auth-password"
+                                className={
+                                    formErrors.password
+                                        ? 'auth-input auth-input--error'
+                                        : 'auth-input'
+                                }
+                                type="password"
+                                autoComplete={
+                                    mode === 'login' ? 'current-password' : 'new-password'
+                                }
                                 value={password}
                                 onChange={handlePasswordChange}
-                                placeholder='At least 6 characters'
+                                placeholder="At least 6 characters"
                                 required
                             />
-                            {formErrors.password && <p className='field-error'>{formErrors.password}</p>}
+                            {formErrors.password && (
+                                <p className="field-error">{formErrors.password}</p>
+                            )}
                         </div>
 
-                        <div className={mode === 'register' ? 'auth-field-collapse is-open' : 'auth-field-collapse'}>
-                            <div className='auth-field'>
-                                <label htmlFor='auth-confirm-password'>Confirm password</label>
+                        <div
+                            className={
+                                mode === 'register'
+                                    ? 'auth-field-collapse is-open'
+                                    : 'auth-field-collapse'
+                            }
+                        >
+                            <div className="auth-field">
+                                <label htmlFor="auth-confirm-password">Confirm password</label>
                                 <input
-                                    id='auth-confirm-password'
-                                    className={formErrors.confirmPassword ? 'auth-input auth-input--error' : 'auth-input'}
-                                    type='password'
-                                    autoComplete='new-password'
+                                    id="auth-confirm-password"
+                                    className={
+                                        formErrors.confirmPassword
+                                            ? 'auth-input auth-input--error'
+                                            : 'auth-input'
+                                    }
+                                    type="password"
+                                    autoComplete="new-password"
                                     value={confirmPassword}
                                     onChange={handleConfirmPasswordChange}
-                                    placeholder='Must match your password'
+                                    placeholder="Must match your password"
                                     tabIndex={mode === 'register' ? 0 : -1}
                                 />
-                                {formErrors.confirmPassword && <p className='field-error'>{formErrors.confirmPassword}</p>}
+                                {formErrors.confirmPassword && (
+                                    <p className="field-error">{formErrors.confirmPassword}</p>
+                                )}
                             </div>
                         </div>
 
-                        {error && <p role='alert' className='form-error'>{error}</p>}
+                        {error && (
+                            <p role="alert" className="form-error">
+                                {error}
+                            </p>
+                        )}
 
-                        <button type='submit' className='auth-submit' disabled={isSubmitting}>
+                        <button type="submit" className="auth-submit" disabled={isSubmitting}>
                             {isSubmitting ? copy.submitPendingLabel : copy.submitLabel}
                         </button>
                     </form>
 
-                    <div className='auth-divider'><span>or</span></div>
-                    <div className='auth-tg-section'>
-                        {isTelegramPending
-                            ? <p className='auth-tg-pending'>Signing in with Telegram…</p>
-                            : <TelegramLoginButton onAuth={handleTelegramAuth} />}
+                    <div className="auth-divider">
+                        <span>or</span>
+                    </div>
+                    <div className="auth-tg-section">
+                        {isTelegramPending ? (
+                            <p className="auth-tg-pending">Signing in with Telegram…</p>
+                        ) : (
+                            <TelegramLoginButton onAuth={handleTelegramAuth} />
+                        )}
                     </div>
 
-                    <div className='auth-switch'>
+                    <div className="auth-switch">
                         <span>{copy.switchPrompt}</span>
                         <button
-                            type='button'
-                            className='text-button'
+                            type="button"
+                            className="text-button"
                             onClick={() => switchMode(mode === 'login' ? 'register' : 'login')}
                         >
                             {copy.switchAction}

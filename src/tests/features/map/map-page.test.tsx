@@ -8,7 +8,9 @@ const fetchVisitsMock = vi.fn()
 const createVisitMock = vi.fn()
 
 vi.mock('../../../features/map/countries-api', async () => {
-    const actual = await vi.importActual<typeof import('../../../features/map/countries-api')>('../../../features/map/countries-api')
+    const actual = await vi.importActual<typeof import('../../../features/map/countries-api')>(
+        '../../../features/map/countries-api',
+    )
     return {
         ...actual,
         fetchCountries: (...args: unknown[]) => fetchCountriesMock(...args),

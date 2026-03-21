@@ -38,8 +38,7 @@
     display: grid;
     gap: 0.75rem;
     background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5)),
-        #fbf8f3;
+        linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5)), #fbf8f3;
 }
 
 .map-sidebar h2,
