@@ -31,6 +31,6 @@ describe('HistoryPage', () => {
 
         expect(await screen.findByText('FR')).toBeInTheDocument()
         expect(screen.getAllByText('JP')).toHaveLength(2)
-        expect(screen.getByText('Trip date: 2025-12-15')).toBeInTheDocument()
+        expect(screen.getByText('Дата поездки: 2025-12-15')).toBeInTheDocument()
     })
 })

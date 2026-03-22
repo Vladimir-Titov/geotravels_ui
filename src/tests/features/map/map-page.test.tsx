@@ -65,11 +65,11 @@ describe('MapPage', () => {
 
         await screen.findByText('France')
 
-        fireEvent.change(screen.getByLabelText('Trip date'), {
+        fireEvent.change(screen.getByLabelText('Дата поездки'), {
             target: { value: '2024-06-01' },
         })
 
-        fireEvent.click(screen.getByRole('button', { name: 'Mark as visited' }))
+        fireEvent.click(screen.getByRole('button', { name: 'Отметить посещение' }))
 
         await waitFor(() => {
             expect(createVisitMock).toHaveBeenCalledWith({

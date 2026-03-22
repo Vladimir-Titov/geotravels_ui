@@ -2,6 +2,7 @@ import './history-page.css'
 import { useEffect, useState } from 'react'
 import { ApiError, AuthExpiredError } from '../../shared/api/http'
 import type { VisitEvent, VisitsResponse } from '../../shared/api/types'
+import { DisabledActionButton, SectionHeader, SurfaceCard } from '../../shared/ui'
 import { fetchVisits } from './visits-api'
 
 const formatDateTime = (value: string): string => {
@@ -15,10 +16,10 @@ const formatDateTime = (value: string): string => {
 
 const describeVisitDate = (visit: VisitEvent): string => {
     if (!visit.trip_date) {
-        return 'Trip date not specified'
+        return 'Дата поездки не указана'
     }
 
-    return `Trip date: ${visit.trip_date}`
+    return `Дата поездки: ${visit.trip_date}`
 }
 
 const toErrorMessage = (caught: unknown): string => {
@@ -54,7 +55,7 @@ export const HistoryPage = () => {
     }, [])
 
     if (loading) {
-        return <p className="state-message">Loading visit history...</p>
+        return <p className="state-message">Загружаем заметки...</p>
     }
 
     if (error) {
@@ -62,17 +63,33 @@ export const HistoryPage = () => {
     }
 
     if (!payload) {
-        return <p className="state-message">No data available.</p>
+        return <p className="state-message">Нет доступных данных.</p>
     }
 
     return (
-        <div className="history-layout">
-            <section className="history-card">
-                <h1>Visit history</h1>
+        <div className="notes-page">
+            <SectionHeader
+                title="Путевые Заметки"
+                subtitle="Хроники твоих странствий"
+                action={
+                    <div className="notes-page__actions">
+                        <input
+                            type="search"
+                            placeholder="Искать в архивах..."
+                            aria-label="Искать в архивах"
+                            disabled
+                        />
+                        <DisabledActionButton>Новая запись</DisabledActionButton>
+                    </div>
+                }
+            />
+
+            <SurfaceCard className="notes-page__card">
+                <h2>Посещенные страны</h2>
 
                 <div className="country-badges">
                     {payload.visited_country_codes.length === 0 ? (
-                        <p>No visited countries yet.</p>
+                        <p className="notes-page__empty">Еще нет посещенных стран.</p>
                     ) : (
                         payload.visited_country_codes.map((countryCode) => (
                             <span key={countryCode} className="badge">
@@ -82,20 +99,25 @@ export const HistoryPage = () => {
                     )}
                 </div>
 
+                <h3>История событий</h3>
                 <ul className="visit-list">
-                    {payload.visits.map((visit) => (
-                        <li key={visit.id} className="visit-item">
-                            <div>
-                                <strong>{visit.country_code}</strong>
-                                <p>{describeVisitDate(visit)}</p>
-                            </div>
-                            <time dateTime={visit.marked_at}>
-                                {formatDateTime(visit.marked_at)}
-                            </time>
-                        </li>
-                    ))}
+                    {payload.visits.length === 0 ? (
+                        <li className="visit-list__empty">Пока нет записей о поездках.</li>
+                    ) : (
+                        payload.visits.map((visit) => (
+                            <li key={visit.id} className="visit-item">
+                                <div>
+                                    <strong>{visit.country_code}</strong>
+                                    <p>{describeVisitDate(visit)}</p>
+                                </div>
+                                <time dateTime={visit.marked_at}>
+                                    {formatDateTime(visit.marked_at)}
+                                </time>
+                            </li>
+                        ))
+                    )}
                 </ul>
-            </section>
+            </SurfaceCard>
         </div>
     )
 }

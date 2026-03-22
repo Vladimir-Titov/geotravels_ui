@@ -2,6 +2,7 @@ import './map-page.css'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ApiError, AuthExpiredError } from '../../shared/api/http'
 import type { Country } from '../../shared/api/types'
+import { DisabledActionButton, SectionHeader, StatCard, SurfaceCard } from '../../shared/ui'
 import { AtlasMap } from './atlas-map'
 import { fetchCountries, fetchCountriesGeoJson, type CountriesGeoJson } from './countries-api'
 import { createVisit, fetchVisits } from '../visits/visits-api'
@@ -25,6 +26,7 @@ export const MapPage = () => {
     const [countries, setCountries] = useState<Country[]>([])
     const [geoJson, setGeoJson] = useState<CountriesGeoJson | null>(null)
     const [visitedCodes, setVisitedCodes] = useState<Set<string>>(new Set())
+    const [visitsCount, setVisitsCount] = useState(0)
     const [selectedCountry, setSelectedCountry] = useState<SelectedCountry | null>(null)
     const [tripDate, setTripDate] = useState('')
     const [loading, setLoading] = useState(true)
@@ -37,9 +39,11 @@ export const MapPage = () => {
 
     const reloadVisitedCodes = useCallback(async (): Promise<void> => {
         const visitsPayload = await fetchVisits()
+
         setVisitedCodes(
             new Set(visitsPayload.visited_country_codes.map((code) => code.toUpperCase())),
         )
+        setVisitsCount(visitsPayload.visits.length)
     }, [])
 
     const loadInitialState = useCallback(async (): Promise<void> => {
@@ -90,7 +94,7 @@ export const MapPage = () => {
     }, [reloadVisitedCodes, selectedCountry, tripDate])
 
     if (loading) {
-        return <p className="state-message">Loading map data...</p>
+        return <p className="state-message">Загружаем карту...</p>
     }
 
     if (!geoJson) {
@@ -98,51 +102,85 @@ export const MapPage = () => {
     }
 
     return (
-        <div className="map-layout">
-            <section className="map-card">
-                <AtlasMap
-                    geoJson={geoJson}
-                    selectedCountryCode={selectedCountry?.code ?? null}
-                    visitedCountryCodes={visitedCodes}
-                    onCountrySelect={({ code, name }) => {
-                        setSelectedCountry({
-                            code,
-                            name: countryNameByCode.get(code) ?? name,
-                        })
-                    }}
-                />
-            </section>
+        <div className="map-page">
+            <SectionHeader
+                title="Дневник Исследователя"
+                subtitle="Куда отправимся в следующий раз?"
+                action={<DisabledActionButton>Новая экспедиция</DisabledActionButton>}
+            />
 
-            <aside className="map-sidebar">
-                <h2>Selection</h2>
-                {selectedCountry ? (
-                    <>
-                        <p className="country-name">{selectedCountry.name}</p>
-                        <p className="country-code">{selectedCountry.code}</p>
+            <div className="map-page__layout">
+                <SurfaceCard className="map-page__card map-page__card--atlas">
+                    <div className="map-page__card-head">
+                        <h2>Карта Мира</h2>
+                        <p>Выбери страну и добавь ее в свои посещения.</p>
+                    </div>
 
-                        <label htmlFor="trip-date">Trip date</label>
-                        <input
-                            id="trip-date"
-                            type="date"
-                            value={tripDate}
-                            onChange={(event) => setTripDate(event.target.value)}
+                    <AtlasMap
+                        geoJson={geoJson}
+                        selectedCountryCode={selectedCountry?.code ?? null}
+                        visitedCountryCodes={visitedCodes}
+                        onCountrySelect={({ code, name }) => {
+                            setSelectedCountry({
+                                code,
+                                name: countryNameByCode.get(code) ?? name,
+                            })
+                        }}
+                    />
+                </SurfaceCard>
+
+                <aside className="map-page__sidebar">
+                    <SurfaceCard className="map-page__card map-page__card--selection">
+                        <h3>Выбранная страна</h3>
+
+                        {selectedCountry ? (
+                            <>
+                                <p className="country-name">{selectedCountry.name}</p>
+                                <p className="country-code">{selectedCountry.code}</p>
+
+                                <label htmlFor="trip-date">Дата поездки</label>
+                                <input
+                                    id="trip-date"
+                                    type="date"
+                                    value={tripDate}
+                                    onChange={(event) => setTripDate(event.target.value)}
+                                />
+
+                                <button
+                                    className="map-page__submit"
+                                    onClick={() => void onMarkVisit()}
+                                    disabled={isSavingVisit}
+                                >
+                                    {isSavingVisit ? 'Сохраняем...' : 'Отметить посещение'}
+                                </button>
+                            </>
+                        ) : (
+                            <p className="map-page__hint">
+                                Выберите страну на карте, чтобы создать запись о посещении.
+                            </p>
+                        )}
+
+                        {error && <p className="form-error">{error}</p>}
+                    </SurfaceCard>
+
+                    <div className="map-page__stats">
+                        <StatCard
+                            label="Путевые заметки"
+                            value={visitsCount}
+                            hint={
+                                visitsCount > 0
+                                    ? `Последняя запись: ${new Date().toLocaleDateString('ru-RU')}`
+                                    : 'Добавьте первую запись'
+                            }
                         />
-
-                        <button onClick={() => void onMarkVisit()} disabled={isSavingVisit}>
-                            {isSavingVisit ? 'Saving...' : 'Mark as visited'}
-                        </button>
-                    </>
-                ) : (
-                    <p>Pick a country on the map to create a visit event.</p>
-                )}
-
-                <div className="visited-summary">
-                    <h3>Visited countries</h3>
-                    <p>{visitedCodes.size} total</p>
-                </div>
-
-                {error && <p className="form-error">{error}</p>}
-            </aside>
+                        <StatCard
+                            label="Посещено стран"
+                            value={visitedCodes.size}
+                            hint={`${visitedCodes.size} отмечено на карте`}
+                        />
+                    </div>
+                </aside>
+            </div>
         </div>
     )
 }

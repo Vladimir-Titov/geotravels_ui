@@ -1,0 +1,23 @@
+.tm-disabled-action {
+    border: none;
+    border-radius: 999px;
+    min-height: 2.5rem;
+    padding: 0.4rem 0.9rem;
+    color: #f5fbf4;
+    background: linear-gradient(130deg, #4f6c4e 0%, #2f5232 100%);
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0.74;
+    cursor: not-allowed;
+}
+
+.tm-disabled-action__badge {
+    border-radius: 999px;
+    padding: 0.13rem 0.45rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    background: rgba(255, 255, 255, 0.24);
+}

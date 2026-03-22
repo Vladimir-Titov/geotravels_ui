@@ -1,0 +1,11 @@
+.tm-page-container {
+    width: min(1392px, 100%);
+    margin: 0 auto;
+    padding: 0 1.25rem;
+}
+
+@media (max-width: 860px) {
+    .tm-page-container {
+        padding: 0 0.9rem;
+    }
+}
