@@ -6,7 +6,7 @@ describe('GalleryPage', () => {
     it('renders page and keeps add button disabled', () => {
         render(<GalleryPage />)
 
-        expect(screen.getByRole('heading', { name: 'Фото-архив' })).toBeInTheDocument()
-        expect(screen.getByRole('button', { name: /Добавить кадры/i })).toBeDisabled()
+        expect(screen.getByRole('heading', { name: 'Photo Archive' })).toBeInTheDocument()
+        expect(screen.getByRole('button', { name: /Add frames/i })).toBeDisabled()
     })
 })

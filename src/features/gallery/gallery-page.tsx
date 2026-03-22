@@ -7,21 +7,21 @@ interface GalleryItem {
 }
 
 const galleryItems: GalleryItem[] = [
-    { title: 'Римские каникулы', location: 'Рим, Италия' },
-    { title: 'Старый порт', location: 'Марсель, Франция' },
-    { title: 'Северный ветер', location: 'Рейкьявик, Исландия' },
-    { title: 'Океанский ритм', location: 'Лиссабон, Португалия' },
-    { title: 'Горные тропы', location: 'Тбилиси, Грузия' },
-    { title: 'Золотой час', location: 'Стамбул, Турция' },
+    { title: 'Roman Holiday', location: 'Rome, Italy' },
+    { title: 'Old Harbor', location: 'Marseille, France' },
+    { title: 'Northern Wind', location: 'Reykjavik, Iceland' },
+    { title: 'Ocean Rhythm', location: 'Lisbon, Portugal' },
+    { title: 'Mountain Trails', location: 'Tbilisi, Georgia' },
+    { title: 'Golden Hour', location: 'Istanbul, Turkey' },
 ]
 
 export const GalleryPage = () => {
     return (
         <div className="gallery-page">
             <SectionHeader
-                title="Фото-архив"
-                subtitle="Застывшие моменты ваших открытий"
-                action={<DisabledActionButton>Добавить кадры</DisabledActionButton>}
+                title="Photo Archive"
+                subtitle="Frozen moments of your discoveries"
+                action={<DisabledActionButton>Add frames</DisabledActionButton>}
             />
 
             <div className="gallery-grid">

@@ -8,25 +8,25 @@ interface ExplorerCard {
 }
 
 const explorers: ExplorerCard[] = [
-    { name: 'Макс Иванов', handle: '@max_explorer', countries: 12 },
-    { name: 'Денис Лебедев', handle: '@denis_nomad', countries: 8 },
-    { name: 'Алиса Вондер', handle: '@alice_w', countries: 5 },
+    { name: 'Max Rivera', handle: '@max_explorer', countries: 12 },
+    { name: 'Denis Nomad', handle: '@denis_nomad', countries: 8 },
+    { name: 'Alice Wonder', handle: '@alice_w', countries: 5 },
 ]
 
 export const CommunityPage = () => {
     return (
         <div className="community-page">
             <SectionHeader
-                title="Сообщество"
-                subtitle="Находи новых друзей и делись маршрутами"
+                title="Community"
+                subtitle="Meet new friends and share routes"
             />
 
             <div className="community-page__tabs">
                 <button type="button" className="is-active">
-                    Клуб Искателей
+                    Explorer Club
                 </button>
                 <button type="button" disabled>
-                    Ваши подписки
+                    Your subscriptions
                 </button>
             </div>
 
@@ -37,10 +37,10 @@ export const CommunityPage = () => {
                         <div className="community-card__meta">
                             <h2>{explorer.name}</h2>
                             <p>{explorer.handle}</p>
-                            <span>{explorer.countries} стран</span>
+                            <span>{explorer.countries} countries</span>
                         </div>
                         <DisabledActionButton className="community-card__follow">
-                            Подписаться
+                            Follow
                         </DisabledActionButton>
                     </SurfaceCard>
                 ))}

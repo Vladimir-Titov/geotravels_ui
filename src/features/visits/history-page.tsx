@@ -16,10 +16,10 @@ const formatDateTime = (value: string): string => {
 
 const describeVisitDate = (visit: VisitEvent): string => {
     if (!visit.trip_date) {
-        return 'Дата поездки не указана'
+        return 'Trip date not specified'
     }
 
-    return `Дата поездки: ${visit.trip_date}`
+    return `Trip date: ${visit.trip_date}`
 }
 
 const toErrorMessage = (caught: unknown): string => {
@@ -55,7 +55,7 @@ export const HistoryPage = () => {
     }, [])
 
     if (loading) {
-        return <p className="state-message">Загружаем заметки...</p>
+        return <p className="state-message">Loading notes...</p>
     }
 
     if (error) {
@@ -63,33 +63,33 @@ export const HistoryPage = () => {
     }
 
     if (!payload) {
-        return <p className="state-message">Нет доступных данных.</p>
+        return <p className="state-message">No data available.</p>
     }
 
     return (
-        <div className="notes-page">
+        <div className="history-page">
             <SectionHeader
-                title="Путевые Заметки"
-                subtitle="Хроники твоих странствий"
+                title="Travel Notes"
+                subtitle="Chronicles of your journeys"
                 action={
-                    <div className="notes-page__actions">
+                    <div className="history-page__actions">
                         <input
                             type="search"
-                            placeholder="Искать в архивах..."
-                            aria-label="Искать в архивах"
+                            placeholder="Search archives..."
+                            aria-label="Search archives"
                             disabled
                         />
-                        <DisabledActionButton>Новая запись</DisabledActionButton>
+                        <DisabledActionButton>New note</DisabledActionButton>
                     </div>
                 }
             />
 
-            <SurfaceCard className="notes-page__card">
-                <h2>Посещенные страны</h2>
+            <SurfaceCard className="history-page__card">
+                <h2>Visited countries</h2>
 
                 <div className="country-badges">
                     {payload.visited_country_codes.length === 0 ? (
-                        <p className="notes-page__empty">Еще нет посещенных стран.</p>
+                        <p className="history-page__empty">No visited countries yet.</p>
                     ) : (
                         payload.visited_country_codes.map((countryCode) => (
                             <span key={countryCode} className="badge">
@@ -99,10 +99,10 @@ export const HistoryPage = () => {
                     )}
                 </div>
 
-                <h3>История событий</h3>
+                <h3>Visit history</h3>
                 <ul className="visit-list">
                     {payload.visits.length === 0 ? (
-                        <li className="visit-list__empty">Пока нет записей о поездках.</li>
+                        <li className="visit-list__empty">No trip entries yet.</li>
                     ) : (
                         payload.visits.map((visit) => (
                             <li key={visit.id} className="visit-item">

@@ -10,7 +10,7 @@ interface DisabledActionButtonProps
 export const DisabledActionButton = ({
     children,
     className,
-    badgeText = 'Скоро',
+    badgeText = 'Soon',
     type = 'button',
     ...buttonProps
 }: DisabledActionButtonProps) => {

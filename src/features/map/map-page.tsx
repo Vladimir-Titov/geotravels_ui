@@ -94,7 +94,7 @@ export const MapPage = () => {
     }, [reloadVisitedCodes, selectedCountry, tripDate])
 
     if (loading) {
-        return <p className="state-message">Загружаем карту...</p>
+        return <p className="state-message">Loading map data...</p>
     }
 
     if (!geoJson) {
@@ -104,16 +104,16 @@ export const MapPage = () => {
     return (
         <div className="map-page">
             <SectionHeader
-                title="Дневник Исследователя"
-                subtitle="Куда отправимся в следующий раз?"
-                action={<DisabledActionButton>Новая экспедиция</DisabledActionButton>}
+                title="Explorer Journal"
+                subtitle="Where should we go next?"
+                action={<DisabledActionButton>New expedition</DisabledActionButton>}
             />
 
             <div className="map-page__layout">
                 <SurfaceCard className="map-page__card map-page__card--atlas">
                     <div className="map-page__card-head">
-                        <h2>Карта Мира</h2>
-                        <p>Выбери страну и добавь ее в свои посещения.</p>
+                        <h2>World Map</h2>
+                        <p>Select a country and add it to your visited list.</p>
                     </div>
 
                     <AtlasMap
@@ -131,14 +131,14 @@ export const MapPage = () => {
 
                 <aside className="map-page__sidebar">
                     <SurfaceCard className="map-page__card map-page__card--selection">
-                        <h3>Выбранная страна</h3>
+                        <h3>Selected country</h3>
 
                         {selectedCountry ? (
                             <>
                                 <p className="country-name">{selectedCountry.name}</p>
                                 <p className="country-code">{selectedCountry.code}</p>
 
-                                <label htmlFor="trip-date">Дата поездки</label>
+                                <label htmlFor="trip-date">Trip date</label>
                                 <input
                                     id="trip-date"
                                     type="date"
@@ -151,12 +151,12 @@ export const MapPage = () => {
                                     onClick={() => void onMarkVisit()}
                                     disabled={isSavingVisit}
                                 >
-                                    {isSavingVisit ? 'Сохраняем...' : 'Отметить посещение'}
+                                    {isSavingVisit ? 'Saving...' : 'Mark as visited'}
                                 </button>
                             </>
                         ) : (
                             <p className="map-page__hint">
-                                Выберите страну на карте, чтобы создать запись о посещении.
+                                Pick a country on the map to create a visit event.
                             </p>
                         )}
 
@@ -165,18 +165,18 @@ export const MapPage = () => {
 
                     <div className="map-page__stats">
                         <StatCard
-                            label="Путевые заметки"
+                            label="Travel notes"
                             value={visitsCount}
                             hint={
                                 visitsCount > 0
-                                    ? `Последняя запись: ${new Date().toLocaleDateString('ru-RU')}`
-                                    : 'Добавьте первую запись'
+                                    ? `Latest entry: ${new Date().toLocaleDateString('en-US')}`
+                                    : 'Create your first entry'
                             }
                         />
                         <StatCard
-                            label="Посещено стран"
+                            label="Countries visited"
                             value={visitedCodes.size}
-                            hint={`${visitedCodes.size} отмечено на карте`}
+                            hint={`${visitedCodes.size} marked on the map`}
                         />
                     </div>
                 </aside>

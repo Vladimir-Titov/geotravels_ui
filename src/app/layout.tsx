@@ -24,7 +24,7 @@ export const AppLayout = () => {
 
             <footer className="app-shell__footer">
                 <PageContainer>
-                    <p>Tripmark ©2026 — Сохраняй свои экспедиции</p>
+                    <p>Tripmark ©2026 — Keep your expeditions</p>
                 </PageContainer>
             </footer>
         </div>

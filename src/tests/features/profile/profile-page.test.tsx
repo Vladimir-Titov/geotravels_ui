@@ -6,8 +6,8 @@ describe('ProfilePage', () => {
     it('renders profile card and keeps edit action disabled', () => {
         render(<ProfilePage />)
 
-        expect(screen.getByRole('heading', { name: 'Профиль' })).toBeInTheDocument()
-        expect(screen.getByRole('button', { name: /Редактировать/i })).toBeDisabled()
+        expect(screen.getByRole('heading', { name: 'Profile' })).toBeInTheDocument()
+        expect(screen.getByRole('button', { name: /Edit profile/i })).toBeDisabled()
         expect(screen.getByText('12')).toBeInTheDocument()
         expect(screen.getByText('5')).toBeInTheDocument()
     })
