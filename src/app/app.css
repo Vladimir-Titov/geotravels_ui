@@ -1,18 +1,30 @@
 :root {
-    --surface: #f5f0e7;
-    --surface-strong: #fcfaf5;
-    --surface-contrast: #3d4c57;
-    --ink: #364751;
-    --muted: #7f847d;
-    --accent: #8d6646;
-    --accent-soft: #e7dac9;
+    --tm-bg: #faf9f6;
+    --tm-surface: #ffffff;
+    --tm-surface-muted: #f2f0e9;
+    --tm-text: #2c382a;
+    --tm-muted: #8c8982;
+    --tm-muted-soft: #a8a59c;
+    --tm-border: #e8e6df;
+    --tm-accent: #4f6c4e;
+    --tm-accent-strong: #2f5232;
+    --tm-shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.05);
     --danger: #b42318;
-    --border: #d7cec0;
+
+    /* Backward compatibility with existing feature styles */
+    --surface: var(--tm-surface-muted);
+    --surface-strong: var(--tm-surface);
+    --ink: var(--tm-text);
+    --muted: var(--tm-muted);
+    --accent: var(--tm-accent);
+    --accent-soft: #e9f0e3;
+    --border: var(--tm-border);
     --radius: 18px;
+
     font-family: 'Inter', sans-serif;
     line-height: 1.45;
     font-weight: 400;
-    color: var(--ink);
+    color: var(--tm-text);
     font-synthesis: none;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
@@ -28,9 +40,9 @@ body {
     min-width: 320px;
     min-height: 100vh;
     background:
-        radial-gradient(circle at 12% 12%, rgba(211, 193, 162, 0.28) 0%, transparent 26%),
-        radial-gradient(circle at 84% 4%, rgba(182, 203, 214, 0.28) 0%, transparent 28%),
-        linear-gradient(180deg, #f8f4eb 0%, #f0e9dd 100%);
+        radial-gradient(circle at 8% 12%, rgba(225, 232, 222, 0.58), transparent 34%),
+        radial-gradient(circle at 89% 4%, rgba(240, 244, 239, 0.88), transparent 29%),
+        linear-gradient(180deg, #faf9f6 0%, #f5f3ee 100%);
 }
 
 a {
@@ -39,7 +51,8 @@ a {
 }
 
 button,
-input {
+input,
+textarea {
     font: inherit;
 }
 

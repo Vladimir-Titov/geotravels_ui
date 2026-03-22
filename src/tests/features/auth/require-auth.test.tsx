@@ -5,49 +5,52 @@ import { AuthProvider } from '../../../features/auth/auth-context'
 import { RequireAuth } from '../../../features/auth/require-auth'
 import { clearSessionTokens, setSessionTokens } from '../../../features/auth/session'
 
+const protectedRoutes = [
+    { path: '/map', label: 'Map Screen' },
+    { path: '/history', label: 'History Screen' },
+    { path: '/gallery', label: 'Gallery Screen' },
+    { path: '/community', label: 'Community Screen' },
+    { path: '/profile', label: 'Profile Screen' },
+]
+
+const renderProtectedRoute = (initialRoute: string) => {
+    render(
+        <AuthProvider>
+            <MemoryRouter initialEntries={[initialRoute]}>
+                <Routes>
+                    <Route path="/auth" element={<div>Auth Screen</div>} />
+                    <Route element={<RequireAuth />}>
+                        {protectedRoutes.map((route) => (
+                            <Route key={route.path} path={route.path} element={<div>{route.label}</div>} />
+                        ))}
+                    </Route>
+                </Routes>
+            </MemoryRouter>
+        </AuthProvider>,
+    )
+}
+
 describe('RequireAuth', () => {
     beforeEach(() => {
         localStorage.clear()
         clearSessionTokens()
     })
 
-    it('redirects to auth page when no session', async () => {
-        render(
-            <AuthProvider>
-                <MemoryRouter initialEntries={['/map']}>
-                    <Routes>
-                        <Route path="/auth" element={<div>Auth Screen</div>} />
-                        <Route element={<RequireAuth />}>
-                            <Route path="/map" element={<div>Map Screen</div>} />
-                        </Route>
-                    </Routes>
-                </MemoryRouter>
-            </AuthProvider>,
-        )
+    it.each(protectedRoutes)('redirects to auth page when no session for $path', async ({ path }) => {
+        renderProtectedRoute(path)
 
         expect(await screen.findByText('Auth Screen')).toBeInTheDocument()
     })
 
-    it('renders protected route when session exists', async () => {
+    it.each(protectedRoutes)('renders protected route when session exists for $path', async (route) => {
         setSessionTokens({
             accessToken: 'token',
             refreshToken: 'refresh',
             tokenType: 'bearer',
         })
 
-        render(
-            <AuthProvider>
-                <MemoryRouter initialEntries={['/map']}>
-                    <Routes>
-                        <Route path="/auth" element={<div>Auth Screen</div>} />
-                        <Route element={<RequireAuth />}>
-                            <Route path="/map" element={<div>Map Screen</div>} />
-                        </Route>
-                    </Routes>
-                </MemoryRouter>
-            </AuthProvider>,
-        )
+        renderProtectedRoute(route.path)
 
-        expect(await screen.findByText('Map Screen')).toBeInTheDocument()
+        expect(await screen.findByText(route.label)).toBeInTheDocument()
     })
 })

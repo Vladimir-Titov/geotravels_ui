@@ -1,7 +1,7 @@
-import { NavLink, Outlet, useNavigate } from 'react-router-dom'
-import './layout.css'
+import { Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../features/auth/auth-context'
-import logo from '../assets/logo.png'
+import { PageContainer, TopNavigation } from '../shared/ui'
+import './layout.css'
 
 export const AppLayout = () => {
     const navigate = useNavigate()
@@ -13,38 +13,20 @@ export const AppLayout = () => {
     }
 
     return (
-        <div className="shell">
-            <header className="shell-header">
-                <div className="shell-brand-wrapper">
-                    <NavLink to="/" className="shell-brand">
-                        TripMark
-                    </NavLink>
-                    <img src={logo} alt="logo" height={64} />
-                </div>
+        <div className="app-shell">
+            <TopNavigation onSignOut={signOut} />
 
-                <nav className="shell-nav">
-                    <NavLink
-                        to="/map"
-                        className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
-                    >
-                        Map
-                    </NavLink>
-                    <NavLink
-                        to="/history"
-                        className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
-                    >
-                        History
-                    </NavLink>
-                </nav>
-
-                <button onClick={signOut} className="logout-button">
-                    Logout
-                </button>
-            </header>
-
-            <main className="shell-content">
-                <Outlet />
+            <main className="app-shell__content">
+                <PageContainer>
+                    <Outlet />
+                </PageContainer>
             </main>
+
+            <footer className="app-shell__footer">
+                <PageContainer>
+                    <p>Tripmark ©2026 — Keep your expeditions</p>
+                </PageContainer>
+            </footer>
         </div>
     )
 }
