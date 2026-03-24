@@ -2,7 +2,7 @@ import './map-page.css'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ApiError, AuthExpiredError } from '../../shared/api/http'
 import type { Country } from '../../shared/api/types'
-import { DisabledActionButton, SectionHeader, StatCard, SurfaceCard } from '../../shared/ui'
+import { SectionHeader, StatCard, SurfaceCard } from '../../shared/ui'
 import { AtlasMap } from './atlas-map'
 import { fetchCountries, fetchCountriesGeoJson, type CountriesGeoJson } from './countries-api'
 import { createVisit, fetchVisits } from '../visits/visits-api'
@@ -29,6 +29,7 @@ export const MapPage = () => {
     const [visitsCount, setVisitsCount] = useState(0)
     const [selectedCountry, setSelectedCountry] = useState<SelectedCountry | null>(null)
     const [tripDate, setTripDate] = useState('')
+    const [isVisitModalOpen, setIsVisitModalOpen] = useState(false)
     const [loading, setLoading] = useState(true)
     const [isSavingVisit, setIsSavingVisit] = useState(false)
     const [error, setError] = useState<string | null>(null)
@@ -86,12 +87,28 @@ export const MapPage = () => {
             await reloadVisitedCodes()
             setSelectedCountry(null)
             setTripDate('')
+            setIsVisitModalOpen(false)
         } catch (caught) {
             setError(toErrorMessage(caught))
         } finally {
             setIsSavingVisit(false)
         }
     }, [reloadVisitedCodes, selectedCountry, tripDate])
+
+    useEffect(() => {
+        if (!isVisitModalOpen) {
+            return
+        }
+
+        const onKeyDown = (event: KeyboardEvent): void => {
+            if (event.key === 'Escape' && !isSavingVisit) {
+                setIsVisitModalOpen(false)
+            }
+        }
+
+        window.addEventListener('keydown', onKeyDown)
+        return () => window.removeEventListener('keydown', onKeyDown)
+    }, [isSavingVisit, isVisitModalOpen])
 
     if (loading) {
         return <p className="state-message">Loading map data...</p>
@@ -103,17 +120,32 @@ export const MapPage = () => {
 
     return (
         <div className="map-page">
-            <SectionHeader
-                title="Explorer Journal"
-                subtitle="Where should we go next?"
-                action={<DisabledActionButton>New expedition</DisabledActionButton>}
-            />
+            <SectionHeader title="Explorer Journal" subtitle="Where should we go next?" />
 
             <div className="map-page__layout">
                 <SurfaceCard className="map-page__card map-page__card--atlas">
                     <div className="map-page__card-head">
-                        <h2>World Map</h2>
-                        <p>Select a country and add it to your visited list.</p>
+                        <div className="map-page__card-head-main">
+                            <div className="map-page__card-head-text">
+                                <h2>World Map</h2>
+                                <p>Select a country and add it to your visited list.</p>
+                            </div>
+                            <button
+                                type="button"
+                                className="map-page__expedition"
+                                onClick={() => {
+                                    if (!selectedCountry || isSavingVisit) {
+                                        return
+                                    }
+                                    setTripDate('')
+                                    setError(null)
+                                    setIsVisitModalOpen(true)
+                                }}
+                                disabled={!selectedCountry || isSavingVisit}
+                            >
+                                {selectedCountry ? `-> ${selectedCountry.name}` : 'New expedition'}
+                            </button>
+                        </div>
                     </div>
 
                     <AtlasMap
@@ -125,44 +157,13 @@ export const MapPage = () => {
                                 code,
                                 name: countryNameByCode.get(code) ?? name,
                             })
+                            setError(null)
                         }}
                     />
+                    {error && !isVisitModalOpen && <p className="form-error">{error}</p>}
                 </SurfaceCard>
 
                 <aside className="map-page__sidebar">
-                    <SurfaceCard className="map-page__card map-page__card--selection">
-                        <h3>Selected country</h3>
-
-                        {selectedCountry ? (
-                            <>
-                                <p className="country-name">{selectedCountry.name}</p>
-                                <p className="country-code">{selectedCountry.code}</p>
-
-                                <label htmlFor="trip-date">Trip date</label>
-                                <input
-                                    id="trip-date"
-                                    type="date"
-                                    value={tripDate}
-                                    onChange={(event) => setTripDate(event.target.value)}
-                                />
-
-                                <button
-                                    className="map-page__submit"
-                                    onClick={() => void onMarkVisit()}
-                                    disabled={isSavingVisit}
-                                >
-                                    {isSavingVisit ? 'Saving...' : 'Mark as visited'}
-                                </button>
-                            </>
-                        ) : (
-                            <p className="map-page__hint">
-                                Pick a country on the map to create a visit event.
-                            </p>
-                        )}
-
-                        {error && <p className="form-error">{error}</p>}
-                    </SurfaceCard>
-
                     <div className="map-page__stats">
                         <StatCard
                             label="Travel notes"
@@ -181,6 +182,57 @@ export const MapPage = () => {
                     </div>
                 </aside>
             </div>
+
+            {isVisitModalOpen && selectedCountry && (
+                <div
+                    className="map-page__modal-backdrop"
+                    role="presentation"
+                    onClick={(event) => {
+                        if (event.target === event.currentTarget && !isSavingVisit) {
+                            setIsVisitModalOpen(false)
+                        }
+                    }}
+                >
+                    <div
+                        className="map-page__modal"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="map-visit-dialog-title"
+                    >
+                        <h3 id="map-visit-dialog-title">Create expedition</h3>
+                        <p className="country-name">{selectedCountry.name}</p>
+                        <p className="country-code">{selectedCountry.code}</p>
+
+                        <label htmlFor="trip-date">Trip date (optional)</label>
+                        <input
+                            id="trip-date"
+                            type="date"
+                            value={tripDate}
+                            onChange={(event) => setTripDate(event.target.value)}
+                        />
+
+                        {error && <p className="form-error">{error}</p>}
+
+                        <div className="map-page__modal-actions">
+                            <button
+                                type="button"
+                                className="map-page__cancel"
+                                onClick={() => setIsVisitModalOpen(false)}
+                                disabled={isSavingVisit}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                className="map-page__submit"
+                                onClick={() => void onMarkVisit()}
+                                disabled={isSavingVisit}
+                            >
+                                {isSavingVisit ? 'Saving...' : 'Create visit'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }
