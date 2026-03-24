@@ -62,14 +62,12 @@ describe('MapPage', () => {
         render(<MapPage />)
 
         fireEvent.click(await screen.findByRole('button', { name: 'France' }))
-
-        await screen.findByText('France')
-
-        fireEvent.change(screen.getByLabelText('Trip date'), {
+        fireEvent.click(await screen.findByRole('button', { name: '-> France' }))
+        await screen.findByRole('dialog')
+        fireEvent.change(screen.getByLabelText('Trip date (optional)'), {
             target: { value: '2024-06-01' },
         })
-
-        fireEvent.click(screen.getByRole('button', { name: 'Mark as visited' }))
+        fireEvent.click(screen.getByRole('button', { name: 'Create visit' }))
 
         await waitFor(() => {
             expect(createVisitMock).toHaveBeenCalledWith({
