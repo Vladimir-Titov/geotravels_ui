@@ -129,13 +129,39 @@
 
 @media (max-width: 860px) {
     .tm-top-nav__inner {
-        padding: 0.6rem 0.9rem;
+        flex-wrap: nowrap;
+        min-height: 60px;
+        padding: 0.5rem 0.75rem;
+        justify-content: space-between;
+    }
+
+    .tm-top-nav__brand {
+        order: 1;
+        flex-shrink: 0;
+    }
+
+    .tm-top-nav__brand span {
+        display: none;
     }
 
     .tm-top-nav__menu {
-        justify-content: flex-start;
+        order: 2;
+        flex: 1;
+        width: auto;
+        flex-wrap: nowrap;
         overflow-x: auto;
-        scrollbar-width: thin;
+        scrollbar-width: none;
+        justify-content: flex-start;
+        margin: 0 0.5rem;
+    }
+
+    .tm-top-nav__menu::-webkit-scrollbar {
+        display: none;
+    }
+
+    .tm-top-nav__logout {
+        order: 3;
+        flex-shrink: 0;
     }
 
     .tm-top-nav__link {
