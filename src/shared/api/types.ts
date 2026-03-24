@@ -2,6 +2,10 @@ export interface ApiErrorPayload {
     detail?: string
 }
 
+export interface TelegramAppAuthRequest {
+    init_data: string
+}
+
 export interface TelegramAuthData {
     id: number
     first_name: string
