@@ -1,6 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { AppLayout } from './layout'
-import { AuthPage, RequireAuth, useAuth } from '../features/auth'
+import { AuthPage, RequireAuth, TelegramAppPage, useAuth } from '../features/auth'
 import { MapPage } from '../features/map'
 import { HistoryPage } from '../features/visits'
 import { GalleryPage } from '../features/gallery'
@@ -16,6 +16,7 @@ const App = () => {
     return (
         <Routes>
             <Route path="/auth" element={<AuthPage />} />
+            <Route path="/tg-app" element={<TelegramAppPage />} />
 
             <Route element={<RequireAuth />}>
                 <Route element={<AppLayout />}>

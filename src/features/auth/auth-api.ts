@@ -3,6 +3,7 @@ import type {
     ConfirmOtpRequest,
     OtpRequest,
     OtpResponse,
+    TelegramAppAuthRequest,
     TelegramAuthData,
     TokenPairResponse,
 } from '../../shared/api/types'
@@ -28,5 +29,13 @@ export const telegramLogin = async (data: TelegramAuthData): Promise<TokenPairRe
         method: 'POST',
         auth: false,
         body: data,
+    })
+}
+
+export const telegramAppLogin = async (initData: string): Promise<TokenPairResponse> => {
+    return requestJson<TokenPairResponse>('/api/v1/auth/telegram_app', {
+        method: 'POST',
+        auth: false,
+        body: { init_data: initData } satisfies TelegramAppAuthRequest,
     })
 }
