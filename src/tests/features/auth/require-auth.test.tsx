@@ -21,7 +21,11 @@ const renderProtectedRoute = (initialRoute: string) => {
                     <Route path="/auth" element={<div>Auth Screen</div>} />
                     <Route element={<RequireAuth />}>
                         {protectedRoutes.map((route) => (
-                            <Route key={route.path} path={route.path} element={<div>{route.label}</div>} />
+                            <Route
+                                key={route.path}
+                                path={route.path}
+                                element={<div>{route.label}</div>}
+                            />
                         ))}
                     </Route>
                 </Routes>
@@ -36,21 +40,27 @@ describe('RequireAuth', () => {
         clearSessionTokens()
     })
 
-    it.each(protectedRoutes)('redirects to auth page when no session for $path', async ({ path }) => {
-        renderProtectedRoute(path)
+    it.each(protectedRoutes)(
+        'redirects to auth page when no session for $path',
+        async ({ path }) => {
+            renderProtectedRoute(path)
 
-        expect(await screen.findByText('Auth Screen')).toBeInTheDocument()
-    })
+            expect(await screen.findByText('Auth Screen')).toBeInTheDocument()
+        },
+    )
 
-    it.each(protectedRoutes)('renders protected route when session exists for $path', async (route) => {
-        setSessionTokens({
-            accessToken: 'token',
-            refreshToken: 'refresh',
-            tokenType: 'bearer',
-        })
+    it.each(protectedRoutes)(
+        'renders protected route when session exists for $path',
+        async (route) => {
+            setSessionTokens({
+                accessToken: 'token',
+                refreshToken: 'refresh',
+                tokenType: 'bearer',
+            })
 
-        renderProtectedRoute(route.path)
+            renderProtectedRoute(route.path)
 
-        expect(await screen.findByText(route.label)).toBeInTheDocument()
-    })
+            expect(await screen.findByText(route.label)).toBeInTheDocument()
+        },
+    )
 })

@@ -87,8 +87,22 @@ const navItems: NavItem[] = [
         label: 'Community',
         icon: (
             <svg viewBox="0 0 24 24" aria-hidden="true">
-                <circle cx="9" cy="8.2" r="2.6" fill="none" stroke="currentColor" strokeWidth="1.8" />
-                <circle cx="15.8" cy="9.2" r="2.1" fill="none" stroke="currentColor" strokeWidth="1.8" />
+                <circle
+                    cx="9"
+                    cy="8.2"
+                    r="2.6"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                />
+                <circle
+                    cx="15.8"
+                    cy="9.2"
+                    r="2.1"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                />
                 <path
                     d="M4.7 18.5c.7-2.7 2.7-4.2 5.7-4.2 3 0 5 1.5 5.7 4.2M15.6 14.2c1.8.2 3 .9 3.8 2.2"
                     fill="none"
@@ -104,7 +118,14 @@ const navItems: NavItem[] = [
         label: 'Profile',
         icon: (
             <svg viewBox="0 0 24 24" aria-hidden="true">
-                <circle cx="12" cy="8.2" r="3.2" fill="none" stroke="currentColor" strokeWidth="1.8" />
+                <circle
+                    cx="12"
+                    cy="8.2"
+                    r="3.2"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                />
                 <path
                     d="M5.6 19.3c.9-3.1 3.1-4.8 6.4-4.8 3.3 0 5.5 1.7 6.4 4.8"
                     fill="none"

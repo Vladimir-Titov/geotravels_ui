@@ -16,10 +16,7 @@ const explorers: ExplorerCard[] = [
 export const CommunityPage = () => {
     return (
         <div className="community-page">
-            <SectionHeader
-                title="Community"
-                subtitle="Meet new friends and share routes"
-            />
+            <SectionHeader title="Community" subtitle="Meet new friends and share routes" />
 
             <div className="community-page__tabs">
                 <button type="button" className="is-active">
@@ -33,7 +30,9 @@ export const CommunityPage = () => {
             <div className="community-list">
                 {explorers.map((explorer, index) => (
                     <SurfaceCard key={explorer.handle} className="community-card">
-                        <div className={`community-card__avatar community-card__avatar--${index}`} />
+                        <div
+                            className={`community-card__avatar community-card__avatar--${index}`}
+                        />
                         <div className="community-card__meta">
                             <h2>{explorer.name}</h2>
                             <p>{explorer.handle}</p>

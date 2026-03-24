@@ -4,7 +4,9 @@ import * as Sentry from '@sentry/browser'
 import { useAuth } from './auth-context'
 import { telegramAppLogin } from './auth-api'
 
-type TelegramWindow = Window & { Telegram?: { WebApp?: { initData?: string; version?: string; platform?: string } } }
+type TelegramWindow = Window & {
+    Telegram?: { WebApp?: { initData?: string; version?: string; platform?: string } }
+}
 
 export const TelegramAppPage = () => {
     const { onAuthSuccess } = useAuth()

@@ -1,8 +1,10 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import './disabled-action-button.css'
 
-interface DisabledActionButtonProps
-    extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'disabled'> {
+interface DisabledActionButtonProps extends Omit<
+    ButtonHTMLAttributes<HTMLButtonElement>,
+    'disabled'
+> {
     children: ReactNode
     badgeText?: string
 }

@@ -27,7 +27,9 @@ export const GalleryPage = () => {
             <div className="gallery-grid">
                 {galleryItems.map((item, index) => (
                     <SurfaceCard key={`${item.title}-${item.location}`} className="gallery-card">
-                        <div className={`gallery-card__preview gallery-card__preview--${index % 6}`} />
+                        <div
+                            className={`gallery-card__preview gallery-card__preview--${index % 6}`}
+                        />
                         <div className="gallery-card__body">
                             <h2>{item.title}</h2>
                             <p>{item.location}</p>
