@@ -43,9 +43,9 @@ describe('AuthPage', () => {
         renderAuthPage()
 
         fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'test@example.com' } })
-        fireEvent.click(screen.getByRole('button', { name: /get code/i }))
+        fireEvent.click(screen.getByRole('button', { name: /submit/i }))
 
-        expect(await screen.findByText(/enter the code/i)).toBeInTheDocument()
+        expect(await screen.findByText(/enter your otp/i)).toBeInTheDocument()
         expect(getOtpMock).toHaveBeenCalledWith({ contact: 'test@example.com' })
     })
 
@@ -60,15 +60,15 @@ describe('AuthPage', () => {
         renderAuthPage()
 
         fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'test@example.com' } })
-        fireEvent.click(screen.getByRole('button', { name: /get code/i }))
+        fireEvent.click(screen.getByRole('button', { name: /submit/i }))
 
-        await screen.findByText(/enter the code/i)
+        await screen.findByText(/enter your otp/i)
 
         const inputs = screen.getAllByRole('textbox')
         '654321'.split('').forEach((digit, i) => {
             fireEvent.change(inputs[i], { target: { value: digit } })
         })
-        fireEvent.click(screen.getByRole('button', { name: /sign in/i }))
+        fireEvent.click(screen.getByRole('button', { name: /confirm/i }))
 
         expect(await screen.findByText('Map Screen')).toBeInTheDocument()
         expect(confirmOtpMock).toHaveBeenCalledWith({ otp_id: 'test-otp-uuid', code: '654321' })
@@ -80,12 +80,12 @@ describe('AuthPage', () => {
         renderAuthPage()
 
         fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'test@example.com' } })
-        fireEvent.click(screen.getByRole('button', { name: /get code/i }))
+        fireEvent.click(screen.getByRole('button', { name: /submit/i }))
 
         await waitFor(() => {
             expect(screen.getByRole('alert')).toBeInTheDocument()
         })
-        expect(screen.queryByText(/enter the code/i)).not.toBeInTheDocument()
+        expect(screen.queryByText(/enter your otp/i)).not.toBeInTheDocument()
     })
 
     it('back button returns to email step', async () => {
@@ -94,9 +94,9 @@ describe('AuthPage', () => {
         renderAuthPage()
 
         fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'test@example.com' } })
-        fireEvent.click(screen.getByRole('button', { name: /get code/i }))
+        fireEvent.click(screen.getByRole('button', { name: /submit/i }))
 
-        await screen.findByText(/enter the code/i)
+        await screen.findByText(/enter your otp/i)
 
         fireEvent.click(screen.getByRole('button', { name: /back/i }))
 

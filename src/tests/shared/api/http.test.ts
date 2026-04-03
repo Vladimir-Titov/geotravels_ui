@@ -4,7 +4,7 @@ import {
     getSessionTokens,
     setSessionTokens,
 } from '../../../features/auth/session'
-import { requestJson, resetHttpStateForTests } from '../../../shared/api/http'
+import { ApiError, requestJson, resetHttpStateForTests } from '../../../shared/api/http'
 
 const jsonResponse = (status: number, payload: unknown): Response => {
     return new Response(JSON.stringify(payload), {
@@ -51,5 +51,32 @@ describe('http client refresh flow', () => {
         expect(getHeader(retryRequestInit?.headers, 'Authorization')).toBe('Bearer new-access')
 
         expect(getSessionTokens()?.accessToken).toBe('new-access')
+    })
+
+    it('parses object detail error payload and exposes retry_after', async () => {
+        const fetchMock = vi.fn<typeof fetch>().mockResolvedValueOnce(
+            jsonResponse(429, {
+                detail: {
+                    error: 'Please wait before requesting a new code',
+                    retry_after: 47,
+                },
+            }),
+        )
+        vi.stubGlobal('fetch', fetchMock)
+
+        try {
+            await requestJson('/api/v1/auth/otp/request', {
+                method: 'POST',
+                auth: false,
+                body: { contact: 'test@example.com' },
+            })
+            throw new Error('Expected request to fail')
+        } catch (error) {
+            expect(error).toBeInstanceOf(ApiError)
+            const apiError = error as ApiError
+            expect(apiError.status).toBe(429)
+            expect(apiError.message).toBe('Please wait before requesting a new code')
+            expect(apiError.retryAfterSeconds).toBe(47)
+        }
     })
 })

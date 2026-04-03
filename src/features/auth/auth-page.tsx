@@ -5,7 +5,6 @@ import type { TokenPairResponse } from '../../shared/api/types'
 import { useAuth } from './auth-context'
 import { LoginStep } from './login-step'
 import { OtpForm } from './otp-form'
-import logo from '../../assets/logo.png'
 
 type Step = 'email' | 'otp'
 
@@ -38,11 +37,6 @@ export const AuthPage = () => {
     return (
         <div className="auth-page">
             <div className="auth-page__layout">
-                <div className="auth-brand" aria-label="Tripmark logo">
-                    <img src={logo} alt="Tripmark logo" width={56} height={56} />
-                    <span>Tripmark</span>
-                </div>
-
                 <div className="auth-shell">
                     {step === 'email' && (
                         <LoginStep

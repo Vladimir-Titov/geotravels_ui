@@ -21,7 +21,8 @@ export const TelegramLoginButton = ({ onAuth }: Props) => {
         const script = document.createElement('script')
         script.src = 'https://telegram.org/js/telegram-widget.js?22'
         script.setAttribute('data-telegram-login', TELEGRAM_BOT_NAME)
-        script.setAttribute('data-size', 'large')
+        script.setAttribute('data-size', 'medium')
+        script.setAttribute('data-radius', '999')
         script.setAttribute('data-onauth', '__tgOnAuth(user)')
         script.setAttribute('data-request-access', 'write')
         script.async = true

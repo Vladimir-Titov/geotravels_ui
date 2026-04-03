@@ -1,5 +1,10 @@
 export interface ApiErrorPayload {
-    detail?: string
+    detail?:
+        | string
+        | {
+              error?: string
+              retry_after?: number
+          }
 }
 
 export interface TelegramAppAuthRequest {

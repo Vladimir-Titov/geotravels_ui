@@ -10,11 +10,13 @@ import type { AccessTokenResponse, ApiErrorPayload, RefreshRequest } from './typ
 
 export class ApiError extends Error {
     public readonly status: number
+    public readonly retryAfterSeconds?: number
 
-    constructor(status: number, message: string) {
+    constructor(status: number, message: string, retryAfterSeconds?: number) {
         super(message)
         this.name = 'ApiError'
         this.status = status
+        this.retryAfterSeconds = retryAfterSeconds
     }
 }
 
@@ -49,25 +51,40 @@ const createHeaders = (headers: HeadersInit | undefined, withJsonBody: boolean):
     return requestHeaders
 }
 
-const parseErrorMessage = async (response: Response): Promise<string> => {
+interface ParsedApiError {
+    message: string
+    retryAfterSeconds?: number
+}
+
+const parseError = async (response: Response): Promise<ParsedApiError> => {
     try {
         const payload = (await response.json()) as ApiErrorPayload
-        if (payload?.detail) {
-            return payload.detail
+        if (typeof payload?.detail === 'string') {
+            return { message: payload.detail }
+        }
+
+        if (payload?.detail && typeof payload.detail === 'object') {
+            const detail = payload.detail as { error?: unknown; retry_after?: unknown }
+            const message =
+                typeof detail.error === 'string' ? detail.error : response.statusText || 'Request failed'
+            const retryAfterSeconds =
+                typeof detail.retry_after === 'number' ? detail.retry_after : undefined
+
+            return { message, retryAfterSeconds }
         }
     } catch {
         // keep default fallback below
     }
 
-    return response.statusText || 'Request failed'
+    return { message: response.statusText || 'Request failed' }
 }
 
 const toApiError = async (response: Response): Promise<ApiError> => {
-    const message = await parseErrorMessage(response)
+    const { message, retryAfterSeconds } = await parseError(response)
     if (response.status === 401) {
         return new AuthExpiredError(message)
     }
-    return new ApiError(response.status, message)
+    return new ApiError(response.status, message, retryAfterSeconds)
 }
 
 const refreshAccessToken = async (): Promise<boolean> => {
