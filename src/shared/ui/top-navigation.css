@@ -27,11 +27,12 @@
     font-size: 2rem;
 }
 
-.tm-top-nav__brand-mark {
+.tm-top-nav__brand-logo {
     width: 52px;
     height: 52px;
     border-radius: 14px;
-    background: linear-gradient(180deg, #216341 0%, #1d5d3d 100%);
+    display: block;
+    object-fit: cover;
 }
 
 .tm-top-nav__menu {
@@ -139,7 +140,7 @@
         font-size: 1.6rem;
     }
 
-    .tm-top-nav__brand-mark {
+    .tm-top-nav__brand-logo {
         width: 42px;
         height: 42px;
     }
@@ -164,7 +165,7 @@
         min-width: auto;
     }
 
-    .tm-top-nav__brand-mark {
+    .tm-top-nav__brand-logo {
         width: 32px;
         height: 32px;
         border-radius: 10px;

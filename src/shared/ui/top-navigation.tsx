@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom'
+import logo from '../../assets/logo.png'
 import './top-navigation.css'
 
 interface TopNavigationProps {
@@ -12,7 +13,7 @@ export const TopNavigation = ({ onSignOut }: TopNavigationProps) => {
         <header className="tm-top-nav">
             <div className="tm-top-nav__inner">
                 <NavLink to="/my-travels" className="tm-top-nav__brand" aria-label="Tripmark dashboard">
-                    <span className="tm-top-nav__brand-mark" aria-hidden="true" />
+                    <img className="tm-top-nav__brand-logo" src={logo} alt="" aria-hidden="true" />
                     <span>Tripmark</span>
                 </NavLink>
 
