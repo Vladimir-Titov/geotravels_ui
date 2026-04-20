@@ -1,0 +1,66 @@
+.my-travels-milestone {
+    grid-column: 2;
+    grid-row: 1;
+    padding: 1.15rem 1.2rem;
+}
+
+.my-travels-milestone__top {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.85rem;
+    align-items: center;
+}
+
+.my-travels-milestone__top p {
+    margin: 0;
+    color: #2a734d;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.my-travels-milestone__top button {
+    border: none;
+    border-radius: 999px;
+    min-height: 2rem;
+    padding: 0.25rem 0.8rem;
+    color: #2f6546;
+    background: #d1ddd7;
+    font-weight: 700;
+}
+
+.my-travels-milestone h3 {
+    margin: 0.55rem 0 0;
+    color: #24352f;
+    font-size: clamp(2rem, 2.5vw, 3rem);
+    line-height: 1.1;
+}
+
+.my-travels-milestone > p {
+    margin: 0.5rem 0 0;
+    color: #5a6a63;
+    font-size: 1.01rem;
+    line-height: 1.2;
+}
+
+.my-travels-progress {
+    margin-top: 0.65rem;
+    border-radius: 999px;
+    height: 0.95rem;
+    background: #d7ddd6;
+}
+
+.my-travels-progress > span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: #2f8358;
+}
+
+.my-travels-milestone strong {
+    margin-top: 0.25rem;
+    display: block;
+    text-align: right;
+    color: #24352f;
+    font-size: 2.2rem;
+    line-height: 1.1;
+}

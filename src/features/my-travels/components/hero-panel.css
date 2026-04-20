@@ -1,0 +1,82 @@
+.my-travels-hero {
+    display: grid;
+    grid-template-columns: 1fr minmax(280px, 0.9fr);
+    gap: 1rem;
+    padding: 1.2rem;
+}
+
+.my-travels-hero__content {
+    display: grid;
+    align-content: flex-start;
+    gap: 0.55rem;
+}
+
+.my-travels-hero__greeting {
+    margin: 0;
+    color: #2a734d;
+    font-size: 1.03rem;
+    font-weight: 700;
+}
+
+.my-travels-hero h2 {
+    margin: 0;
+    color: #24352f;
+    font-size: clamp(1.95rem, 2.85vw, 3.8rem);
+    line-height: 1.14;
+}
+
+.my-travels-hero p {
+    margin: 0;
+    color: #5a6b63;
+    font-size: 1.06rem;
+    line-height: 1.24;
+}
+
+.my-travels-hero__stats {
+    margin-top: 0.5rem;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.58rem;
+}
+
+.my-travels-stat {
+    border-radius: 1.15rem;
+    border: 1px solid #d7d0c2;
+    background: #f9f7f1;
+    padding: 0.75rem 0.85rem;
+}
+
+.my-travels-stat p {
+    margin: 0;
+    color: #58675f;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.my-travels-stat strong {
+    display: block;
+    margin-top: 0.25rem;
+    color: #24352f;
+    font-size: clamp(2rem, 3vw, 3rem);
+    line-height: 1.05;
+}
+
+.my-travels-hero__image {
+    border-radius: 1.65rem;
+    border: 1px solid rgba(255, 255, 255, 0.46);
+    min-height: 260px;
+}
+
+@media (max-width: 860px) {
+    .my-travels-hero {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .my-travels-hero__image {
+        min-height: 210px;
+    }
+
+    .my-travels-hero__stats {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}

@@ -1,11 +1,13 @@
 import { Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../features/auth/auth-context'
+import { useMyTravelsDashboard } from '../features/my-travels'
 import { PageContainer, TopNavigation } from '../shared/ui'
 import './layout.css'
 
 export const AppLayout = () => {
     const navigate = useNavigate()
     const { logout } = useAuth()
+    const { data } = useMyTravelsDashboard()
 
     const signOut = (): void => {
         logout()
@@ -14,19 +16,17 @@ export const AppLayout = () => {
 
     return (
         <div className="app-shell">
-            <TopNavigation onSignOut={signOut} />
+            <TopNavigation
+                onSignOut={signOut}
+                unreadInboxCount={data?.user.unreadInboxCount}
+                userFullName={data?.user.fullName}
+            />
 
             <main className="app-shell__content">
                 <PageContainer>
                     <Outlet />
                 </PageContainer>
             </main>
-
-            <footer className="app-shell__footer">
-                <PageContainer>
-                    <p>Tripmark ©2026 — Keep your expeditions</p>
-                </PageContainer>
-            </footer>
         </div>
     )
 }

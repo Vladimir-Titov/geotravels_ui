@@ -14,3 +14,5 @@ export const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN ?? ''
 export const ENVIRONMENT = import.meta.env.VITE_ENVIRONMENT ?? 'local'
 
 export const APP_VERSION: string = __APP_VERSION__
+
+export const USE_DASHBOARD_MOCK = import.meta.env.VITE_USE_DASHBOARD_MOCK === 'true'
