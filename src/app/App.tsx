@@ -1,15 +1,11 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { AppLayout } from './layout'
 import { AuthPage, RequireAuth, TelegramAppPage, useAuth } from '../features/auth'
-import { MapPage } from '../features/map'
-import { HistoryPage } from '../features/visits'
-import { GalleryPage } from '../features/gallery'
-import { CommunityPage } from '../features/community'
-import { ProfilePage } from '../features/profile'
+import { MyTravelsPage, MyTravelsPlaceholderPage } from '../features/my-travels'
 
 const RootRedirect = () => {
     const { isAuthenticated } = useAuth()
-    return <Navigate replace to={isAuthenticated ? '/map' : '/auth'} />
+    return <Navigate replace to={isAuthenticated ? '/my-travels' : '/auth'} />
 }
 
 const App = () => {
@@ -20,11 +16,43 @@ const App = () => {
 
             <Route element={<RequireAuth />}>
                 <Route element={<AppLayout />}>
-                    <Route path="/map" element={<MapPage />} />
-                    <Route path="/history" element={<HistoryPage />} />
-                    <Route path="/gallery" element={<GalleryPage />} />
-                    <Route path="/community" element={<CommunityPage />} />
-                    <Route path="/profile" element={<ProfilePage />} />
+                    <Route path="/my-travels" element={<MyTravelsPage />} />
+                    <Route
+                        path="/my-travels/add-story"
+                        element={
+                            <MyTravelsPlaceholderPage
+                                title="Add story flow is in progress"
+                                subtitle="Placeholder"
+                            />
+                        }
+                    />
+                    <Route
+                        path="/my-travels/upload-photos"
+                        element={
+                            <MyTravelsPlaceholderPage
+                                title="Upload photos flow is in progress"
+                                subtitle="Placeholder"
+                            />
+                        }
+                    />
+                    <Route
+                        path="/my-travels/share-card"
+                        element={
+                            <MyTravelsPlaceholderPage
+                                title="Share-card flow is in progress"
+                                subtitle="Placeholder"
+                            />
+                        }
+                    />
+                    <Route
+                        path="/my-travels/achievement"
+                        element={
+                            <MyTravelsPlaceholderPage
+                                title="Achievement center is in progress"
+                                subtitle="Placeholder"
+                            />
+                        }
+                    />
                 </Route>
             </Route>
 

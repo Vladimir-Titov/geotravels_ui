@@ -21,7 +21,7 @@ function renderAuthPage() {
             <MemoryRouter initialEntries={['/auth']}>
                 <Routes>
                     <Route path="/auth" element={<AuthPage />} />
-                    <Route path="/map" element={<div>Map Screen</div>} />
+                    <Route path="/my-travels" element={<div>My Travels Screen</div>} />
                 </Routes>
             </MemoryRouter>
         </AuthProvider>,
@@ -49,7 +49,7 @@ describe('AuthPage', () => {
         expect(getOtpMock).toHaveBeenCalledWith({ contact: 'test@example.com' })
     })
 
-    it('authenticates and redirects to map after OTP verify', async () => {
+    it('authenticates and redirects to my travels after OTP verify', async () => {
         getOtpMock.mockResolvedValue({ otp_id: 'test-otp-uuid', message: 'OTP sent' })
         confirmOtpMock.mockResolvedValue({
             access_token: 'access',
@@ -70,7 +70,7 @@ describe('AuthPage', () => {
         })
         fireEvent.click(screen.getByRole('button', { name: /confirm/i }))
 
-        expect(await screen.findByText('Map Screen')).toBeInTheDocument()
+        expect(await screen.findByText('My Travels Screen')).toBeInTheDocument()
         expect(confirmOtpMock).toHaveBeenCalledWith({ otp_id: 'test-otp-uuid', code: '654321' })
     })
 

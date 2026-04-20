@@ -76,3 +76,101 @@ export interface ConfirmOtpRequest {
     otp_id: string
     code: string
 }
+
+export interface DashboardUser {
+    firstName: string
+    fullName: string
+    unreadInboxCount: number
+}
+
+export interface DashboardHeader {
+    title: string
+    subtitle: string
+    recapBadge: string
+}
+
+export interface DashboardHeroStat {
+    label: string
+    value: number
+}
+
+export interface DashboardHero {
+    greeting: string
+    title: string
+    description: string
+    image: string
+    stats: DashboardHeroStat[]
+}
+
+export interface DashboardMilestone {
+    title: string
+    description: string
+    progressPercent: number
+    ctaLabel: string
+}
+
+export interface DashboardRecap {
+    title: string
+    summary: string
+    ctaLabel: string
+}
+
+export interface StoryCounters {
+    views: string
+    likes: string
+    comments: string
+}
+
+export interface DashboardStory {
+    id: string
+    title: string
+    description: string
+    visibility: string
+    image: string
+    counters: StoryCounters
+}
+
+export interface DashboardStoriesBlock {
+    draftCount: number
+    publicCount: number
+    featured: DashboardStory
+    compact: DashboardStory[]
+}
+
+export interface DashboardNotification {
+    id: string
+    title: string
+    description: string
+    status: string
+    tone: 'success' | 'warning'
+}
+
+export interface DashboardInboxPreview {
+    title: string
+    subtitle: string
+    items: DashboardNotification[]
+}
+
+export interface DashboardMostVisitedCountry {
+    rank: number
+    country: string
+    trips: number
+    progressPercent: number
+}
+
+export interface DashboardMostVisited {
+    title: string
+    subtitle: string
+    countries: DashboardMostVisitedCountry[]
+}
+
+export interface MyTravelsDashboardResponse {
+    user: DashboardUser
+    header: DashboardHeader
+    hero: DashboardHero
+    milestone: DashboardMilestone
+    recap: DashboardRecap
+    stories: DashboardStoriesBlock
+    inboxPreview: DashboardInboxPreview
+    mostVisited: DashboardMostVisited
+}

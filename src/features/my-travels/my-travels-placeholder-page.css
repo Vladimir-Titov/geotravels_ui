@@ -1,0 +1,38 @@
+.my-travels-placeholder {
+    display: grid;
+    place-items: center;
+    min-height: calc(100vh - 260px);
+}
+
+.my-travels-placeholder__card {
+    width: min(680px, 100%);
+    padding: 2.25rem 2rem;
+    text-align: center;
+}
+
+.my-travels-placeholder__card p {
+    margin: 0;
+    color: #6b786f;
+    font-weight: 600;
+}
+
+.my-travels-placeholder__card h1 {
+    margin: 0.55rem 0 0;
+    color: #24352f;
+    font-size: clamp(2rem, 2.8vw, 2.9rem);
+    line-height: 1.12;
+}
+
+.my-travels-placeholder__card a {
+    margin-top: 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.6rem;
+    border-radius: 999px;
+    border: 1px solid #cfccc3;
+    color: #2f6546;
+    background: #f6f4ef;
+    padding: 0.3rem 1rem;
+    font-weight: 700;
+}

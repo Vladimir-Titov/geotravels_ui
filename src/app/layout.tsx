@@ -21,12 +21,6 @@ export const AppLayout = () => {
                     <Outlet />
                 </PageContainer>
             </main>
-
-            <footer className="app-shell__footer">
-                <PageContainer>
-                    <p>Tripmark ©2026 — Keep your expeditions</p>
-                </PageContainer>
-            </footer>
         </div>
     )
 }

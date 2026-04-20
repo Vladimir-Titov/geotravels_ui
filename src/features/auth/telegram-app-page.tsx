@@ -54,7 +54,7 @@ export const TelegramAppPage = () => {
                         refreshToken: tokens.refresh_token,
                         tokenType: tokens.token_type,
                     })
-                    navigate('/map', { replace: true })
+                    navigate('/my-travels', { replace: true })
                 })
                 .catch((err) => {
                     Sentry.captureException(err, { tags: { context: 'tg-app-login' } })
