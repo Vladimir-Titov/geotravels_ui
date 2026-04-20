@@ -116,16 +116,18 @@ export interface DashboardRecap {
 }
 
 export interface StoryCounters {
-    views: string
-    likes: string
-    comments: string
+    views: number | null
+    likes: number | null
+    comments: number | null
 }
+
+export type StoryVisibility = 'public' | 'private' | 'followers'
 
 export interface DashboardStory {
     id: string
     title: string
     description: string
-    visibility: string
+    visibility: StoryVisibility
     image: string
     counters: StoryCounters
 }

@@ -4,11 +4,28 @@ import './top-navigation.css'
 
 interface TopNavigationProps {
     onSignOut: () => void
+    unreadInboxCount?: number
+    userFullName?: string
 }
 
 const placeholderTabs = ['History', 'Community', 'Profile']
 
-export const TopNavigation = ({ onSignOut }: TopNavigationProps) => {
+const getUserLabel = (fullName: string | undefined): { firstName: string; lastName: string } => {
+    if (!fullName || fullName.trim().length === 0) {
+        return { firstName: 'Traveler', lastName: '' }
+    }
+
+    const [firstName = 'Traveler', ...tail] = fullName.trim().split(' ')
+    return {
+        firstName,
+        lastName: tail.join(' '),
+    }
+}
+
+export const TopNavigation = ({ onSignOut, unreadInboxCount, userFullName }: TopNavigationProps) => {
+    const { firstName, lastName } = getUserLabel(userFullName)
+    const inboxLabel = `Inbox ${Math.max(0, unreadInboxCount ?? 0)}`
+
     return (
         <header className="tm-top-nav">
             <div className="tm-top-nav__inner">
@@ -35,14 +52,14 @@ export const TopNavigation = ({ onSignOut }: TopNavigationProps) => {
 
                 <div className="tm-top-nav__actions">
                     <button type="button" className="tm-top-nav__inbox" disabled>
-                        Inbox 3
+                        {inboxLabel}
                     </button>
 
                     <div className="tm-top-nav__user-chip" aria-label="Current user">
                         <span className="tm-top-nav__avatar" aria-hidden="true" />
                         <span>
-                            <strong>Olivia</strong>
-                            <small>Parker</small>
+                            <strong>{firstName}</strong>
+                            {lastName && <small>{lastName}</small>}
                         </span>
                     </div>
 

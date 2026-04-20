@@ -1,7 +1,11 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { AppLayout } from './layout'
 import { AuthPage, RequireAuth, TelegramAppPage, useAuth } from '../features/auth'
-import { MyTravelsPage, MyTravelsPlaceholderPage } from '../features/my-travels'
+import {
+    MyTravelsDashboardProvider,
+    MyTravelsPage,
+    MyTravelsPlaceholderPage,
+} from '../features/my-travels'
 
 const RootRedirect = () => {
     const { isAuthenticated } = useAuth()
@@ -15,7 +19,13 @@ const App = () => {
             <Route path="/tg-app" element={<TelegramAppPage />} />
 
             <Route element={<RequireAuth />}>
-                <Route element={<AppLayout />}>
+                <Route
+                    element={
+                        <MyTravelsDashboardProvider>
+                            <AppLayout />
+                        </MyTravelsDashboardProvider>
+                    }
+                >
                     <Route path="/my-travels" element={<MyTravelsPage />} />
                     <Route
                         path="/my-travels/add-story"

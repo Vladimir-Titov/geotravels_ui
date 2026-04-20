@@ -45,12 +45,12 @@ export const mockMyTravelsDashboard: MyTravelsDashboardResponse = {
             title: 'A slow morning through Alfama, coffee in hand and zero plans.',
             description:
                 'Saved as a polished draft with 14 photos and a cover already set. This is the kind of story that should become the visual benchmark for future posts.',
-            visibility: 'Followers',
+            visibility: 'followers',
             image: 'linear-gradient(130deg, #F6B05F 0%, #ED9158 32%, #A26A8E 100%)',
             counters: {
-                views: '286 views preview',
-                likes: '18 likes',
-                comments: '6 comments',
+                views: 286,
+                likes: 18,
+                comments: 6,
             },
         },
         compact: [
@@ -59,12 +59,12 @@ export const mockMyTravelsDashboard: MyTravelsDashboardResponse = {
                 title: 'Kyoto evenings and the first public story that felt truly finished.',
                 description:
                     'Tight copy, clean cover, good reaction count. This becomes the reference card for the future profile grid.',
-                visibility: 'Public',
+                visibility: 'public',
                 image: 'linear-gradient(135deg, #9FB8AD 0%, #B4C6BE 100%)',
                 counters: {
-                    views: '412 reach',
-                    likes: '31 likes',
-                    comments: '9 comments',
+                    views: 412,
+                    likes: 31,
+                    comments: 9,
                 },
             },
             {
@@ -72,12 +72,12 @@ export const mockMyTravelsDashboard: MyTravelsDashboardResponse = {
                 title: 'Istanbul rooftop notes — waiting for cover and final caption.',
                 description:
                     'Perfect example of a not-yet-published trip that should stay in the personal workspace until ready.',
-                visibility: 'Private',
+                visibility: 'private',
                 image: 'linear-gradient(135deg, #4C6B8A 0%, #8D5D57 46%, #CB8C56 100%)',
                 counters: {
-                    views: 'Draft only',
-                    likes: 'not visible',
-                    comments: 'to followers',
+                    views: null,
+                    likes: null,
+                    comments: null,
                 },
             },
         ],
