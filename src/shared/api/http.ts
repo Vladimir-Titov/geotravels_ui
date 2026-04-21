@@ -27,10 +27,22 @@ export class AuthExpiredError extends ApiError {
     }
 }
 
-interface RequestOptions extends Omit<RequestInit, 'body' | 'headers'> {
+interface BaseRequestOptions extends Omit<RequestInit, 'body' | 'headers'> {
     auth?: boolean
-    body?: unknown
     headers?: HeadersInit
+}
+
+interface RequestOptions extends BaseRequestOptions {
+    body?: unknown
+}
+
+interface FormRequestOptions extends BaseRequestOptions {
+    body: FormData
+}
+
+interface PreparedRequestOptions extends BaseRequestOptions {
+    body?: BodyInit
+    withJsonBody?: boolean
 }
 
 let refreshRequest: Promise<boolean> | null = null
@@ -128,11 +140,10 @@ const refreshAccessToken = async (): Promise<boolean> => {
 
 const performRequest = async (
     path: string,
-    options: RequestOptions,
+    options: PreparedRequestOptions,
     allowRefresh: boolean,
 ): Promise<Response> => {
-    const withBody = options.body !== undefined
-    const headers = createHeaders(options.headers, withBody)
+    const headers = createHeaders(options.headers, Boolean(options.withJsonBody))
     const useAuth = options.auth !== false
 
     if (useAuth) {
@@ -145,7 +156,7 @@ const performRequest = async (
     const response = await fetch(resolvePath(path), {
         ...options,
         headers,
-        body: withBody ? JSON.stringify(options.body) : undefined,
+        body: options.body,
     })
 
     if (response.status !== 401 || !useAuth || !allowRefresh || path === '/api/v1/auth/refresh') {
@@ -160,7 +171,7 @@ const performRequest = async (
     return performRequest(path, options, false)
 }
 
-export const requestJson = async <T>(path: string, options: RequestOptions = {}): Promise<T> => {
+const request = async <T>(path: string, options: PreparedRequestOptions = {}): Promise<T> => {
     let response: Response
     try {
         response = await performRequest(path, options, true)
@@ -180,6 +191,23 @@ export const requestJson = async <T>(path: string, options: RequestOptions = {})
     }
 
     return (await response.json()) as T
+}
+
+export const requestJson = async <T>(path: string, options: RequestOptions = {}): Promise<T> => {
+    const hasBody = options.body !== undefined
+    return request<T>(path, {
+        ...options,
+        withJsonBody: hasBody,
+        body: hasBody ? JSON.stringify(options.body) : undefined,
+    })
+}
+
+export const requestForm = async <T>(path: string, options: FormRequestOptions): Promise<T> => {
+    return request<T>(path, {
+        ...options,
+        withJsonBody: false,
+        body: options.body,
+    })
 }
 
 export const resetHttpStateForTests = (): void => {

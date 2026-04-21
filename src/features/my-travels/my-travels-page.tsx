@@ -45,7 +45,7 @@ export const MyTravelsPage = () => {
                 <p>{t('emptySubtitle')}</p>
                 <div className="my-travels-state__actions">
                     <button type="button" onClick={() => navigate('/my-travels/add-story')}>
-                        {t('addStory')}
+                        {t('addStory.entryCta')}
                     </button>
                     <button type="button" onClick={() => navigate('/my-travels/upload-photos')}>
                         {t('uploadPhotos')}

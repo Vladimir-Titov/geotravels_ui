@@ -4,7 +4,7 @@ import {
     getSessionTokens,
     setSessionTokens,
 } from '../../../features/auth/session'
-import { ApiError, requestJson, resetHttpStateForTests } from '../../../shared/api/http'
+import { ApiError, requestForm, requestJson, resetHttpStateForTests } from '../../../shared/api/http'
 
 const jsonResponse = (status: number, payload: unknown): Response => {
     return new Response(JSON.stringify(payload), {
@@ -78,5 +78,66 @@ describe('http client refresh flow', () => {
             expect(apiError.message).toBe('Please wait before requesting a new code')
             expect(apiError.retryAfterSeconds).toBe(47)
         }
+    })
+
+    it('sends form requests with auth and keeps multipart content-type unset', async () => {
+        setSessionTokens({
+            accessToken: 'form-access',
+            refreshToken: 'form-refresh',
+            tokenType: 'bearer',
+        })
+
+        const fetchMock = vi.fn<typeof fetch>().mockResolvedValueOnce(jsonResponse(200, { id: 'file-1' }))
+        vi.stubGlobal('fetch', fetchMock)
+
+        const formData = new FormData()
+        formData.append('visit_id', 'visit-1')
+        formData.append('file', new Blob(['image-bytes'], { type: 'image/jpeg' }), 'cover.jpg')
+
+        await expect(
+            requestForm<{ id: string }>('/api/v1/files', {
+                method: 'POST',
+                body: formData,
+            }),
+        ).resolves.toEqual({ id: 'file-1' })
+
+        const requestInit = fetchMock.mock.calls[0]?.[1] as RequestInit | undefined
+        expect(getHeader(requestInit?.headers, 'Authorization')).toBe('Bearer form-access')
+        expect(getHeader(requestInit?.headers, 'Accept')).toBe('application/json')
+        expect(getHeader(requestInit?.headers, 'Content-Type')).toBeNull()
+        expect(requestInit?.body).toBe(formData)
+    })
+
+    it('refreshes and retries form requests after 401', async () => {
+        setSessionTokens({
+            accessToken: 'old-form-access',
+            refreshToken: 'form-refresh',
+            tokenType: 'bearer',
+        })
+
+        const fetchMock = vi
+            .fn<typeof fetch>()
+            .mockResolvedValueOnce(jsonResponse(401, { detail: 'expired access token' }))
+            .mockResolvedValueOnce(
+                jsonResponse(201, { access_token: 'new-form-access', token_type: 'bearer' }),
+            )
+            .mockResolvedValueOnce(jsonResponse(200, { id: 'file-2' }))
+
+        vi.stubGlobal('fetch', fetchMock)
+
+        const formData = new FormData()
+        formData.append('visit_id', 'visit-2')
+        formData.append('file', new Blob(['img'], { type: 'image/jpeg' }), 'photo.jpg')
+
+        await expect(
+            requestForm<{ id: string }>('/api/v1/files', {
+                method: 'POST',
+                body: formData,
+            }),
+        ).resolves.toEqual({ id: 'file-2' })
+
+        expect(fetchMock).toHaveBeenCalledTimes(3)
+        const retryRequestInit = fetchMock.mock.calls[2]?.[1] as RequestInit | undefined
+        expect(getHeader(retryRequestInit?.headers, 'Authorization')).toBe('Bearer new-form-access')
     })
 })

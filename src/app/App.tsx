@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { AppLayout } from './layout'
 import { AuthPage, RequireAuth, TelegramAppPage, useAuth } from '../features/auth'
 import {
+    AddStoryPage,
     MyTravelsDashboardProvider,
     MyTravelsPage,
     MyTravelsPlaceholderPage,
@@ -27,15 +28,7 @@ const App = () => {
                     }
                 >
                     <Route path="/my-travels" element={<MyTravelsPage />} />
-                    <Route
-                        path="/my-travels/add-story"
-                        element={
-                            <MyTravelsPlaceholderPage
-                                titleKey="placeholder.addStory"
-                                subtitleKey="placeholder.subtitle"
-                            />
-                        }
-                    />
+                    <Route path="/my-travels/add-story" element={<AddStoryPage />} />
                     <Route
                         path="/my-travels/upload-photos"
                         element={

@@ -1,0 +1,122 @@
+.add-story-step-card {
+    border-radius: 16px;
+    background: #e8f1eb;
+    padding: 0.95rem 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.add-story-step-card__icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: #2f7d57;
+    color: #ffffff;
+    display: grid;
+    place-items: center;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.add-story-step-card h2 {
+    margin: 0;
+    color: #225d41;
+    font-size: 0.94rem;
+}
+
+.add-story-step-card p {
+    margin: 0.2rem 0 0;
+    color: #5f7268;
+    font-size: 0.95rem;
+}
+
+.add-story-field {
+    margin: 0;
+    display: grid;
+    gap: 0.35rem;
+}
+
+.add-story-field > span {
+    color: #5f7268;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+}
+
+.add-story-field input {
+    border: 1px solid #d3ddd6;
+    border-radius: 12px;
+    min-height: 2.9rem;
+    padding: 0.7rem 0.8rem;
+    color: #2b4035;
+    background: #edf2ed;
+}
+
+.add-story-field small {
+    margin-left: auto;
+    color: #66756c;
+    font-size: 0.76rem;
+}
+
+.add-story-field p {
+    margin: 0;
+    color: #66756c;
+    font-size: 0.85rem;
+}
+
+.add-story-field__error {
+    color: #b42318;
+}
+
+.add-story-suggestion-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border: 1px solid #d5ddd7;
+    border-radius: 12px;
+    background: #ffffff;
+    overflow: hidden;
+}
+
+.add-story-suggestion-list li + li {
+    border-top: 1px solid #edf0ec;
+}
+
+.add-story-suggestion-list button {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    color: #2b4035;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.65rem 0.8rem;
+    text-align: left;
+}
+
+.add-story-suggestion-list button strong {
+    font-size: 0.92rem;
+}
+
+.add-story-suggestion-list button span {
+    font-size: 0.78rem;
+    color: #607168;
+}
+
+.add-story-city-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.add-story-city-chip {
+    border: 1px solid #bdd6c8;
+    border-radius: 999px;
+    background: #e8f1eb;
+    color: #275a41;
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 0.25rem 0.7rem;
+}
