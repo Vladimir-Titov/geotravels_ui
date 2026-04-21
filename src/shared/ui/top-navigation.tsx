@@ -8,8 +8,6 @@ interface TopNavigationProps {
     userFullName?: string
 }
 
-const placeholderTabs = ['History', 'Community', 'Profile']
-
 const getUserLabel = (fullName: string | undefined): { firstName: string; lastName: string } => {
     if (!fullName || fullName.trim().length === 0) {
         return { firstName: 'Traveler', lastName: '' }
@@ -43,11 +41,6 @@ export const TopNavigation = ({ onSignOut, unreadInboxCount, userFullName }: Top
                     >
                         My travels
                     </NavLink>
-                    {placeholderTabs.map((tab) => (
-                        <span key={tab} className="tm-top-nav__link tm-top-nav__link--placeholder">
-                            {tab}
-                        </span>
-                    ))}
                 </nav>
 
                 <div className="tm-top-nav__actions">
