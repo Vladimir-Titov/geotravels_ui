@@ -6,6 +6,7 @@ import type {
     StoryLocation,
     StoryVisibility,
 } from '../../shared/api/types'
+import { API_BASE_URL } from '../../shared/config/env'
 
 const asRecord = (value: unknown): Record<string, unknown> =>
     typeof value === 'object' && value !== null ? (value as Record<string, unknown>) : {}
@@ -51,6 +52,18 @@ const asNullableNumber = (value: unknown): number | null => {
 const asBoolean = (value: unknown, fallback = false): boolean =>
     typeof value === 'boolean' ? value : fallback
 
+const toAbsoluteCoverUrl = (cover: string): string => {
+    if (cover.startsWith('http://') || cover.startsWith('https://')) {
+        return cover
+    }
+
+    if (cover.startsWith('/')) {
+        return `${API_BASE_URL}${cover}`
+    }
+
+    return cover
+}
+
 const normalizeVisibility = (value: unknown): StoryVisibility => {
     if (value === 'public' || value === 'private' || value === 'followers') {
         return value
@@ -82,13 +95,14 @@ const normalizeLocation = (value: unknown): StoryLocation => {
 const normalizeStory = (value: unknown, index: number): DashboardStory => {
     const story = asRecord(value)
     const counters = asRecord(story.counters)
+    const cover = asNullableString(story.cover)
 
     return {
         id: asString(story.id, `${index + 1}`),
         visibility: normalizeVisibility(story.visibility),
         createdAt: asString(story.created_at),
         location: normalizeLocation(story.location),
-        cover: asNullableString(story.cover),
+        cover: cover ? toAbsoluteCoverUrl(cover) : null,
         counters: {
             views: asNullableNumber(counters.views),
             likes: asNullableNumber(counters.likes),

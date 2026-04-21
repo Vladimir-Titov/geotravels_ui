@@ -48,7 +48,7 @@ export const DashboardHeader = ({
                         className="my-travels-btn my-travels-btn--primary"
                         onClick={onAddStory}
                     >
-                        {t('addStory')}
+                        {t('addStory.entryCta')}
                     </button>
                     <button
                         type="button"

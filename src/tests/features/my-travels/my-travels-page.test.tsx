@@ -85,20 +85,20 @@ describe('MyTravelsPage', () => {
         expect(screen.getByText('Like')).toBeInTheDocument()
     })
 
-    it('navigates to placeholder route by CTA click', () => {
+    it('navigates to add story route by CTA click', () => {
         useDashboardMock.mockReturnValue(createDashboardState())
 
         render(
             <MemoryRouter initialEntries={['/my-travels']}>
                 <Routes>
                     <Route path="/my-travels" element={<MyTravelsPage />} />
-                    <Route path="/my-travels/add-story" element={<div>Add story placeholder</div>} />
+                    <Route path="/my-travels/add-story" element={<div>Add story flow</div>} />
                 </Routes>
             </MemoryRouter>,
         )
 
         fireEvent.click(screen.getByRole('button', { name: /\+ Add story/i }))
 
-        expect(screen.getByText('Add story placeholder')).toBeInTheDocument()
+        expect(screen.getByText('Add story flow')).toBeInTheDocument()
     })
 })

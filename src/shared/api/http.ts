@@ -27,10 +27,26 @@ export class AuthExpiredError extends ApiError {
     }
 }
 
-interface RequestOptions extends Omit<RequestInit, 'body' | 'headers'> {
+interface BaseRequestOptions extends Omit<RequestInit, 'body' | 'headers'> {
     auth?: boolean
-    body?: unknown
     headers?: HeadersInit
+}
+
+interface RequestOptions extends BaseRequestOptions {
+    body?: unknown
+}
+
+interface FormRequestOptions extends BaseRequestOptions {
+    body: FormData
+}
+
+interface BlobRequestOptions extends BaseRequestOptions {
+    body?: BodyInit
+}
+
+interface PreparedRequestOptions extends BaseRequestOptions {
+    body?: BodyInit
+    withJsonBody?: boolean
 }
 
 let refreshRequest: Promise<boolean> | null = null
@@ -44,7 +60,9 @@ const resolvePath = (path: string): string => {
 
 const createHeaders = (headers: HeadersInit | undefined, withJsonBody: boolean): Headers => {
     const requestHeaders = new Headers(headers)
-    requestHeaders.set('Accept', 'application/json')
+    if (!requestHeaders.has('Accept')) {
+        requestHeaders.set('Accept', 'application/json')
+    }
     if (withJsonBody && !requestHeaders.has('Content-Type')) {
         requestHeaders.set('Content-Type', 'application/json')
     }
@@ -128,11 +146,10 @@ const refreshAccessToken = async (): Promise<boolean> => {
 
 const performRequest = async (
     path: string,
-    options: RequestOptions,
+    options: PreparedRequestOptions,
     allowRefresh: boolean,
 ): Promise<Response> => {
-    const withBody = options.body !== undefined
-    const headers = createHeaders(options.headers, withBody)
+    const headers = createHeaders(options.headers, Boolean(options.withJsonBody))
     const useAuth = options.auth !== false
 
     if (useAuth) {
@@ -145,7 +162,7 @@ const performRequest = async (
     const response = await fetch(resolvePath(path), {
         ...options,
         headers,
-        body: withBody ? JSON.stringify(options.body) : undefined,
+        body: options.body,
     })
 
     if (response.status !== 401 || !useAuth || !allowRefresh || path === '/api/v1/auth/refresh') {
@@ -160,7 +177,7 @@ const performRequest = async (
     return performRequest(path, options, false)
 }
 
-export const requestJson = async <T>(path: string, options: RequestOptions = {}): Promise<T> => {
+const request = async <T>(path: string, options: PreparedRequestOptions = {}): Promise<T> => {
     let response: Response
     try {
         response = await performRequest(path, options, true)
@@ -180,6 +197,49 @@ export const requestJson = async <T>(path: string, options: RequestOptions = {})
     }
 
     return (await response.json()) as T
+}
+
+const requestResponse = async (path: string, options: PreparedRequestOptions = {}): Promise<Response> => {
+    let response: Response
+    try {
+        response = await performRequest(path, options, true)
+    } catch (error) {
+        if (!(error instanceof AuthExpiredError)) {
+            Sentry.captureException(error)
+        }
+        throw error
+    }
+
+    if (!response.ok) {
+        throw await toApiError(response)
+    }
+
+    return response
+}
+
+export const requestJson = async <T>(path: string, options: RequestOptions = {}): Promise<T> => {
+    const hasBody = options.body !== undefined
+    return request<T>(path, {
+        ...options,
+        withJsonBody: hasBody,
+        body: hasBody ? JSON.stringify(options.body) : undefined,
+    })
+}
+
+export const requestForm = async <T>(path: string, options: FormRequestOptions): Promise<T> => {
+    return request<T>(path, {
+        ...options,
+        withJsonBody: false,
+        body: options.body,
+    })
+}
+
+export const requestBlob = async (path: string, options: BlobRequestOptions = {}): Promise<Blob> => {
+    const response = await requestResponse(path, {
+        ...options,
+        withJsonBody: false,
+    })
+    return response.blob()
 }
 
 export const resetHttpStateForTests = (): void => {

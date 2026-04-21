@@ -1,0 +1,64 @@
+.add-story-page {
+    min-height: calc(100vh - 220px);
+    display: grid;
+    place-items: center;
+    gap: 0.8rem;
+}
+
+.add-story-page__error {
+    width: min(420px, 100%);
+    border: 1px solid #e7b4ad;
+    border-radius: 12px;
+    background: #fef3f2;
+    color: #982312;
+    margin: 0;
+    padding: 0.65rem 0.8rem;
+    font-size: 0.92rem;
+}
+
+.add-story-page__hint {
+    width: min(420px, 100%);
+    margin: 0;
+    color: #607168;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.add-story-field {
+    margin: 0;
+    display: grid;
+    gap: 0.35rem;
+}
+
+.add-story-field > span {
+    color: #5f7268;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+}
+
+.add-story-field input,
+.add-story-field textarea {
+    border: 1px solid #d3ddd6;
+    border-radius: 12px;
+    min-height: 2.9rem;
+    padding: 0.7rem 0.8rem;
+    color: #2b4035;
+    background: #edf2ed;
+}
+
+.add-story-field input:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.add-story-field p {
+    margin: 0;
+    color: #66756c;
+    font-size: 0.85rem;
+}
+
+.add-story-field__error {
+    color: #b42318;
+}

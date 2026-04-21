@@ -5,7 +5,6 @@
   "retry": "Retry",
   "empty": "My travels is empty",
   "emptySubtitle": "Add your first story and upload photos to start filling the dashboard.",
-  "addStory": "+ Add story",
   "uploadPhotos": "Upload photos",
   "backToDashboard": "Back to dashboard",
   "loadError": "Unable to load dashboard right now. Please retry.",
@@ -73,5 +72,87 @@
     "shareCard": "Share-card flow is in progress",
     "achievement": "Achievement center is in progress",
     "subtitle": "Placeholder"
+  },
+  "addStory": {
+    "entryCta": "+ Add story",
+    "sessionHint": "Draft state is kept while you move between steps in this session.",
+    "cta": {
+      "next": "Next \u2192",
+      "back": "\u2190 Back",
+      "publish": "Publish"
+    },
+    "step1": {
+      "title": "Where did you travel?",
+      "heroTitle": "New story",
+      "heroSubtitle": "Add title and choose country",
+      "titleLabel": "Story title",
+      "titlePlaceholder": "Weekend in Istanbul",
+      "countryLabel": "Country",
+      "countryPlaceholder": "Start typing country...",
+      "citiesLabel": "Cities (optional)",
+      "citiesPlaceholder": "Select or type city...",
+      "citySelected": "Selected",
+      "cityAdd": "Add"
+    },
+    "step2": {
+      "title": "When was it?",
+      "heroTitle": "Trip dates",
+      "heroSubtitle": "Set when the trip happened",
+      "dateFromLabel": "Start date",
+      "dateToLabel": "End date",
+      "visibilityLabel": "Visibility",
+      "visibility": {
+        "public": "Public",
+        "friends": "Friends",
+        "private": "Only me"
+      },
+      "visibilityIcons": {
+        "public": "\ud83c\udf0d",
+        "friends": "\ud83d\udc65",
+        "private": "\ud83d\udd10"
+      }
+    },
+    "step3": {
+      "title": "Share the details",
+      "summaryLabel": "Your story",
+      "descriptionLabel": "Description (optional)",
+      "descriptionPlaceholder": "What was memorable? Any recommendations?",
+      "photosLabel": "Photos (up to {{count}})",
+      "untitled": "Untitled story",
+      "locationFallback": "Location not selected",
+      "periodFallback": "No date"
+    },
+    "validation": {
+      "titleRequired": "Enter a story title.",
+      "titleTooLong": "Title is too long.",
+      "countryRequired": "Select a country.",
+      "dateFromRequired": "Start date is required.",
+      "dateRangeInvalid": "End date cannot be earlier than start date.",
+      "draftMissing": "Draft is not ready yet. Please save step 2 first.",
+      "uploadInProgress": "Please wait until uploads finish."
+    },
+    "search": {
+      "loading": "Loading...",
+      "noCountries": "No countries found.",
+      "noCities": "No cities found.",
+      "countryLoadFailed": "Unable to load countries.",
+      "cityLoadFailed": "Unable to load cities.",
+      "selectCountryFirst": "Select a country to search cities."
+    },
+    "errors": {
+      "saveDraftFailed": "Unable to save draft now.",
+      "publishFailed": "Unable to publish the story now.",
+      "draftNotReady": "Draft is not ready for upload."
+    },
+    "upload": {
+      "failed": "Upload failed",
+      "retry": "Retry",
+      "uploading": "Uploading...",
+      "add": "+",
+      "hint": "Upload photos one by one or in batch. First successful photo becomes cover by default.",
+      "makeCover": "Set cover",
+      "coverSelected": "Cover",
+      "remove": "Remove"
+    }
   }
 }
