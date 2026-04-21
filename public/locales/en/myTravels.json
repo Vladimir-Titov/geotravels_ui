@@ -12,7 +12,8 @@
   "header": {
     "title": "My travels",
     "subtitle": "Track your stories, progress and travel highlights in one place.",
-    "recapBadge": "{{month}} recap ready"
+    "recapReady": "{{month}} recap ready",
+    "recapPending": "Recap in progress"
   },
   "hero": {
     "greeting": "Welcome back, {{name}}",
@@ -38,27 +39,28 @@
   "stories": {
     "recentTitle": "Recent travel stories",
     "description": "This is the heartbeat of the product: a personal archive today, a social feed tomorrow.",
-    "draftsCount": "{{count}} drafts",
-    "publicCount": "{{count}} public",
+    "recentCount": "{{count}} recent stories",
     "tripTo": "Trip to {{place}}",
-    "untitledTrip": "Untitled trip"
-  },
-  "visibility": {
-    "followers": "Followers",
-    "public": "Public",
-    "private": "Private"
+    "untitledTrip": "Untitled trip",
+    "empty": "Your latest travel stories will appear here."
   },
   "metrics": {
     "views": "views",
     "likes": "likes",
     "comments": "comments",
-    "draftOnly": "Draft only",
-    "hidden": "{{label}} hidden"
+    "pending": "Engagement data will appear soon."
   },
   "inbox": {
     "title": "Inbox preview",
     "subtitle": "Recent notifications",
-    "unread": "{{count}} unread"
+    "unread": "{{count}} unread",
+    "empty": "Notifications will appear here soon.",
+    "types": {
+      "like": "Like",
+      "follow": "New follower",
+      "comment": "Comment",
+      "notification": "Notification"
+    }
   },
   "mostVisited": {
     "title": "Most visited",

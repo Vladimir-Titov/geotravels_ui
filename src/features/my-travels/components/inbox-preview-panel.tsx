@@ -6,6 +6,19 @@ interface InboxPreviewPanelProps {
     inboxPreview: MyTravelsDashboardResponse['inboxPreview']
 }
 
+const getNotificationTitle = (type: string, t: (key: string) => string): string => {
+    switch (type.trim().toLowerCase()) {
+        case 'like':
+            return t('inbox.types.like')
+        case 'follow':
+            return t('inbox.types.follow')
+        case 'comment':
+            return t('inbox.types.comment')
+        default:
+            return t('inbox.types.notification')
+    }
+}
+
 const formatNotificationDate = (value: string, language: string): string => {
     const parsed = new Date(value)
     if (Number.isNaN(parsed.getTime())) {
@@ -31,6 +44,7 @@ export const InboxPreviewPanel = ({ inboxPreview }: InboxPreviewPanelProps) => {
             <p>{t('inbox.subtitle')}</p>
 
             <div className="my-travels-inbox__list">
+                {inboxPreview.items.length === 0 && <p>{t('inbox.empty')}</p>}
                 {inboxPreview.items.map((item) => (
                     <article key={`${item.type}-${item.createdAt}-${item.text}`} className="inbox-item">
                         <span
@@ -38,7 +52,7 @@ export const InboxPreviewPanel = ({ inboxPreview }: InboxPreviewPanelProps) => {
                             aria-hidden="true"
                         />
                         <div className="inbox-item__body">
-                            <h3>{item.type}</h3>
+                            <h3>{getNotificationTitle(item.type, t)}</h3>
                             <p>{item.text}</p>
                         </div>
                         <strong>{formatNotificationDate(item.createdAt, language)}</strong>

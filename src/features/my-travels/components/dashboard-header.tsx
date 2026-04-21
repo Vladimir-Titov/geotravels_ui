@@ -3,6 +3,7 @@ import './dashboard-header.css'
 
 interface DashboardHeaderProps {
     recapPeriod: string
+    recapIsReady: boolean
     onAddStory: () => void
     onUploadPhotos: () => void
 }
@@ -20,9 +21,17 @@ const formatRecapMonth = (period: string, language: string): string => {
     return parsed.toLocaleDateString(language, { month: 'long' })
 }
 
-export const DashboardHeader = ({ recapPeriod, onAddStory, onUploadPhotos }: DashboardHeaderProps) => {
+export const DashboardHeader = ({
+    recapPeriod,
+    recapIsReady,
+    onAddStory,
+    onUploadPhotos,
+}: DashboardHeaderProps) => {
     const { t, i18n } = useTranslation('myTravels')
     const recapMonth = formatRecapMonth(recapPeriod, i18n.resolvedLanguage ?? i18n.language)
+    const recapBadgeLabel = recapIsReady
+        ? t('header.recapReady', { month: recapMonth || recapPeriod })
+        : t('header.recapPending')
 
     return (
         <header className="my-travels-head">
@@ -32,7 +41,7 @@ export const DashboardHeader = ({ recapPeriod, onAddStory, onUploadPhotos }: Das
             </div>
 
             <div className="my-travels-head__actions">
-                <span className="my-travels-badge">{t('header.recapBadge', { month: recapMonth })}</span>
+                <span className="my-travels-badge">{recapBadgeLabel}</span>
                 <div className="my-travels-head__buttons">
                     <button
                         type="button"

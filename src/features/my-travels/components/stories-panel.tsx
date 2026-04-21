@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react'
 import { useTranslation } from 'react-i18next'
-import type { DashboardStory, StoryVisibility } from '../../../shared/api/types'
+import type { DashboardStory } from '../../../shared/api/types'
 import './stories-panel.css'
 
 interface StoriesPanelProps {
@@ -45,17 +45,10 @@ const StoryCard = ({
     language: string
 }) => {
     const { t } = useTranslation('myTravels')
-    const visibilityLabels: Record<StoryVisibility, string> = {
-        followers: t('visibility.followers'),
-        public: t('visibility.public'),
-        private: t('visibility.private'),
-    }
 
-    const formatMetric = (value: number | null, label: 'views' | 'likes' | 'comments'): string => {
+    const formatMetric = (value: number | null, label: 'views' | 'likes' | 'comments'): string | null => {
         if (value === null) {
-            return label === 'views'
-                ? t('metrics.draftOnly')
-                : t('metrics.hidden', { label: t(`metrics.${label}`) })
+            return null
         }
 
         return `${value} ${t(`metrics.${label}`)}`
@@ -65,7 +58,9 @@ const StoryCard = ({
         formatMetric(story.counters.views, 'views'),
         formatMetric(story.counters.likes, 'likes'),
         formatMetric(story.counters.comments, 'comments'),
-    ].join(' • ')
+    ]
+        .filter((metric): metric is string => metric !== null)
+        .join(' • ')
 
     const place = story.location.cityName ?? story.location.countryName
     const storyTitle = place ? t('stories.tripTo', { place }) : t('stories.untitledTrip')
@@ -75,10 +70,9 @@ const StoryCard = ({
         <article className={featured ? 'story-card story-card--featured' : 'story-card story-card--compact'}>
             <div className="story-card__image" style={getStoryCoverStyle(story)} />
             <div className="story-card__body">
-                <span className="story-card__badge">{visibilityLabels[story.visibility]}</span>
                 <h3>{storyTitle}</h3>
                 <p>{storyDate}</p>
-                <strong>{storyCounters}</strong>
+                <strong>{storyCounters || t('metrics.pending')}</strong>
             </div>
         </article>
     )
@@ -88,8 +82,6 @@ export const StoriesPanel = ({ stories }: StoriesPanelProps) => {
     const { t, i18n } = useTranslation('myTravels')
     const featured = stories[0]
     const compact = stories.slice(1)
-    const draftCount = stories.filter((story) => story.visibility === 'private').length
-    const publicCount = stories.filter((story) => story.visibility === 'public').length
     const language = i18n.resolvedLanguage ?? i18n.language
 
     return (
@@ -100,8 +92,7 @@ export const StoriesPanel = ({ stories }: StoriesPanelProps) => {
                     <p>{t('stories.description')}</p>
                 </div>
                 <div className="my-travels-stories__badges">
-                    <span>{t('stories.draftsCount', { count: draftCount })}</span>
-                    <span>{t('stories.publicCount', { count: publicCount })}</span>
+                    <span>{t('stories.recentCount', { count: stories.length })}</span>
                 </div>
             </header>
 
@@ -110,6 +101,8 @@ export const StoriesPanel = ({ stories }: StoriesPanelProps) => {
             {compact.map((story) => (
                 <StoryCard key={story.id} story={story} language={language} />
             ))}
+
+            {!featured && <p>{t('stories.empty')}</p>}
         </section>
     )
 }

@@ -57,6 +57,20 @@ export const LoginStep = ({ onEmailSuccess, onSocialSuccess }: LoginStepProps) =
         return apiError.message || fallbackError
     }
 
+    const normalizeTelegramAuthError = (apiError: ApiError): string => {
+        const sourceMessage = apiError.message || ''
+
+        if (sourceMessage.includes('Telegram auth date is too old')) {
+            return t('telegramExpired')
+        }
+
+        if (sourceMessage.includes('Invalid telegram')) {
+            return t('telegramInvalid')
+        }
+
+        return t('telegramFailed')
+    }
+
     const validate = (): boolean => {
         const nextErrors: FormErrors = {}
 
@@ -80,7 +94,7 @@ export const LoginStep = ({ onEmailSuccess, onSocialSuccess }: LoginStepProps) =
             const response = await telegramLogin(data)
             onSocialSuccess(response)
         } catch (caught) {
-            setError(caught instanceof ApiError ? caught.message : t('telegramFailed'))
+            setError(caught instanceof ApiError ? normalizeTelegramAuthError(caught) : t('telegramFailed'))
         } finally {
             setIsTelegramPending(false)
         }

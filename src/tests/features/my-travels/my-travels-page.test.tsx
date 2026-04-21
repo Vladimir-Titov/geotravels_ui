@@ -79,7 +79,10 @@ describe('MyTravelsPage', () => {
         expect(screen.getByRole('heading', { name: 'My travels' })).toBeInTheDocument()
         expect(screen.getByRole('heading', { name: 'Recent travel stories' })).toBeInTheDocument()
         expect(screen.getByRole('heading', { name: 'Inbox preview' })).toBeInTheDocument()
+        expect(screen.getByText('Recap in progress')).toBeInTheDocument()
+        expect(screen.getByText('3 recent stories')).toBeInTheDocument()
         expect(screen.getByText('3 unread')).toBeInTheDocument()
+        expect(screen.getByText('Like')).toBeInTheDocument()
     })
 
     it('navigates to placeholder route by CTA click', () => {

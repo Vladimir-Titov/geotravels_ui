@@ -59,6 +59,7 @@ export const MyTravelsPage = () => {
         <div className="my-travels-page">
             <DashboardHeader
                 recapPeriod={data.recap.period}
+                recapIsReady={data.recap.isReady}
                 onAddStory={() => navigate('/my-travels/add-story')}
                 onUploadPhotos={() => navigate('/my-travels/upload-photos')}
             />
