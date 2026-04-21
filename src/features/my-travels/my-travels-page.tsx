@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import {
     DashboardHeader,
@@ -13,13 +14,14 @@ import './my-travels-page.css'
 
 export const MyTravelsPage = () => {
     const navigate = useNavigate()
+    const { t } = useTranslation('myTravels')
     const { data, error, isLoading, isEmpty, refetch } = useMyTravelsDashboard()
 
     if (isLoading) {
         return (
             <section className="my-travels-state" aria-live="polite">
-                <h1>Loading dashboard</h1>
-                <p>Preparing your travel cockpit...</p>
+                <h1>{t('loading')}</h1>
+                <p>{t('loadingSubtitle')}</p>
             </section>
         )
     }
@@ -27,10 +29,10 @@ export const MyTravelsPage = () => {
     if (error) {
         return (
             <section className="my-travels-state my-travels-state--error" role="alert">
-                <h1>Dashboard unavailable</h1>
+                <h1>{t('unavailable')}</h1>
                 <p>{error}</p>
                 <button type="button" onClick={() => void refetch()}>
-                    Retry
+                    {t('retry')}
                 </button>
             </section>
         )
@@ -39,11 +41,16 @@ export const MyTravelsPage = () => {
     if (!data || isEmpty) {
         return (
             <section className="my-travels-state">
-                <h1>My travels is empty</h1>
-                <p>Add your first story and upload photos to start filling the dashboard.</p>
-                <button type="button" onClick={() => navigate('/my-travels/add-story')}>
-                    + Add story
-                </button>
+                <h1>{t('empty')}</h1>
+                <p>{t('emptySubtitle')}</p>
+                <div className="my-travels-state__actions">
+                    <button type="button" onClick={() => navigate('/my-travels/add-story')}>
+                        {t('addStory')}
+                    </button>
+                    <button type="button" onClick={() => navigate('/my-travels/upload-photos')}>
+                        {t('uploadPhotos')}
+                    </button>
+                </div>
             </section>
         )
     }
@@ -51,27 +58,27 @@ export const MyTravelsPage = () => {
     return (
         <div className="my-travels-page">
             <DashboardHeader
-                header={data.header}
+                recapPeriod={data.recap.period}
                 onAddStory={() => navigate('/my-travels/add-story')}
                 onUploadPhotos={() => navigate('/my-travels/upload-photos')}
             />
 
             <div className="my-travels-grid">
-                <HeroPanel hero={data.hero} />
+                <HeroPanel
+                    displayName={data.me.displayName ?? data.me.username}
+                    stats={data.stats}
+                />
                 <MilestonePanel
-                    milestone={data.milestone}
+                    milestone={data.nextMilestone}
                     onOpenAchievement={() => navigate('/my-travels/achievement')}
                 />
                 <RecapPanel
                     recap={data.recap}
                     onOpenShareCard={() => navigate('/my-travels/share-card')}
                 />
-                <StoriesPanel stories={data.stories} />
-                <InboxPreviewPanel
-                    inboxPreview={data.inboxPreview}
-                    unreadInboxCount={data.user.unreadInboxCount}
-                />
-                <MostVisitedPanel mostVisited={data.mostVisited} />
+                <StoriesPanel stories={data.recentStories} />
+                <InboxPreviewPanel inboxPreview={data.inboxPreview} />
+                <MostVisitedPanel countries={data.mostVisited} />
             </div>
         </div>
     )

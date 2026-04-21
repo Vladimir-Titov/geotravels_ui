@@ -1,19 +1,22 @@
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { SurfaceCard } from '../../shared/ui'
 import './my-travels-placeholder-page.css'
 
 interface MyTravelsPlaceholderPageProps {
-    title: string
-    subtitle: string
+    titleKey: string
+    subtitleKey: string
 }
 
-export const MyTravelsPlaceholderPage = ({ title, subtitle }: MyTravelsPlaceholderPageProps) => {
+export const MyTravelsPlaceholderPage = ({ titleKey, subtitleKey }: MyTravelsPlaceholderPageProps) => {
+    const { t } = useTranslation('myTravels')
+
     return (
         <div className="my-travels-placeholder">
             <SurfaceCard className="my-travels-placeholder__card">
-                <p>{subtitle}</p>
-                <h1>{title}</h1>
-                <Link to="/my-travels">Back to dashboard</Link>
+                <p>{t(subtitleKey)}</p>
+                <h1>{t(titleKey)}</h1>
+                <Link to="/my-travels">{t('backToDashboard')}</Link>
             </SurfaceCard>
         </div>
     )

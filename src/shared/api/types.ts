@@ -50,42 +50,17 @@ export interface ConfirmOtpRequest {
     code: string
 }
 
-export interface DashboardUser {
-    firstName: string
-    fullName: string
-    unreadInboxCount: number
-}
-
-export interface DashboardHeader {
-    title: string
-    subtitle: string
-    recapBadge: string
-}
-
-export interface DashboardHeroStat {
-    label: string
-    value: number
-}
-
-export interface DashboardHero {
-    greeting: string
-    title: string
-    description: string
-    image: string
-    stats: DashboardHeroStat[]
-}
-
 export interface DashboardMilestone {
-    title: string
-    description: string
     progressPercent: number
-    ctaLabel: string
+    currentValue: number
+    targetValue: number
 }
 
 export interface DashboardRecap {
-    title: string
-    summary: string
-    ctaLabel: string
+    period: string
+    isReady: boolean
+    shareUrl: string | null
+    shareRoute: string | null
 }
 
 export interface StoryCounters {
@@ -96,56 +71,51 @@ export interface StoryCounters {
 
 export type StoryVisibility = 'public' | 'private' | 'followers'
 
+export interface StoryLocation {
+    countryCode: string
+    countryName: string | null
+    cityId: string | null
+    cityName: string | null
+}
+
 export interface DashboardStory {
     id: string
-    title: string
-    description: string
     visibility: StoryVisibility
-    image: string
+    createdAt: string
+    location: StoryLocation
+    cover: string | null
     counters: StoryCounters
 }
 
-export interface DashboardStoriesBlock {
-    draftCount: number
-    publicCount: number
-    featured: DashboardStory
-    compact: DashboardStory[]
-}
-
 export interface DashboardNotification {
-    id: string
-    title: string
-    description: string
-    status: string
-    tone: 'success' | 'warning'
-}
-
-export interface DashboardInboxPreview {
-    title: string
-    subtitle: string
-    items: DashboardNotification[]
+    type: string
+    text: string
+    createdAt: string
+    isRead: boolean
 }
 
 export interface DashboardMostVisitedCountry {
-    rank: number
-    country: string
-    trips: number
-    progressPercent: number
-}
-
-export interface DashboardMostVisited {
-    title: string
-    subtitle: string
-    countries: DashboardMostVisitedCountry[]
+    countryName: string | null
+    tripsCount: number
+    relativeBarValue: number
 }
 
 export interface MyTravelsDashboardResponse {
-    user: DashboardUser
-    header: DashboardHeader
-    hero: DashboardHero
-    milestone: DashboardMilestone
+    me: {
+        displayName: string | null
+        username: string | null
+    }
+    stats: {
+        countriesCount: number
+        citiesCount: number
+        storiesCount: number
+    }
+    nextMilestone: DashboardMilestone
     recap: DashboardRecap
-    stories: DashboardStoriesBlock
-    inboxPreview: DashboardInboxPreview
-    mostVisited: DashboardMostVisited
+    recentStories: DashboardStory[]
+    inboxPreview: {
+        unreadCount: number
+        items: DashboardNotification[]
+    }
+    mostVisited: DashboardMostVisitedCountry[]
 }

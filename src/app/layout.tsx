@@ -18,8 +18,8 @@ export const AppLayout = () => {
         <div className="app-shell">
             <TopNavigation
                 onSignOut={signOut}
-                unreadInboxCount={data?.user.unreadInboxCount}
-                userFullName={data?.user.fullName}
+                unreadInboxCount={data?.inboxPreview.unreadCount}
+                userFullName={data?.me.displayName ?? data?.me.username ?? undefined}
             />
 
             <main className="app-shell__content">

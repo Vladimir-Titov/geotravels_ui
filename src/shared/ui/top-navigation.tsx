@@ -1,5 +1,7 @@
+import { useTranslation } from 'react-i18next'
 import { NavLink } from 'react-router-dom'
 import logo from '../../assets/logo.png'
+import { LanguageSwitcher } from './language-switcher'
 import './top-navigation.css'
 
 interface TopNavigationProps {
@@ -8,12 +10,15 @@ interface TopNavigationProps {
     userFullName?: string
 }
 
-const getUserLabel = (fullName: string | undefined): { firstName: string; lastName: string } => {
+const getUserLabel = (
+    fullName: string | undefined,
+    fallbackUserName: string,
+): { firstName: string; lastName: string } => {
     if (!fullName || fullName.trim().length === 0) {
-        return { firstName: 'Traveler', lastName: '' }
+        return { firstName: fallbackUserName, lastName: '' }
     }
 
-    const [firstName = 'Traveler', ...tail] = fullName.trim().split(' ')
+    const [firstName = fallbackUserName, ...tail] = fullName.trim().split(' ')
     return {
         firstName,
         lastName: tail.join(' '),
@@ -21,25 +26,26 @@ const getUserLabel = (fullName: string | undefined): { firstName: string; lastNa
 }
 
 export const TopNavigation = ({ onSignOut, unreadInboxCount, userFullName }: TopNavigationProps) => {
-    const { firstName, lastName } = getUserLabel(userFullName)
-    const inboxLabel = `Inbox ${Math.max(0, unreadInboxCount ?? 0)}`
+    const { t } = useTranslation('common')
+    const { firstName, lastName } = getUserLabel(userFullName, t('defaultUser'))
+    const inboxLabel = t('inbox', { count: Math.max(0, unreadInboxCount ?? 0) })
 
     return (
         <header className="tm-top-nav">
             <div className="tm-top-nav__inner">
-                <NavLink to="/my-travels" className="tm-top-nav__brand" aria-label="Tripmark dashboard">
+                <NavLink to="/my-travels" className="tm-top-nav__brand" aria-label={t('aria.dashboard')}>
                     <img className="tm-top-nav__brand-logo" src={logo} alt="" aria-hidden="true" />
-                    <span>Tripmark</span>
+                    <span>{t('brand')}</span>
                 </NavLink>
 
-                <nav className="tm-top-nav__menu" aria-label="My travels navigation">
+                <nav className="tm-top-nav__menu" aria-label={t('aria.navigation')}>
                     <NavLink
                         to="/my-travels"
                         className={({ isActive }) =>
                             isActive ? 'tm-top-nav__link is-active' : 'tm-top-nav__link'
                         }
                     >
-                        My travels
+                        {t('nav.myTravels')}
                     </NavLink>
                 </nav>
 
@@ -48,7 +54,7 @@ export const TopNavigation = ({ onSignOut, unreadInboxCount, userFullName }: Top
                         {inboxLabel}
                     </button>
 
-                    <div className="tm-top-nav__user-chip" aria-label="Current user">
+                    <div className="tm-top-nav__user-chip" aria-label={t('aria.currentUser')}>
                         <span className="tm-top-nav__avatar" aria-hidden="true" />
                         <span>
                             <strong>{firstName}</strong>
@@ -56,8 +62,10 @@ export const TopNavigation = ({ onSignOut, unreadInboxCount, userFullName }: Top
                         </span>
                     </div>
 
+                    <LanguageSwitcher />
+
                     <button type="button" className="tm-top-nav__logout" onClick={onSignOut}>
-                        Logout
+                        {t('logout')}
                     </button>
                 </div>
             </div>

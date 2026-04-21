@@ -1,0 +1,75 @@
+{
+  "loading": "Loading dashboard",
+  "loadingSubtitle": "Preparing your travel cockpit...",
+  "unavailable": "Dashboard unavailable",
+  "retry": "Retry",
+  "empty": "My travels is empty",
+  "emptySubtitle": "Add your first story and upload photos to start filling the dashboard.",
+  "addStory": "+ Add story",
+  "uploadPhotos": "Upload photos",
+  "backToDashboard": "Back to dashboard",
+  "loadError": "Unable to load dashboard right now. Please retry.",
+  "header": {
+    "title": "My travels",
+    "subtitle": "Track your stories, progress and travel highlights in one place.",
+    "recapBadge": "{{month}} recap ready"
+  },
+  "hero": {
+    "greeting": "Welcome back, {{name}}",
+    "title": "Your dashboard is ready",
+    "description": "Continue writing your travel stories and tracking progress."
+  },
+  "stats": {
+    "countries": "Countries",
+    "cities": "Cities",
+    "stories": "Stories"
+  },
+  "milestone": {
+    "nextMilestone": "Next milestone",
+    "title": "Explorer / {{target}} countries",
+    "description": "{{current}} of {{target}} countries visited. Keep exploring!",
+    "cta": "+ Achievement"
+  },
+  "recap": {
+    "title": "Monthly recap",
+    "notReady": "Your monthly recap will be available soon.",
+    "cta": "Open share-card"
+  },
+  "stories": {
+    "recentTitle": "Recent travel stories",
+    "description": "This is the heartbeat of the product: a personal archive today, a social feed tomorrow.",
+    "draftsCount": "{{count}} drafts",
+    "publicCount": "{{count}} public",
+    "tripTo": "Trip to {{place}}",
+    "untitledTrip": "Untitled trip"
+  },
+  "visibility": {
+    "followers": "Followers",
+    "public": "Public",
+    "private": "Private"
+  },
+  "metrics": {
+    "views": "views",
+    "likes": "likes",
+    "comments": "comments",
+    "draftOnly": "Draft only",
+    "hidden": "{{label}} hidden"
+  },
+  "inbox": {
+    "title": "Inbox preview",
+    "subtitle": "Recent notifications",
+    "unread": "{{count}} unread"
+  },
+  "mostVisited": {
+    "title": "Most visited",
+    "subtitle": "Your top destinations",
+    "tripsCount": "{{count}} trips"
+  },
+  "placeholder": {
+    "addStory": "Add story flow is in progress",
+    "uploadPhotos": "Upload photos flow is in progress",
+    "shareCard": "Share-card flow is in progress",
+    "achievement": "Achievement center is in progress",
+    "subtitle": "Placeholder"
+  }
+}

@@ -7,6 +7,7 @@ import {
     useState,
     type PropsWithChildren,
 } from 'react'
+import { useTranslation } from 'react-i18next'
 import { USE_DASHBOARD_MOCK } from '../../shared/config/env'
 import type { MyTravelsDashboardResponse } from '../../shared/api/types'
 import { fetchMyTravelsDashboard } from './my-travels-api'
@@ -23,15 +24,8 @@ interface MyTravelsDashboardState {
 
 const MyTravelsDashboardContext = createContext<MyTravelsDashboardState | null>(null)
 
-const normalizeErrorMessage = (error: unknown): string => {
-    if (error instanceof Error && error.message.trim().length > 0) {
-        return error.message
-    }
-
-    return 'Unable to load dashboard right now. Please retry.'
-}
-
 const useMyTravelsDashboardSource = (): MyTravelsDashboardState => {
+    const { t } = useTranslation('myTravels')
     const [data, setData] = useState<MyTravelsDashboardResponse | null>(null)
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const [error, setError] = useState<string | null>(null)
@@ -48,11 +42,15 @@ const useMyTravelsDashboardSource = (): MyTravelsDashboardState => {
             setData(dashboard)
         } catch (requestError) {
             setData(null)
-            setError(normalizeErrorMessage(requestError))
+            if (requestError instanceof Error && requestError.message.trim().length > 0) {
+                setError(requestError.message)
+            } else {
+                setError(t('loadError'))
+            }
         } finally {
             setIsLoading(false)
         }
-    }, [])
+    }, [t])
 
     useEffect(() => {
         void refetch()

@@ -1,36 +1,52 @@
-import type { DashboardHeader as DashboardHeaderData } from '../../../shared/api/types'
+import { useTranslation } from 'react-i18next'
 import './dashboard-header.css'
 
 interface DashboardHeaderProps {
-    header: DashboardHeaderData
+    recapPeriod: string
     onAddStory: () => void
     onUploadPhotos: () => void
 }
 
-export const DashboardHeader = ({ header, onAddStory, onUploadPhotos }: DashboardHeaderProps) => {
+const formatRecapMonth = (period: string, language: string): string => {
+    if (!period) {
+        return ''
+    }
+
+    const parsed = new Date(`${period}-01T00:00:00.000Z`)
+    if (Number.isNaN(parsed.getTime())) {
+        return period
+    }
+
+    return parsed.toLocaleDateString(language, { month: 'long' })
+}
+
+export const DashboardHeader = ({ recapPeriod, onAddStory, onUploadPhotos }: DashboardHeaderProps) => {
+    const { t, i18n } = useTranslation('myTravels')
+    const recapMonth = formatRecapMonth(recapPeriod, i18n.resolvedLanguage ?? i18n.language)
+
     return (
         <header className="my-travels-head">
             <div className="my-travels-head__text">
-                <h1>{header.title}</h1>
-                <p>{header.subtitle}</p>
+                <h1>{t('header.title')}</h1>
+                <p>{t('header.subtitle')}</p>
             </div>
 
             <div className="my-travels-head__actions">
-                <span className="my-travels-badge">{header.recapBadge}</span>
+                <span className="my-travels-badge">{t('header.recapBadge', { month: recapMonth })}</span>
                 <div className="my-travels-head__buttons">
                     <button
                         type="button"
                         className="my-travels-btn my-travels-btn--primary"
                         onClick={onAddStory}
                     >
-                        + Add story
+                        {t('addStory')}
                     </button>
                     <button
                         type="button"
                         className="my-travels-btn my-travels-btn--secondary"
                         onClick={onUploadPhotos}
                     >
-                        Upload photos
+                        {t('uploadPhotos')}
                     </button>
                 </div>
             </div>

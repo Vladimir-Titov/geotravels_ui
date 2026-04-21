@@ -1,114 +1,99 @@
 import type { MyTravelsDashboardResponse } from '../../shared/api/types'
 
 export const mockMyTravelsDashboard: MyTravelsDashboardResponse = {
-    user: {
-        firstName: 'Olivia',
-        fullName: 'Olivia Parker',
-        unreadInboxCount: 3,
+    me: {
+        displayName: 'Olivia Parker',
+        username: 'olivia',
     },
-    header: {
-        title: 'My travels',
-        subtitle:
-            'Your personal travel cockpit: track progress, publish stories, and pick up the next journey in one glance.',
-        recapBadge: 'April recap ready',
+    stats: {
+        countriesCount: 27,
+        citiesCount: 143,
+        storiesCount: 14,
     },
-    hero: {
-        greeting: 'Good afternoon, Olivia',
-        title: 'Your next story is one publish away.',
-        description:
-            'You already have enough material for a strong public profile: visited cities, photo archive, and one recap to share. Let’s turn that into momentum.',
-        image:
-            'linear-gradient(160deg, #7BB8C8 0%, #B8D3E7 28%, #F2DCC5 58%, #D9A989 100%)',
-        stats: [
-            { label: 'Countries', value: 27 },
-            { label: 'Cities', value: 143 },
-            { label: 'Stories', value: 14 },
-        ],
-    },
-    milestone: {
-        title: 'Explorer / 10 countries',
-        description:
-            '7 of 10 countries published as stories. One more strong week and this becomes your first visible achievement.',
+    nextMilestone: {
         progressPercent: 70,
-        ctaLabel: '+ Achievement',
+        currentValue: 7,
+        targetValue: 10,
     },
     recap: {
-        title: 'April recap',
-        summary: '9 trips, 3 new cities, 86 photos.',
-        ctaLabel: 'Open share-card',
+        period: '2026-04',
+        isReady: false,
+        shareUrl: null,
+        shareRoute: null,
     },
-    stories: {
-        draftCount: 2,
-        publicCount: 5,
-        featured: {
-            id: 'featured',
-            title: 'A slow morning through Alfama, coffee in hand and zero plans.',
-            description:
-                'Saved as a polished draft with 14 photos and a cover already set. This is the kind of story that should become the visual benchmark for future posts.',
+    recentStories: [
+        {
+            id: 'story-1',
             visibility: 'followers',
-            image: 'linear-gradient(130deg, #F6B05F 0%, #ED9158 32%, #A26A8E 100%)',
+            createdAt: '2026-04-11T12:00:00.000Z',
+            location: {
+                countryCode: 'PT',
+                countryName: 'Portugal',
+                cityId: 'city-lisbon',
+                cityName: 'Lisbon',
+            },
+            cover: null,
             counters: {
                 views: 286,
                 likes: 18,
                 comments: 6,
             },
         },
-        compact: [
-            {
-                id: 'kyoto',
-                title: 'Kyoto evenings and the first public story that felt truly finished.',
-                description:
-                    'Tight copy, clean cover, good reaction count. This becomes the reference card for the future profile grid.',
-                visibility: 'public',
-                image: 'linear-gradient(135deg, #9FB8AD 0%, #B4C6BE 100%)',
-                counters: {
-                    views: 412,
-                    likes: 31,
-                    comments: 9,
-                },
+        {
+            id: 'story-2',
+            visibility: 'public',
+            createdAt: '2026-04-06T18:30:00.000Z',
+            location: {
+                countryCode: 'JP',
+                countryName: 'Japan',
+                cityId: 'city-kyoto',
+                cityName: 'Kyoto',
             },
-            {
-                id: 'istanbul',
-                title: 'Istanbul rooftop notes — waiting for cover and final caption.',
-                description:
-                    'Perfect example of a not-yet-published trip that should stay in the personal workspace until ready.',
-                visibility: 'private',
-                image: 'linear-gradient(135deg, #4C6B8A 0%, #8D5D57 46%, #CB8C56 100%)',
-                counters: {
-                    views: null,
-                    likes: null,
-                    comments: null,
-                },
+            cover: null,
+            counters: {
+                views: 412,
+                likes: 31,
+                comments: 9,
             },
-        ],
-    },
+        },
+        {
+            id: 'story-3',
+            visibility: 'private',
+            createdAt: '2026-03-29T09:20:00.000Z',
+            location: {
+                countryCode: 'TR',
+                countryName: 'Turkey',
+                cityId: 'city-istanbul',
+                cityName: 'Istanbul',
+            },
+            cover: null,
+            counters: {
+                views: null,
+                likes: null,
+                comments: null,
+            },
+        },
+    ],
     inboxPreview: {
-        title: 'Inbox preview',
-        subtitle: 'A lightweight preview of the future notification center.',
+        unreadCount: 3,
         items: [
             {
-                id: 'n-1',
-                title: 'Maya liked your Lisbon draft cover',
-                description: 'Reaction on Followers-only story',
-                status: '2m',
-                tone: 'success',
+                type: 'like',
+                text: 'Maya liked your Lisbon draft cover',
+                createdAt: '2026-04-21T10:00:00.000Z',
+                isRead: false,
             },
             {
-                id: 'n-2',
-                title: 'New follower: Theo Matsuda',
-                description: 'Good time to make one more story public',
-                status: '1h',
-                tone: 'warning',
+                type: 'follow',
+                text: 'New follower: Theo Matsuda',
+                createdAt: '2026-04-21T09:00:00.000Z',
+                isRead: true,
             },
         ],
     },
-    mostVisited: {
-        title: 'Most visited',
-        subtitle: 'Still useful, but now secondary to stories, progress and action.',
-        countries: [
-            { rank: 1, country: 'Italy', trips: 12, progressPercent: 100 },
-            { rank: 2, country: 'Spain', trips: 9, progressPercent: 75 },
-            { rank: 3, country: 'France', trips: 7, progressPercent: 60 },
-        ],
-    },
+    mostVisited: [
+        { countryName: 'Italy', tripsCount: 12, relativeBarValue: 100 },
+        { countryName: 'Spain', tripsCount: 9, relativeBarValue: 75 },
+        { countryName: 'France', tripsCount: 7, relativeBarValue: 60 },
+    ],
 }

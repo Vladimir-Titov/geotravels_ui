@@ -1,9 +1,9 @@
 import type {
-    DashboardHeroStat,
     DashboardMostVisitedCountry,
     DashboardNotification,
     DashboardStory,
     MyTravelsDashboardResponse,
+    StoryLocation,
     StoryVisibility,
 } from '../../shared/api/types'
 
@@ -14,6 +14,9 @@ const asArray = (value: unknown): unknown[] => (Array.isArray(value) ? value : [
 
 const asString = (value: unknown, fallback = ''): string =>
     typeof value === 'string' && value.trim().length > 0 ? value : fallback
+
+const asNullableString = (value: unknown): string | null =>
+    typeof value === 'string' && value.trim().length > 0 ? value : null
 
 const asNumber = (value: unknown, fallback = 0): number => {
     if (typeof value === 'number' && Number.isFinite(value)) {
@@ -45,6 +48,9 @@ const asNullableNumber = (value: unknown): number | null => {
     return null
 }
 
+const asBoolean = (value: unknown, fallback = false): boolean =>
+    typeof value === 'boolean' ? value : fallback
+
 const normalizeVisibility = (value: unknown): StoryVisibility => {
     if (value === 'public' || value === 'private' || value === 'followers') {
         return value
@@ -57,19 +63,32 @@ const normalizeVisibility = (value: unknown): StoryVisibility => {
         }
     }
 
-    return 'public'
+    return 'private'
 }
 
-const normalizeStory = (value: unknown, fallbackId: string): DashboardStory => {
+const clampPercent = (value: number): number => Math.min(100, Math.max(0, value))
+
+const normalizeLocation = (value: unknown): StoryLocation => {
+    const location = asRecord(value)
+
+    return {
+        countryCode: asString(location.country_code),
+        countryName: asNullableString(location.country_name),
+        cityId: asNullableString(location.city_id),
+        cityName: asNullableString(location.city_name),
+    }
+}
+
+const normalizeStory = (value: unknown, index: number): DashboardStory => {
     const story = asRecord(value)
     const counters = asRecord(story.counters)
 
     return {
-        id: asString(story.id, fallbackId),
-        title: asString(story.title, 'Story in progress'),
-        description: asString(story.description, 'No description yet.'),
+        id: asString(story.id, `${index + 1}`),
         visibility: normalizeVisibility(story.visibility),
-        image: asString(story.image, 'linear-gradient(135deg, #D4DCD6 0%, #C3CFC8 100%)'),
+        createdAt: asString(story.created_at),
+        location: normalizeLocation(story.location),
+        cover: asNullableString(story.cover),
         counters: {
             views: asNullableNumber(counters.views),
             likes: asNullableNumber(counters.likes),
@@ -78,139 +97,81 @@ const normalizeStory = (value: unknown, fallbackId: string): DashboardStory => {
     }
 }
 
-const normalizeHeroStats = (value: unknown): DashboardHeroStat[] => {
-    return asArray(value)
-        .map((entry) => {
-            const stat = asRecord(entry)
-            const label = asString(stat.label)
-
-            if (!label) {
-                return null
-            }
-
-            return {
-                label,
-                value: asNumber(stat.value),
-            }
-        })
-        .filter((entry): entry is DashboardHeroStat => entry !== null)
-}
-
 const normalizeNotifications = (value: unknown): DashboardNotification[] => {
     return asArray(value)
-        .map((entry, index) => {
+        .map((entry) => {
             const notification = asRecord(entry)
-            const tone = notification.tone === 'warning' ? 'warning' : 'success'
-            const title = asString(notification.title)
-
-            if (!title) {
-                return null
-            }
 
             return {
-                id: asString(notification.id, `notification-${index + 1}`),
-                title,
-                description: asString(notification.description),
-                status: asString(notification.status, '-'),
-                tone,
+                type: asString(notification.type),
+                text: asString(notification.text),
+                createdAt: asString(notification.created_at),
+                isRead: asBoolean(notification.is_read),
             }
         })
-        .filter((entry): entry is DashboardNotification => entry !== null)
+        .filter((entry) => entry.type.length > 0 || entry.text.length > 0)
 }
 
 const normalizeMostVisited = (value: unknown): DashboardMostVisitedCountry[] => {
-    return asArray(value)
-        .map((entry, index) => {
-            const country = asRecord(entry)
-            const name = asString(country.country)
-            if (!name) {
-                return null
-            }
+    return asArray(value).map((entry) => {
+        const country = asRecord(entry)
 
-            return {
-                rank: asNumber(country.rank, index + 1),
-                country: name,
-                trips: asNumber(country.trips),
-                progressPercent: Math.min(100, Math.max(0, asNumber(country.progressPercent))),
-            }
-        })
-        .filter((entry): entry is DashboardMostVisitedCountry => entry !== null)
+        return {
+            countryName: asNullableString(country.country_name),
+            tripsCount: Math.max(0, asNumber(country.trips_count)),
+            relativeBarValue: clampPercent(asNumber(country.relative_bar_value)),
+        }
+    })
 }
-
-const fallbackHeaderTitle = 'My travels'
-const fallbackHeaderSubtitle = 'Track your stories, progress and travel highlights in one place.'
 
 export const normalizeMyTravelsDashboard = (value: unknown): MyTravelsDashboardResponse => {
     const root = asRecord(value)
-    const user = asRecord(root.user)
-    const header = asRecord(root.header)
-    const hero = asRecord(root.hero)
-    const milestone = asRecord(root.milestone)
+    const me = asRecord(root.me)
+    const stats = asRecord(root.stats)
+    const nextMilestone = asRecord(root.next_milestone)
     const recap = asRecord(root.recap)
-    const stories = asRecord(root.stories)
-    const inboxPreview = asRecord(root.inboxPreview)
-    const mostVisited = asRecord(root.mostVisited)
-
-    const fullName = asString(user.fullName, 'Traveler')
-    const [fallbackFirstName = 'Traveler'] = fullName.split(' ')
+    const inboxPreview = asRecord(root.inbox_preview)
 
     return {
-        user: {
-            firstName: asString(user.firstName, fallbackFirstName),
-            fullName,
-            unreadInboxCount: Math.max(0, asNumber(user.unreadInboxCount)),
+        me: {
+            displayName: asNullableString(me.display_name),
+            username: asNullableString(me.username),
         },
-        header: {
-            title: asString(header.title, fallbackHeaderTitle),
-            subtitle: asString(header.subtitle, fallbackHeaderSubtitle),
-            recapBadge: asString(header.recapBadge, 'Recap in progress'),
+        stats: {
+            countriesCount: Math.max(0, asNumber(stats.countries_count)),
+            citiesCount: Math.max(0, asNumber(stats.cities_count)),
+            storiesCount: Math.max(0, asNumber(stats.stories_count)),
         },
-        hero: {
-            greeting: asString(hero.greeting, 'Welcome back'),
-            title: asString(hero.title, 'Your dashboard is ready'),
-            description: asString(hero.description, 'You can continue writing your travel stories.'),
-            image: asString(hero.image, 'linear-gradient(160deg, #D7E2DA 0%, #C8D7CD 100%)'),
-            stats: normalizeHeroStats(hero.stats),
-        },
-        milestone: {
-            title: asString(milestone.title, 'Milestone in progress'),
-            description: asString(milestone.description, 'Add more stories to unlock achievements.'),
-            progressPercent: Math.min(100, Math.max(0, asNumber(milestone.progressPercent))),
-            ctaLabel: asString(milestone.ctaLabel, '+ Achievement'),
+        nextMilestone: {
+            progressPercent: clampPercent(asNumber(nextMilestone.progress_percent)),
+            currentValue: Math.max(0, asNumber(nextMilestone.current_value)),
+            targetValue: Math.max(0, asNumber(nextMilestone.target_value)),
         },
         recap: {
-            title: asString(recap.title, 'Monthly recap'),
-            summary: asString(recap.summary, 'No recap data yet.'),
-            ctaLabel: asString(recap.ctaLabel, 'Open share-card'),
+            period: asString(recap.period),
+            isReady: asBoolean(recap.is_ready),
+            shareUrl: asNullableString(recap.share_url),
+            shareRoute: asNullableString(recap.share_route),
         },
-        stories: {
-            draftCount: Math.max(0, asNumber(stories.draftCount)),
-            publicCount: Math.max(0, asNumber(stories.publicCount)),
-            featured: normalizeStory(stories.featured, 'featured'),
-            compact: asArray(stories.compact)
-                .map((story, index) => normalizeStory(story, `compact-${index + 1}`))
-                .slice(0, 2),
-        },
+        recentStories: asArray(root.recent_stories).map(normalizeStory),
         inboxPreview: {
-            title: asString(inboxPreview.title, 'Inbox preview'),
-            subtitle: asString(inboxPreview.subtitle, 'No notifications yet.'),
+            unreadCount: Math.max(0, asNumber(inboxPreview.unread_count)),
             items: normalizeNotifications(inboxPreview.items),
         },
-        mostVisited: {
-            title: asString(mostVisited.title, 'Most visited'),
-            subtitle: asString(mostVisited.subtitle, 'No countries yet.'),
-            countries: normalizeMostVisited(mostVisited.countries),
-        },
+        mostVisited: normalizeMostVisited(root.most_visited),
     }
 }
 
 export const isMyTravelsDashboardEmpty = (dashboard: MyTravelsDashboardResponse): boolean => {
-    const hasHeroStats = dashboard.hero.stats.length > 0
-    const hasStories =
-        dashboard.stories.compact.length > 0 ||
-        dashboard.stories.featured.title !== 'Story in progress'
-    const hasInbox = dashboard.inboxPreview.items.length > 0
-    const hasMostVisited = dashboard.mostVisited.countries.length > 0
+    const hasStats =
+        dashboard.stats.countriesCount > 0 ||
+        dashboard.stats.citiesCount > 0 ||
+        dashboard.stats.storiesCount > 0
 
-    return !hasHeroStats && !hasStories && !hasInbox && !hasMostVisited
+    return (
+        !hasStats &&
+        dashboard.recentStories.length === 0 &&
+        dashboard.inboxPreview.items.length === 0 &&
+        dashboard.mostVisited.length === 0
+    )
 }
