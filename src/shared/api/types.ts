@@ -36,33 +36,6 @@ export interface AccessTokenResponse {
     token_type: string
 }
 
-export interface Country {
-    iso_a2: string
-    name: string
-}
-
-export interface CountriesListResponse {
-    items: Country[]
-}
-
-export interface MarkVisitRequest {
-    country_code: string
-    trip_date?: string
-}
-
-export interface VisitEvent {
-    id: string
-    user_id: string
-    country_code: string
-    marked_at: string
-    trip_date?: string | null
-}
-
-export interface VisitsResponse {
-    visits: VisitEvent[]
-    visited_country_codes: string[]
-}
-
 export interface OtpRequest {
     contact: string
 }

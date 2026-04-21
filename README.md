@@ -1,11 +1,10 @@
 # GeoTravels UI
 
-Minimal React UI for the `geotravels` backend.
+MVP frontend for Tripmark (`auth + my-travels dashboard`).
 
 ## Stack
 - React + Vite + TypeScript
 - React Router
-- Leaflet + React Leaflet
 - Vitest + Testing Library
 
 ## Run
@@ -36,77 +35,46 @@ Default UI URL: `http://localhost:5173`
 - `npm run test:run` - run tests once
 - `npm run lint` - run eslint
 
-## Screens
-- `/auth` - login/register
-- `/map` - countries map + mark visited
-- `/history` - visit events and visited country codes
+## Routes
+- `/auth` - login/OTP flow
+- `/tg-app` - Telegram mini app auth entry
+- `/my-travels` - main dashboard after login
+- `/my-travels/add-story` - placeholder flow
+- `/my-travels/upload-photos` - placeholder flow
+- `/my-travels/share-card` - placeholder flow
+- `/my-travels/achievement` - placeholder flow
 
-## Структура `src/`
+`/` and unknown routes are redirected by auth state:
+- authenticated -> `/my-travels`
+- guest -> `/auth`
+
+## `src/` structure
 
 ```
 src/
-├── main.tsx                  ← точка входа
+├── main.tsx                  ← app bootstrap
 │
-├── app/                      ← "скелет" приложения
-│   ├── App.tsx               — роутер, список маршрутов
-│   ├── app.css               — CSS-переменные, reset, body
-│   ├── layout.tsx            — шапка + навигация + <Outlet>
-│   └── layout.css            — стили шапки
+├── app/                      ← router + layout shell
+│   ├── App.tsx
+│   ├── app.css
+│   ├── layout.tsx
+│   └── layout.css
 │
-├── features/                 ← бизнес-домены
-│   ├── auth/                 — авторизация
-│   │   ├── index.ts          — публичный API фичи
-│   │   ├── auth-page.tsx     — страница входа/регистрации
-│   │   ├── auth-page.css
-│   │   ├── auth-context.tsx  — глобальное состояние сессии (useAuth)
-│   │   ├── auth-api.ts       — запросы: login, register, telegram
-│   │   ├── require-auth.tsx  — guard: редирект если не залогинен
-│   │   ├── session.ts        — чтение/запись токенов в localStorage
-│   │   └── telegram-login-button.tsx
-│   │
-│   ├── map/                  — карта мира
-│   │   ├── index.ts
-│   │   ├── map-page.tsx      — страница с картой и сайдбаром
-│   │   ├── map-page.css
-│   │   ├── atlas-map.tsx     — SVG-компонент карты (D3)
-│   │   ├── atlas-map.css
-│   │   └── countries-api.ts  — запросы: список стран, GeoJSON
-│   │
-│   └── visits/               — история визитов
-│       ├── index.ts
-│       ├── history-page.tsx  — страница истории
-│       ├── history-page.css
-│       └── visits-api.ts     — запросы: список визитов, отметить страну
+├── features/
+│   ├── auth/                 ← authentication and session
+│   └── my-travels/           ← dashboard and related data hooks
 │
-├── shared/                   ← не привязано к домену
-│   ├── api/
-│   │   ├── http.ts           — HTTP-клиент: fetch + авто-refresh токена на 401
-│   │   └── types.ts          — TypeScript-типы для всех API-ответов
-│   ├── config/
-│   │   └── env.ts            — переменные окружения (API_BASE_URL и т.д.)
-│   └── ui/                   — место для будущих общих компонентов
+├── shared/
+│   ├── api/                  ← HTTP client and API contracts
+│   ├── config/               ← env accessors
+│   └── ui/                   ← shared layout/UI primitives
 │
 ├── assets/
 │   └── logo.png
 │
-└── tests/                    ← зеркало src/, только тесты
-    ├── setup.ts              — глобальный setup для vitest
+└── tests/
+    ├── setup.ts
     ├── features/auth/
-    ├── features/map/
-    ├── features/visits/
-    └── shared/api/
+    ├── features/my-travels/
+    └── shared/
 ```
-
-### Ключевые принципы
-
-**`app/` vs `features/`** — `app/` это каркас (роутер, layout), `features/` — содержимое. Добавить новую страницу = создать папку в `features/`, зарегистрировать маршрут в `App.tsx`.
-
-**`features/` изолированы** — `auth` не импортирует из `map`, `visits` не импортирует из `auth`. Общее — в `shared/`.
-
-**`shared/` без бизнес-логики** — утилиты и типы, не зависящие от конкретного домена.
-
-**`index.ts` как граница** — снаружи фичи пишешь `from '../features/auth'`, не залезая в конкретные файлы внутри. Позволяет переносить внутренности без правки всего проекта.
-
-**CSS co-location** — каждый компонент импортирует свой `.css` файл рядом. Глобальные переменные только в `app/app.css`.
-
-**Тесты отдельно** — `src/tests/` зеркалит структуру `src/`, чтобы тесты не засоряли папки с кодом.
