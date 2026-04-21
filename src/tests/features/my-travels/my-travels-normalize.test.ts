@@ -37,10 +37,12 @@ describe('normalizeMyTravelsDashboard', () => {
             recent_stories: [
                 {
                     id: 'story-1',
+                    cover: '/api/v1/files/file-1/download',
                     counters: { views: 11, likes: 7, comments: '5' },
                 },
                 {
                     id: 'story-2',
+                    cover: 'https://cdn.example.com/file-2.jpg',
                     counters: { views: 'x', likes: '4', comments: null },
                 },
             ],
@@ -58,12 +60,16 @@ describe('normalizeMyTravelsDashboard', () => {
             likes: 7,
             comments: 5,
         })
+        expect(dashboard.recentStories[0].cover).toBe(
+            'http://localhost:8000/api/v1/files/file-1/download',
+        )
 
         expect(dashboard.recentStories[1].counters).toEqual({
             views: null,
             likes: 4,
             comments: null,
         })
+        expect(dashboard.recentStories[1].cover).toBe('https://cdn.example.com/file-2.jpg')
 
         expect(dashboard.mostVisited[0]).toEqual({
             countryName: 'France',

@@ -40,6 +40,10 @@ interface FormRequestOptions extends BaseRequestOptions {
     body: FormData
 }
 
+interface BlobRequestOptions extends BaseRequestOptions {
+    body?: BodyInit
+}
+
 interface PreparedRequestOptions extends BaseRequestOptions {
     body?: BodyInit
     withJsonBody?: boolean
@@ -56,7 +60,9 @@ const resolvePath = (path: string): string => {
 
 const createHeaders = (headers: HeadersInit | undefined, withJsonBody: boolean): Headers => {
     const requestHeaders = new Headers(headers)
-    requestHeaders.set('Accept', 'application/json')
+    if (!requestHeaders.has('Accept')) {
+        requestHeaders.set('Accept', 'application/json')
+    }
     if (withJsonBody && !requestHeaders.has('Content-Type')) {
         requestHeaders.set('Content-Type', 'application/json')
     }
@@ -193,6 +199,24 @@ const request = async <T>(path: string, options: PreparedRequestOptions = {}): P
     return (await response.json()) as T
 }
 
+const requestResponse = async (path: string, options: PreparedRequestOptions = {}): Promise<Response> => {
+    let response: Response
+    try {
+        response = await performRequest(path, options, true)
+    } catch (error) {
+        if (!(error instanceof AuthExpiredError)) {
+            Sentry.captureException(error)
+        }
+        throw error
+    }
+
+    if (!response.ok) {
+        throw await toApiError(response)
+    }
+
+    return response
+}
+
 export const requestJson = async <T>(path: string, options: RequestOptions = {}): Promise<T> => {
     const hasBody = options.body !== undefined
     return request<T>(path, {
@@ -208,6 +232,14 @@ export const requestForm = async <T>(path: string, options: FormRequestOptions):
         withJsonBody: false,
         body: options.body,
     })
+}
+
+export const requestBlob = async (path: string, options: BlobRequestOptions = {}): Promise<Blob> => {
+    const response = await requestResponse(path, {
+        ...options,
+        withJsonBody: false,
+    })
+    return response.blob()
 }
 
 export const resetHttpStateForTests = (): void => {
