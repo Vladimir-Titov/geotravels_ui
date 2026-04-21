@@ -40,7 +40,6 @@
 }
 
 .my-travels-state button {
-    margin-top: 0.5rem;
     border: 1px solid #cfcac0;
     border-radius: 999px;
     min-height: 2.75rem;
@@ -48,6 +47,13 @@
     color: #24352f;
     background: #f6f4ef;
     font-weight: 700;
+}
+
+.my-travels-state__actions {
+    margin-top: 0.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
 }
 
 .my-travels-state--error {

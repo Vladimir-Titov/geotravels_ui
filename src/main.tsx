@@ -1,10 +1,11 @@
 import { SENTRY_DSN, ENVIRONMENT, APP_VERSION } from './shared/config/env'
 
-import { StrictMode } from 'react'
+import { StrictMode, Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import App from './app/App'
 import { AuthProvider } from './features/auth'
+import './shared/i18n/i18n'
 import './app/app.css'
 
 import * as Sentry from '@sentry/browser'
@@ -20,10 +21,12 @@ if (SENTRY_DSN) {
 
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
-        <BrowserRouter>
-            <AuthProvider>
-                <App />
-            </AuthProvider>
-        </BrowserRouter>
+        <Suspense fallback={null}>
+            <BrowserRouter>
+                <AuthProvider>
+                    <App />
+                </AuthProvider>
+            </BrowserRouter>
+        </Suspense>
     </StrictMode>,
 )

@@ -1,4 +1,5 @@
 import { useEffect, useState, type ChangeEvent } from 'react'
+import { useTranslation } from 'react-i18next'
 import { ApiError } from '../../shared/api/http'
 import type { TelegramAuthData, TokenPairResponse } from '../../shared/api/types'
 import { getOtp, telegramLogin } from './auth-api'
@@ -15,26 +16,9 @@ interface FormErrors {
 }
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-const FALLBACK_ERROR = 'Something went wrong. Please try again.'
-const COOLDOWN_FALLBACK = 'Please try again in n sec.'
-
-const normalizeAuthError = (error: ApiError): string => {
-    if (typeof error.retryAfterSeconds === 'number' && error.retryAfterSeconds > 0) {
-        return `Please try again in ${error.retryAfterSeconds} sec.`
-    }
-
-    if (error.message.includes('Please wait before requesting a new code')) {
-        return COOLDOWN_FALLBACK
-    }
-
-    if (error.message.includes('Failed to send OTP')) {
-        return FALLBACK_ERROR
-    }
-
-    return error.message || FALLBACK_ERROR
-}
 
 export const LoginStep = ({ onEmailSuccess, onSocialSuccess }: LoginStepProps) => {
+    const { t } = useTranslation('auth')
     const [email, setEmail] = useState('')
     const [formErrors, setFormErrors] = useState<FormErrors>({})
     const [error, setError] = useState<string | null>(null)
@@ -42,9 +26,10 @@ export const LoginStep = ({ onEmailSuccess, onSocialSuccess }: LoginStepProps) =
     const [isTelegramPending, setIsTelegramPending] = useState(false)
     const [cooldownSeconds, setCooldownSeconds] = useState(0)
 
+    const fallbackError = t('genericError')
     const isCooldownActive = cooldownSeconds > 0
     const resolvedError =
-        isCooldownActive && !isSubmitting ? `Please try again in ${cooldownSeconds} sec.` : error
+        isCooldownActive && !isSubmitting ? t('cooldownError', { seconds: cooldownSeconds }) : error
 
     useEffect(() => {
         if (!isCooldownActive) {
@@ -56,11 +41,41 @@ export const LoginStep = ({ onEmailSuccess, onSocialSuccess }: LoginStepProps) =
         return () => window.clearInterval(timer)
     }, [isCooldownActive])
 
+    const normalizeAuthError = (apiError: ApiError): string => {
+        if (typeof apiError.retryAfterSeconds === 'number' && apiError.retryAfterSeconds > 0) {
+            return t('cooldownError', { seconds: apiError.retryAfterSeconds })
+        }
+
+        if (apiError.message.includes('Please wait before requesting a new code')) {
+            return t('cooldownError', { seconds: 'n' })
+        }
+
+        if (apiError.message.includes('Failed to send OTP')) {
+            return t('sendFailed')
+        }
+
+        return apiError.message || fallbackError
+    }
+
+    const normalizeTelegramAuthError = (apiError: ApiError): string => {
+        const sourceMessage = apiError.message || ''
+
+        if (sourceMessage.includes('Telegram auth date is too old')) {
+            return t('telegramExpired')
+        }
+
+        if (sourceMessage.includes('Invalid telegram')) {
+            return t('telegramInvalid')
+        }
+
+        return t('telegramFailed')
+    }
+
     const validate = (): boolean => {
         const nextErrors: FormErrors = {}
 
         if (!EMAIL_PATTERN.test(email.trim())) {
-            nextErrors.email = 'Enter a valid email address.'
+            nextErrors.email = t('emailValidation')
         }
 
         setFormErrors(nextErrors)
@@ -79,7 +94,7 @@ export const LoginStep = ({ onEmailSuccess, onSocialSuccess }: LoginStepProps) =
             const response = await telegramLogin(data)
             onSocialSuccess(response)
         } catch (caught) {
-            setError(caught instanceof ApiError ? caught.message : 'Telegram sign-in failed.')
+            setError(caught instanceof ApiError ? normalizeTelegramAuthError(caught) : t('telegramFailed'))
         } finally {
             setIsTelegramPending(false)
         }
@@ -108,7 +123,7 @@ export const LoginStep = ({ onEmailSuccess, onSocialSuccess }: LoginStepProps) =
                 }
                 setError(normalizeAuthError(caught))
             } else {
-                setError(FALLBACK_ERROR)
+                setError(fallbackError)
             }
         } finally {
             setIsSubmitting(false)
@@ -122,14 +137,14 @@ export const LoginStep = ({ onEmailSuccess, onSocialSuccess }: LoginStepProps) =
             </div>
 
             <div className="auth-card-header">
-                <h1>Enter your email</h1>
-                <p className="auth-subtitle">Use your work email to continue</p>
+                <h1>{t('enterEmail')}</h1>
+                <p className="auth-subtitle">{t('emailSubtitle')}</p>
             </div>
 
             <form onSubmit={submitForm} className="auth-form">
                 <div className="auth-field">
                     <label className="visually-hidden" htmlFor="auth-email">
-                        Email
+                        {t('emailLabel')}
                     </label>
                     <div
                         className={formErrors.email ? 'auth-input-wrap auth-input-wrap--error' : 'auth-input-wrap'}
@@ -144,7 +159,7 @@ export const LoginStep = ({ onEmailSuccess, onSocialSuccess }: LoginStepProps) =
                             autoComplete="email"
                             value={email}
                             onChange={handleEmailChange}
-                            placeholder="you@example.com"
+                            placeholder={t('emailPlaceholder')}
                             required
                         />
                     </div>
@@ -158,13 +173,13 @@ export const LoginStep = ({ onEmailSuccess, onSocialSuccess }: LoginStepProps) =
                 )}
 
                 <button type="submit" className="auth-submit" disabled={isSubmitting || isCooldownActive}>
-                    Submit
+                    {t('submit')}
                 </button>
             </form>
 
             <div className="auth-tg-section">
                 {isTelegramPending ? (
-                    <p className="auth-tg-pending">Signing in with Telegram…</p>
+                    <p className="auth-tg-pending">{t('signingInTelegram')}</p>
                 ) : (
                     <TelegramLoginButton onAuth={handleTelegramAuth} />
                 )}

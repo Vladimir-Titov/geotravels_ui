@@ -1,0 +1,19 @@
+{
+  "brand": "Tripmark",
+  "nav": {
+    "myTravels": "My travels"
+  },
+  "inbox": "Inbox {{count}}",
+  "logout": "Logout",
+  "defaultUser": "Traveler",
+  "language": {
+    "en": "EN",
+    "ru": "RU"
+  },
+  "aria": {
+    "dashboard": "Tripmark dashboard",
+    "navigation": "My travels navigation",
+    "currentUser": "Current user",
+    "languageSwitcher": "Language switcher"
+  }
+}

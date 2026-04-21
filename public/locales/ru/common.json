@@ -1,0 +1,19 @@
+{
+  "brand": "Tripmark",
+  "nav": {
+    "myTravels": "Мои путешествия"
+  },
+  "inbox": "Входящие {{count}}",
+  "logout": "Выйти",
+  "defaultUser": "Путешественник",
+  "language": {
+    "en": "EN",
+    "ru": "RU"
+  },
+  "aria": {
+    "dashboard": "Панель Tripmark",
+    "navigation": "Навигация",
+    "currentUser": "Текущий пользователь",
+    "languageSwitcher": "Переключатель языка"
+  }
+}

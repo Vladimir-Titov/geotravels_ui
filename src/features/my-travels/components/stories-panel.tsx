@@ -1,68 +1,108 @@
-import type { DashboardStoriesBlock, DashboardStory, StoryVisibility } from '../../../shared/api/types'
+import type { CSSProperties } from 'react'
+import { useTranslation } from 'react-i18next'
+import type { DashboardStory } from '../../../shared/api/types'
 import './stories-panel.css'
 
 interface StoriesPanelProps {
-    stories: DashboardStoriesBlock
+    stories: DashboardStory[]
 }
 
-const visibilityLabels: Record<StoryVisibility, string> = {
-    followers: 'Followers',
-    public: 'Public',
-    private: 'Private',
-}
+const CARD_FALLBACK_BACKGROUND = 'linear-gradient(135deg, #D4DCD6 0%, #C3CFC8 100%)'
 
-const formatMetric = (value: number | null, label: string): string => {
-    if (value === null) {
-        return label === 'views' ? 'Draft only' : `${label} hidden`
+const getStoryCoverStyle = (story: DashboardStory): CSSProperties => {
+    if (!story.cover) {
+        return { background: CARD_FALLBACK_BACKGROUND }
     }
 
-    return `${value} ${label}`
+    return {
+        backgroundImage: `url(${story.cover})`,
+        backgroundPosition: 'center',
+        backgroundSize: 'cover',
+        backgroundRepeat: 'no-repeat',
+    }
 }
 
-const renderStoryCounters = (story: DashboardStory): string => {
-    return [
+const formatStoryDate = (createdAt: string, language: string): string => {
+    const parsed = new Date(createdAt)
+    if (Number.isNaN(parsed.getTime())) {
+        return ''
+    }
+
+    return parsed.toLocaleDateString(language, {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+    })
+}
+
+const StoryCard = ({
+    story,
+    featured,
+    language,
+}: {
+    story: DashboardStory
+    featured?: boolean
+    language: string
+}) => {
+    const { t } = useTranslation('myTravels')
+
+    const formatMetric = (value: number | null, label: 'views' | 'likes' | 'comments'): string | null => {
+        if (value === null) {
+            return null
+        }
+
+        return `${value} ${t(`metrics.${label}`)}`
+    }
+
+    const storyCounters = [
         formatMetric(story.counters.views, 'views'),
         formatMetric(story.counters.likes, 'likes'),
         formatMetric(story.counters.comments, 'comments'),
-    ].join(' • ')
-}
+    ]
+        .filter((metric): metric is string => metric !== null)
+        .join(' • ')
 
-const StoryCard = ({ story, featured }: { story: DashboardStory; featured?: boolean }) => {
+    const place = story.location.cityName ?? story.location.countryName
+    const storyTitle = place ? t('stories.tripTo', { place }) : t('stories.untitledTrip')
+    const storyDate = formatStoryDate(story.createdAt, language)
+
     return (
         <article className={featured ? 'story-card story-card--featured' : 'story-card story-card--compact'}>
-            <div className="story-card__image" style={{ background: story.image }} />
+            <div className="story-card__image" style={getStoryCoverStyle(story)} />
             <div className="story-card__body">
-                <span className="story-card__badge">{visibilityLabels[story.visibility]}</span>
-                <h3>{story.title}</h3>
-                <p>{story.description}</p>
-                <strong>{renderStoryCounters(story)}</strong>
+                <h3>{storyTitle}</h3>
+                <p>{storyDate}</p>
+                <strong>{storyCounters || t('metrics.pending')}</strong>
             </div>
         </article>
     )
 }
 
 export const StoriesPanel = ({ stories }: StoriesPanelProps) => {
+    const { t, i18n } = useTranslation('myTravels')
+    const featured = stories[0]
+    const compact = stories.slice(1)
+    const language = i18n.resolvedLanguage ?? i18n.language
+
     return (
         <section className="my-travels-panel my-travels-stories">
             <header className="my-travels-stories__head">
                 <div>
-                    <h2>Recent travel stories</h2>
-                    <p>
-                        This is the heartbeat of the product: a personal archive today, a social feed
-                        tomorrow.
-                    </p>
+                    <h2>{t('stories.recentTitle')}</h2>
+                    <p>{t('stories.description')}</p>
                 </div>
                 <div className="my-travels-stories__badges">
-                    <span>{stories.draftCount} drafts</span>
-                    <span>{stories.publicCount} public</span>
+                    <span>{t('stories.recentCount', { count: stories.length })}</span>
                 </div>
             </header>
 
-            <StoryCard story={stories.featured} featured />
+            {featured && <StoryCard story={featured} featured language={language} />}
 
-            {stories.compact.map((story) => (
-                <StoryCard key={story.id} story={story} />
+            {compact.map((story) => (
+                <StoryCard key={story.id} story={story} language={language} />
             ))}
+
+            {!featured && <p>{t('stories.empty')}</p>}
         </section>
     )
 }

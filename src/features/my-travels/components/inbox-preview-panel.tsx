@@ -1,32 +1,61 @@
-import type { DashboardInboxPreview } from '../../../shared/api/types'
+import { useTranslation } from 'react-i18next'
+import type { MyTravelsDashboardResponse } from '../../../shared/api/types'
 import './inbox-preview-panel.css'
 
 interface InboxPreviewPanelProps {
-    inboxPreview: DashboardInboxPreview
-    unreadInboxCount: number
+    inboxPreview: MyTravelsDashboardResponse['inboxPreview']
 }
 
-export const InboxPreviewPanel = ({ inboxPreview, unreadInboxCount }: InboxPreviewPanelProps) => {
+const getNotificationTitle = (type: string, t: (key: string) => string): string => {
+    switch (type.trim().toLowerCase()) {
+        case 'like':
+            return t('inbox.types.like')
+        case 'follow':
+            return t('inbox.types.follow')
+        case 'comment':
+            return t('inbox.types.comment')
+        default:
+            return t('inbox.types.notification')
+    }
+}
+
+const formatNotificationDate = (value: string, language: string): string => {
+    const parsed = new Date(value)
+    if (Number.isNaN(parsed.getTime())) {
+        return ''
+    }
+
+    return parsed.toLocaleTimeString(language, {
+        hour: '2-digit',
+        minute: '2-digit',
+    })
+}
+
+export const InboxPreviewPanel = ({ inboxPreview }: InboxPreviewPanelProps) => {
+    const { t, i18n } = useTranslation('myTravels')
+    const language = i18n.resolvedLanguage ?? i18n.language
+
     return (
         <section className="my-travels-panel my-travels-inbox">
             <header>
-                <h2>{inboxPreview.title}</h2>
-                <span>{unreadInboxCount} unread</span>
+                <h2>{t('inbox.title')}</h2>
+                <span>{t('inbox.unread', { count: inboxPreview.unreadCount })}</span>
             </header>
-            <p>{inboxPreview.subtitle}</p>
+            <p>{t('inbox.subtitle')}</p>
 
             <div className="my-travels-inbox__list">
+                {inboxPreview.items.length === 0 && <p>{t('inbox.empty')}</p>}
                 {inboxPreview.items.map((item) => (
-                    <article key={item.id} className="inbox-item">
+                    <article key={`${item.type}-${item.createdAt}-${item.text}`} className="inbox-item">
                         <span
-                            className={`inbox-item__dot ${item.tone === 'warning' ? 'is-warning' : ''}`}
+                            className={`inbox-item__dot ${!item.isRead ? 'is-warning' : ''}`}
                             aria-hidden="true"
                         />
                         <div className="inbox-item__body">
-                            <h3>{item.title}</h3>
-                            <p>{item.description}</p>
+                            <h3>{getNotificationTitle(item.type, t)}</h3>
+                            <p>{item.text}</p>
                         </div>
-                        <strong>{item.status}</strong>
+                        <strong>{formatNotificationDate(item.createdAt, language)}</strong>
                     </article>
                 ))}
             </div>

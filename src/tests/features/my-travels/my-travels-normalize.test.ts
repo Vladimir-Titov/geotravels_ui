@@ -4,55 +4,71 @@ import { normalizeMyTravelsDashboard } from '../../../features/my-travels/my-tra
 describe('normalizeMyTravelsDashboard', () => {
     it('fills defaults when API returns partial payload', () => {
         const dashboard = normalizeMyTravelsDashboard({
-            user: { fullName: 'Ada Lovelace' },
-            stories: {
-                featured: {
-                    title: 'Draft story',
+            me: { display_name: 'Ada Lovelace' },
+            recent_stories: [
+                {
                     visibility: 'PRIVATE',
                     counters: { views: '120', likes: 'oops' },
                 },
-            },
-            inboxPreview: {
-                items: [{ title: 'Hello', tone: 'warning', status: '1h' }],
-            },
-        })
-
-        expect(dashboard.user.firstName).toBe('Ada')
-        expect(dashboard.header.title).toBe('My travels')
-        expect(dashboard.stories.featured.visibility).toBe('private')
-        expect(dashboard.stories.featured.counters.views).toBe(120)
-        expect(dashboard.stories.featured.counters.likes).toBeNull()
-        expect(dashboard.inboxPreview.items).toHaveLength(1)
-        expect(dashboard.mostVisited.countries).toEqual([])
-    })
-
-    it('keeps numeric metrics and normalizes unsupported values to null', () => {
-        const dashboard = normalizeMyTravelsDashboard({
-            stories: {
-                featured: {
-                    title: 'Feature',
-                    counters: { views: 11, likes: 7, comments: '5' },
-                },
-                compact: [
+            ],
+            inbox_preview: {
+                items: [
                     {
-                        id: 'story-1',
-                        title: 'Compact',
-                        counters: { views: 'x', likes: '4', comments: null },
+                        type: 'like',
+                        text: 'Hello',
+                        created_at: '2026-04-20T12:00:00.000Z',
+                        is_read: false,
                     },
                 ],
             },
         })
 
-        expect(dashboard.stories.featured.counters).toEqual({
+        expect(dashboard.me.displayName).toBe('Ada Lovelace')
+        expect(dashboard.nextMilestone.progressPercent).toBe(0)
+        expect(dashboard.recentStories[0].visibility).toBe('private')
+        expect(dashboard.recentStories[0].counters.views).toBe(120)
+        expect(dashboard.recentStories[0].counters.likes).toBeNull()
+        expect(dashboard.inboxPreview.items).toHaveLength(1)
+        expect(dashboard.mostVisited).toEqual([])
+    })
+
+    it('keeps numeric metrics and clamps most visited values', () => {
+        const dashboard = normalizeMyTravelsDashboard({
+            recent_stories: [
+                {
+                    id: 'story-1',
+                    counters: { views: 11, likes: 7, comments: '5' },
+                },
+                {
+                    id: 'story-2',
+                    counters: { views: 'x', likes: '4', comments: null },
+                },
+            ],
+            most_visited: [
+                {
+                    country_name: 'France',
+                    trips_count: '3',
+                    relative_bar_value: 155,
+                },
+            ],
+        })
+
+        expect(dashboard.recentStories[0].counters).toEqual({
             views: 11,
             likes: 7,
             comments: 5,
         })
 
-        expect(dashboard.stories.compact[0].counters).toEqual({
+        expect(dashboard.recentStories[1].counters).toEqual({
             views: null,
             likes: 4,
             comments: null,
+        })
+
+        expect(dashboard.mostVisited[0]).toEqual({
+            countryName: 'France',
+            tripsCount: 3,
+            relativeBarValue: 100,
         })
     })
 })

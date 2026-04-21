@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { ApiError } from '../../shared/api/http'
 import type { TokenPairResponse } from '../../shared/api/types'
 import { confirmOtp, getOtp } from './auth-api'
@@ -12,7 +13,6 @@ interface OtpFormProps {
 }
 
 const OTP_LENGTH = 6
-const FALLBACK_ERROR = 'Something went wrong. Please try again.'
 
 type OtpErrorKind = 'invalid' | 'expired' | 'too-many' | 'cooldown' | 'generic'
 
@@ -22,42 +22,8 @@ interface NormalizedOtpError {
     retryAfterSeconds?: number
 }
 
-const normalizeOtpError = (error: ApiError): NormalizedOtpError => {
-    const sourceMessage = error.message || FALLBACK_ERROR
-
-    if (typeof error.retryAfterSeconds === 'number' && error.retryAfterSeconds > 0) {
-        return {
-            message: `Please try again in ${error.retryAfterSeconds} sec.`,
-            kind: 'cooldown',
-            retryAfterSeconds: error.retryAfterSeconds,
-        }
-    }
-
-    if (sourceMessage.includes('Please wait before requesting a new code')) {
-        return { message: 'Please try again in n sec.', kind: 'cooldown' }
-    }
-
-    if (sourceMessage.includes('Invalid code')) {
-        return { message: 'Wrong OTP code.', kind: 'invalid' }
-    }
-
-    if (sourceMessage.includes('OTP has expired') || sourceMessage.includes('Invalid or expired OTP')) {
-        return { message: 'OTP has expired. Request new OTP', kind: 'expired' }
-    }
-
-    if (sourceMessage.includes('Too many incorrect attempts')) {
-        return { message: 'Too many incorrect attempts. Request new OTP', kind: 'too-many' }
-    }
-
-    return {
-        message: sourceMessage.includes('Failed to')
-            ? FALLBACK_ERROR
-            : sourceMessage,
-        kind: 'generic',
-    }
-}
-
 export const OtpForm = ({ email, otpId: initialOtpId, onOtpConfirmed, onBack }: OtpFormProps) => {
+    const { t } = useTranslation('auth')
     const [currentOtpId, setCurrentOtpId] = useState(initialOtpId)
     const [digits, setDigits] = useState<string[]>(Array(OTP_LENGTH).fill(''))
     const [error, setError] = useState<string | null>(null)
@@ -66,10 +32,45 @@ export const OtpForm = ({ email, otpId: initialOtpId, onOtpConfirmed, onBack }: 
     const [isResending, setIsResending] = useState(false)
     const [resendCountdown, setResendCountdown] = useState(0)
     const inputRefs = useRef<(HTMLInputElement | null)[]>([])
+    const fallbackError = t('genericError')
+
     const resolvedError =
         resendCountdown > 0 && errorKind === 'cooldown'
-            ? `Please try again in ${resendCountdown} sec.`
+            ? t('cooldownError', { seconds: resendCountdown })
             : error
+
+    const normalizeOtpError = (apiError: ApiError): NormalizedOtpError => {
+        const sourceMessage = apiError.message || fallbackError
+
+        if (typeof apiError.retryAfterSeconds === 'number' && apiError.retryAfterSeconds > 0) {
+            return {
+                message: t('cooldownError', { seconds: apiError.retryAfterSeconds }),
+                kind: 'cooldown',
+                retryAfterSeconds: apiError.retryAfterSeconds,
+            }
+        }
+
+        if (sourceMessage.includes('Please wait before requesting a new code')) {
+            return { message: t('cooldownError', { seconds: 'n' }), kind: 'cooldown' }
+        }
+
+        if (sourceMessage.includes('Invalid code')) {
+            return { message: t('wrongOtp'), kind: 'invalid' }
+        }
+
+        if (sourceMessage.includes('OTP has expired') || sourceMessage.includes('Invalid or expired OTP')) {
+            return { message: t('otpExpired'), kind: 'expired' }
+        }
+
+        if (sourceMessage.includes('Too many incorrect attempts')) {
+            return { message: t('tooManyAttempts'), kind: 'too-many' }
+        }
+
+        return {
+            message: sourceMessage.includes('Failed to') ? t('sendFailed') : sourceMessage,
+            kind: 'generic',
+        }
+    }
 
     useEffect(() => {
         inputRefs.current[0]?.focus()
@@ -96,19 +97,19 @@ export const OtpForm = ({ email, otpId: initialOtpId, onOtpConfirmed, onBack }: 
         }
     }
 
-    const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Backspace' && !digits[index] && index > 0) {
+    const handleKeyDown = (index: number, event: React.KeyboardEvent<HTMLInputElement>) => {
+        if (event.key === 'Backspace' && !digits[index] && index > 0) {
             inputRefs.current[index - 1]?.focus()
         }
     }
 
-    const handlePaste = (e: React.ClipboardEvent) => {
-        e.preventDefault()
-        const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, OTP_LENGTH)
+    const handlePaste = (event: React.ClipboardEvent) => {
+        event.preventDefault()
+        const pasted = event.clipboardData.getData('text').replace(/\D/g, '').slice(0, OTP_LENGTH)
         if (!pasted) return
         const next = [...Array(OTP_LENGTH).fill('')]
-        pasted.split('').forEach((ch, i) => {
-            next[i] = ch
+        pasted.split('').forEach((char, index) => {
+            next[index] = char
         })
         setDigits(next)
         inputRefs.current[Math.min(pasted.length, OTP_LENGTH - 1)]?.focus()
@@ -133,7 +134,7 @@ export const OtpForm = ({ email, otpId: initialOtpId, onOtpConfirmed, onBack }: 
                     setResendCountdown(normalized.retryAfterSeconds)
                 }
             } else {
-                setError(FALLBACK_ERROR)
+                setError(fallbackError)
                 setErrorKind('generic')
             }
         } finally {
@@ -141,11 +142,11 @@ export const OtpForm = ({ email, otpId: initialOtpId, onOtpConfirmed, onBack }: 
         }
     }
 
-    const handleSubmit = async (e: { preventDefault(): void }) => {
-        e.preventDefault()
+    const handleSubmit = async (event: { preventDefault(): void }) => {
+        event.preventDefault()
         const otp = digits.join('')
         if (otp.length < OTP_LENGTH) {
-            setError('Wrong OTP code.')
+            setError(t('wrongOtp'))
             setErrorKind('invalid')
             return
         }
@@ -165,7 +166,7 @@ export const OtpForm = ({ email, otpId: initialOtpId, onOtpConfirmed, onBack }: 
                     setResendCountdown(normalized.retryAfterSeconds)
                 }
             } else {
-                setError(FALLBACK_ERROR)
+                setError(fallbackError)
                 setErrorKind('generic')
             }
             setDigits(Array(OTP_LENGTH).fill(''))
@@ -183,13 +184,13 @@ export const OtpForm = ({ email, otpId: initialOtpId, onOtpConfirmed, onBack }: 
 
             <button className="auth-back-button" onClick={onBack} type="button">
                 <span aria-hidden="true">←</span>
-                <span>Back</span>
+                <span>{t('back')}</span>
             </button>
 
             <div className="auth-card-header">
-                <h1>Enter your OTP</h1>
+                <h1>{t('enterOtp')}</h1>
                 <p className="auth-subtitle">
-                    We sent otp on email
+                    {t('otpSentTo')}
                     <br />
                     <strong>{email}</strong>
                 </p>
@@ -197,19 +198,19 @@ export const OtpForm = ({ email, otpId: initialOtpId, onOtpConfirmed, onBack }: 
 
             <form onSubmit={handleSubmit} className="auth-form">
                 <div className="otp-inputs" onPaste={handlePaste}>
-                    {digits.map((digit, i) => (
+                    {digits.map((digit, index) => (
                         <input
-                            key={i}
-                            ref={(el) => {
-                                inputRefs.current[i] = el
+                            key={index}
+                            ref={(element) => {
+                                inputRefs.current[index] = element
                             }}
                             className={`otp-input${digit ? ' otp-input--filled' : ''}${errorKind === 'invalid' ? ' otp-input--error' : ''}`}
                             type="text"
                             inputMode="numeric"
                             maxLength={1}
                             value={digit}
-                            onChange={(e) => handleChange(i, e.target.value)}
-                            onKeyDown={(e) => handleKeyDown(i, e)}
+                            onChange={(event) => handleChange(index, event.target.value)}
+                            onKeyDown={(event) => handleKeyDown(index, event)}
                             autoComplete="one-time-code"
                         />
                     ))}
@@ -222,7 +223,7 @@ export const OtpForm = ({ email, otpId: initialOtpId, onOtpConfirmed, onBack }: 
                 )}
 
                 <button type="submit" className="auth-submit" disabled={isSubmitting}>
-                    Confirm
+                    {t('confirm')}
                 </button>
             </form>
 
@@ -233,7 +234,9 @@ export const OtpForm = ({ email, otpId: initialOtpId, onOtpConfirmed, onBack }: 
                     disabled={resendCountdown > 0 || isResending}
                     onClick={handleResend}
                 >
-                    {resendCountdown > 0 ? `Resend OTP (${resendCountdown}s)` : 'Resend OTP'}
+                    {resendCountdown > 0
+                        ? t('resendOtpCountdown', { seconds: resendCountdown })
+                        : t('resendOtp')}
                 </button>
             </p>
         </section>

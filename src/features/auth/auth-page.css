@@ -34,6 +34,10 @@
     margin: 0 auto;
 }
 
+.auth-card > * {
+    min-width: 0;
+}
+
 .auth-brand-inside {
     display: flex;
     justify-content: center;
@@ -56,11 +60,12 @@
     margin: 0;
     color: #2f3e34;
     font-size: clamp(2.2rem, 4vw, 3rem);
-    line-height: 1;
+    line-height: 1.02;
     text-align: center;
     letter-spacing: -0.01em;
     font-weight: 700;
-    white-space: nowrap;
+    white-space: normal;
+    text-wrap: balance;
 }
 
 .auth-subtitle {
@@ -73,6 +78,7 @@
 
 .auth-subtitle strong {
     font-weight: 600;
+    overflow-wrap: anywhere;
 }
 
 .auth-form {
@@ -242,13 +248,16 @@
 }
 
 .otp-inputs {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: 12px;
-    justify-content: center;
+    width: 100%;
+    max-width: 380px;
+    margin: 0 auto;
 }
 
 .otp-input {
-    width: 58px;
+    width: 100%;
     height: 58px;
     text-align: center;
     font-size: 1.75rem;
@@ -335,9 +344,8 @@
     }
 
     .auth-card-header h1 {
-        font-size: 3.125rem;
-        line-height: 1;
-        white-space: normal;
+        font-size: clamp(2.25rem, 10vw, 3.125rem);
+        line-height: 1.03;
     }
 
     .auth-subtitle {
@@ -351,10 +359,10 @@
 
     .otp-inputs {
         gap: 6px;
+        max-width: 100%;
     }
 
     .otp-input {
-        width: 40px;
         height: 58px;
         border-radius: 12px;
         font-size: 1.5rem;

@@ -31,8 +31,8 @@ const App = () => {
                         path="/my-travels/add-story"
                         element={
                             <MyTravelsPlaceholderPage
-                                title="Add story flow is in progress"
-                                subtitle="Placeholder"
+                                titleKey="placeholder.addStory"
+                                subtitleKey="placeholder.subtitle"
                             />
                         }
                     />
@@ -40,8 +40,8 @@ const App = () => {
                         path="/my-travels/upload-photos"
                         element={
                             <MyTravelsPlaceholderPage
-                                title="Upload photos flow is in progress"
-                                subtitle="Placeholder"
+                                titleKey="placeholder.uploadPhotos"
+                                subtitleKey="placeholder.subtitle"
                             />
                         }
                     />
@@ -49,8 +49,8 @@ const App = () => {
                         path="/my-travels/share-card"
                         element={
                             <MyTravelsPlaceholderPage
-                                title="Share-card flow is in progress"
-                                subtitle="Placeholder"
+                                titleKey="placeholder.shareCard"
+                                subtitleKey="placeholder.subtitle"
                             />
                         }
                     />
@@ -58,8 +58,8 @@ const App = () => {
                         path="/my-travels/achievement"
                         element={
                             <MyTravelsPlaceholderPage
-                                title="Achievement center is in progress"
-                                subtitle="Placeholder"
+                                titleKey="placeholder.achievement"
+                                subtitleKey="placeholder.subtitle"
                             />
                         }
                     />
