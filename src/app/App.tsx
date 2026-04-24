@@ -1,16 +1,11 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { AppLayout } from './layout'
 import { AuthPage, RequireAuth, TelegramAppPage, useAuth } from '../features/auth'
-import {
-    AddStoryPage,
-    MyTravelsDashboardProvider,
-    MyTravelsPage,
-    MyTravelsPlaceholderPage,
-} from '../features/my-travels'
+import { PlansPage, StatisticsPage, TripDetailPage, VisitsPage } from '../features/trips'
 
 const RootRedirect = () => {
     const { isAuthenticated } = useAuth()
-    return <Navigate replace to={isAuthenticated ? '/my-travels' : '/auth'} />
+    return <Navigate replace to={isAuthenticated ? '/visits' : '/auth'} />
 }
 
 const App = () => {
@@ -20,42 +15,11 @@ const App = () => {
             <Route path="/tg-app" element={<TelegramAppPage />} />
 
             <Route element={<RequireAuth />}>
-                <Route
-                    element={
-                        <MyTravelsDashboardProvider>
-                            <AppLayout />
-                        </MyTravelsDashboardProvider>
-                    }
-                >
-                    <Route path="/my-travels" element={<MyTravelsPage />} />
-                    <Route path="/my-travels/add-story" element={<AddStoryPage />} />
-                    <Route
-                        path="/my-travels/upload-photos"
-                        element={
-                            <MyTravelsPlaceholderPage
-                                titleKey="placeholder.uploadPhotos"
-                                subtitleKey="placeholder.subtitle"
-                            />
-                        }
-                    />
-                    <Route
-                        path="/my-travels/share-card"
-                        element={
-                            <MyTravelsPlaceholderPage
-                                titleKey="placeholder.shareCard"
-                                subtitleKey="placeholder.subtitle"
-                            />
-                        }
-                    />
-                    <Route
-                        path="/my-travels/achievement"
-                        element={
-                            <MyTravelsPlaceholderPage
-                                titleKey="placeholder.achievement"
-                                subtitleKey="placeholder.subtitle"
-                            />
-                        }
-                    />
+                <Route element={<AppLayout />}>
+                    <Route path="/visits" element={<VisitsPage />} />
+                    <Route path="/plans" element={<PlansPage />} />
+                    <Route path="/statistics" element={<StatisticsPage />} />
+                    <Route path="/trips/:visitId" element={<TripDetailPage />} />
                 </Route>
             </Route>
 

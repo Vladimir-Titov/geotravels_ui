@@ -16,7 +16,7 @@ export const AuthPage = () => {
     const [otpId, setOtpId] = useState('')
 
     if (isAuthenticated) {
-        return <Navigate replace to="/my-travels" />
+        return <Navigate replace to="/visits" />
     }
 
     const handleEmailSuccess = (submittedEmail: string, submittedOtpId: string) => {
@@ -31,7 +31,7 @@ export const AuthPage = () => {
             refreshToken: tokens.refresh_token,
             tokenType: tokens.token_type,
         })
-        navigate('/my-travels', { replace: true })
+        navigate('/visits', { replace: true })
     }
 
     return (
