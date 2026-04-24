@@ -2,6 +2,7 @@ import i18n from 'i18next'
 import HttpBackend from 'i18next-http-backend'
 import LanguageDetector from 'i18next-browser-languagedetector'
 import { initReactI18next } from 'react-i18next'
+import { APP_VERSION } from '../config/env'
 
 i18n
     .use(HttpBackend)
@@ -13,7 +14,7 @@ i18n
         ns: ['common', 'auth', 'trips'],
         defaultNS: 'common',
         backend: {
-            loadPath: '/locales/{{lng}}/{{ns}}.json',
+            loadPath: `/locales/{{lng}}/{{ns}}.json?v=${encodeURIComponent(APP_VERSION)}`,
         },
         detection: {
             order: ['localStorage', 'navigator'],
