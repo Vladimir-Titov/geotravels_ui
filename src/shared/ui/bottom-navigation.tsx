@@ -4,21 +4,22 @@ import { NavLink } from 'react-router-dom'
 import './bottom-navigation.css'
 
 export const BottomNavigation = () => {
-    const { t } = useTranslation('common')
+    const { t: tCommon } = useTranslation('common')
+    const { t } = useTranslation('trips')
 
     return (
-        <nav className="tm-bottom-nav" aria-label={t('aria.navigation')}>
+        <nav className="tm-bottom-nav" aria-label={tCommon('aria.navigation')}>
             <NavLink to="/visits" className={({ isActive }) => (isActive ? 'is-active' : '')}>
                 <MapPin size={19} aria-hidden="true" />
-                <span>{t('nav.visits')}</span>
+                <span>{t('visits.title')}</span>
             </NavLink>
             <NavLink to="/plans" className={({ isActive }) => (isActive ? 'is-active' : '')}>
                 <Compass size={19} aria-hidden="true" />
-                <span>{t('nav.plans')}</span>
+                <span>{t('plans.title')}</span>
             </NavLink>
             <NavLink to="/statistics" className={({ isActive }) => (isActive ? 'is-active' : '')}>
                 <BarChart3 size={19} aria-hidden="true" />
-                <span>{t('nav.statistics')}</span>
+                <span>{t('statistics.title')}</span>
             </NavLink>
         </nav>
     )
