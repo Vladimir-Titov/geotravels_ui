@@ -1,0 +1,109 @@
+{
+  "visits": {
+    "title": "Visits",
+    "count": "{{count}} trips",
+    "cta": "Add trip",
+    "empty": "No visits yet"
+  },
+  "plans": {
+    "title": "Plans",
+    "count": "{{count}} plans",
+    "cta": "Plan trip",
+    "empty": "No plans yet"
+  },
+  "cards": {
+    "planProgress": "{{done}}/{{total}}",
+    "checklistProgress": "{{done}}/{{total}} prepared"
+  },
+  "statistics": {
+    "title": "Statistics",
+    "subtitle": "A short view of visited places and upcoming plans.",
+    "visited": "Visited trips",
+    "planned": "Planned trips",
+    "countries": "Countries",
+    "cities": "Cities",
+    "repeats": "Repeated countries",
+    "favoriteCity": "Favorite city",
+    "visitCount": "{{count}} visits",
+    "byCountry": "Trips by country",
+    "unknownCountry": "Unknown",
+    "empty": "Statistics will appear after the first visit."
+  },
+  "states": {
+    "loading": "Loading",
+    "loadingText": "Preparing your trips.",
+    "error": "Unable to load data",
+    "retry": "Retry",
+    "empty": "Nothing here yet"
+  },
+  "details": {
+    "back": "Back",
+    "photos": "Photos",
+    "addPhoto": "Add photo",
+    "noPhotos": "Photos added to this trip will appear here.",
+    "checklist": "Checklist",
+    "checklistPlaceholder": "Add checklist item...",
+    "noChecklist": "Checklist items will appear here.",
+    "places": "Places",
+    "placePlaceholder": "Add place...",
+    "noPlaces": "Places will appear here.",
+    "notFound": "Trip was not found.",
+    "actionFailed": "Action failed."
+  },
+  "modal": {
+    "title": "New trip",
+    "close": "Close",
+    "progress": "Creation progress",
+    "cancel": "Cancel",
+    "back": "Back",
+    "next": "Next",
+    "save": "Save",
+    "saving": "Saving...",
+    "steps": {
+      "type": "What do you want to add?",
+      "destination": "Where are we going?",
+      "dates": "When is it?",
+      "details": "Trip details"
+    },
+    "type": {
+      "visited": {
+        "title": "Visit",
+        "text": "I have been there"
+      },
+      "planned": {
+        "title": "Planned",
+        "text": "I want to go"
+      }
+    },
+    "destination": {
+      "country": "Country",
+      "city": "City",
+      "countryPlaceholder": "For example, Italy",
+      "cityPlaceholder": "For example, Rome",
+      "noCountries": "No countries found.",
+      "noCities": "No cities found."
+    },
+    "dates": {
+      "start": "Start date",
+      "end": "End date",
+      "optional": "Dates can be skipped and added later."
+    },
+    "details": {
+      "notes": "Notes",
+      "notesPlaceholder": "Why this place, what to see...",
+      "preparation": "Preparation",
+      "taskPlaceholder": "Add task...",
+      "addTask": "Add task",
+      "suggestions": ["Buy tickets", "Book hotel", "Arrange insurance", "Pack documents", "Buy eSIM", "Exchange money"],
+      "photos": "Photos",
+      "addPhoto": "Add photo"
+    },
+    "validation": {
+      "countryRequired": "Choose a country to continue.",
+      "dateRange": "End date cannot be earlier than start date."
+    },
+    "errors": {
+      "saveFailed": "Unable to save trip."
+    }
+  }
+}

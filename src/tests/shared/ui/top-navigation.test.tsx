@@ -4,30 +4,16 @@ import { MemoryRouter } from 'react-router-dom'
 import { TopNavigation } from '../../../shared/ui'
 
 describe('TopNavigation', () => {
-    it('renders user and inbox from props', () => {
+    it('renders brand and sign out action', () => {
+        const onSignOut = vi.fn()
         render(
             <MemoryRouter>
-                <TopNavigation
-                    onSignOut={vi.fn()}
-                    userFullName="Olivia Parker"
-                    unreadInboxCount={7}
-                />
+                <TopNavigation onSignOut={onSignOut} />
             </MemoryRouter>,
         )
 
-        expect(screen.getByText('Inbox 7')).toBeInTheDocument()
-        expect(screen.getByText('Olivia')).toBeInTheDocument()
-        expect(screen.getByText('Parker')).toBeInTheDocument()
-    })
-
-    it('falls back to generic user state when data is missing', () => {
-        render(
-            <MemoryRouter>
-                <TopNavigation onSignOut={vi.fn()} />
-            </MemoryRouter>,
-        )
-
-        expect(screen.getByText('Inbox 0')).toBeInTheDocument()
-        expect(screen.getByText('Traveler')).toBeInTheDocument()
+        expect(screen.getByText('Tripmark')).toBeInTheDocument()
+        screen.getByRole('button', { name: /logout/i }).click()
+        expect(onSignOut).toHaveBeenCalledTimes(1)
     })
 })

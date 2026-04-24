@@ -5,11 +5,14 @@
 ## Назначение проекта
 
 - Репозиторий содержит frontend для Tripmark.
-- Текущий MVP: только `Authorization flow` и `Personal account / My Travels`.
+- Текущий MVP: `Authorization flow` и личный архив поездок.
 - Актуальные пользовательские маршруты:
   - `/auth`
   - `/tg-app`
-  - `/my-travels` (+ подмаршруты-плейсхолдеры)
+  - `/visits`
+  - `/plans`
+  - `/statistics`
+  - `/trips/:visitId`
 
 ## Быстрая карта архитектуры
 
@@ -21,8 +24,8 @@
   - общий layout после логина
 - `src/features/auth`
   - логин, OTP, session storage, auth context, route guard
-- `src/features/my-travels`
-  - dashboard, загрузка данных и преобразование payload
+- `src/features/trips`
+  - посещения, планы, статистика, детали поездки и создание поездки
 - `src/shared/api`
   - общий HTTP клиент, refresh token flow, типы backend-ответов
 - `src/shared/config/env.ts`
@@ -67,7 +70,7 @@
 ## Done checklist
 
 - Авторизация (включая OTP) работает.
-- После логина пользователь попадает на `/my-travels`.
+- После логина пользователь попадает на `/visits`.
 - Layout/top navigation не содержит ссылок на удалённые legacy-экраны.
 - `npm run test:run` проходит.
 - `npm run build` проходит.

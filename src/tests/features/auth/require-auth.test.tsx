@@ -6,11 +6,10 @@ import { RequireAuth } from '../../../features/auth/require-auth'
 import { clearSessionTokens, setSessionTokens } from '../../../features/auth/session'
 
 const protectedRoutes = [
-    { path: '/my-travels', label: 'My Travels Screen' },
-    { path: '/my-travels/add-story', label: 'Add Story Screen' },
-    { path: '/my-travels/upload-photos', label: 'Upload Placeholder' },
-    { path: '/my-travels/share-card', label: 'Share Card Placeholder' },
-    { path: '/my-travels/achievement', label: 'Achievement Placeholder' },
+    { path: '/visits', label: 'Visits Screen' },
+    { path: '/plans', label: 'Plans Screen' },
+    { path: '/statistics', label: 'Statistics Screen' },
+    { path: '/trips/visit-1', label: 'Trip Detail Screen' },
 ]
 
 const renderProtectedRoute = (initialRoute: string) => {

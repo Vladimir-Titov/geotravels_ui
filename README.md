@@ -1,6 +1,6 @@
 # GeoTravels UI
 
-MVP frontend for Tripmark (`auth + my-travels dashboard`).
+MVP frontend for Tripmark (`auth + visits/plans/statistics`).
 
 ## Stack
 - React + Vite + TypeScript
@@ -38,14 +38,13 @@ Default UI URL: `http://localhost:5173`
 ## Routes
 - `/auth` - login/OTP flow
 - `/tg-app` - Telegram mini app auth entry
-- `/my-travels` - main dashboard after login
-- `/my-travels/add-story` - placeholder flow
-- `/my-travels/upload-photos` - placeholder flow
-- `/my-travels/share-card` - placeholder flow
-- `/my-travels/achievement` - placeholder flow
+- `/visits` - visited trips after login
+- `/plans` - planned trips
+- `/statistics` - secondary statistics view
+- `/trips/:visitId` - trip details
 
 `/` and unknown routes are redirected by auth state:
-- authenticated -> `/my-travels`
+- authenticated -> `/visits`
 - guest -> `/auth`
 
 ## `src/` structure
@@ -62,7 +61,7 @@ src/
 │
 ├── features/
 │   ├── auth/                 ← authentication and session
-│   └── my-travels/           ← dashboard and related data hooks
+│   └── trips/                ← visits, plans, statistics, trip details
 │
 ├── shared/
 │   ├── api/                  ← HTTP client and API contracts
@@ -75,6 +74,6 @@ src/
 └── tests/
     ├── setup.ts
     ├── features/auth/
-    ├── features/my-travels/
+    ├── features/trips/
     └── shared/
 ```
