@@ -1,6 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { clearSessionTokens } from '../../../features/auth/session'
-import { deleteVisit, uploadVisitPhoto } from '../../../features/trips/trips-api'
+import {
+    deleteVisit,
+    searchCities,
+    searchCountries,
+    uploadVisitPhoto,
+} from '../../../features/trips/trips-api'
 import { resetHttpStateForTests } from '../../../shared/api/http'
 
 const jsonResponse = (status: number, payload: unknown): Response => {
@@ -67,5 +72,47 @@ describe('trips api', () => {
         expect(requestUrl).toBe('http://localhost:8000/api/v1/visits/visit-1')
         expect(requestInit?.method).toBe('DELETE')
         expect(requestInit?.body).toBeUndefined()
+    })
+
+    it('searches countries with language and localized display names', async () => {
+        const fetchMock = vi.fn<typeof fetch>().mockResolvedValueOnce(
+            jsonResponse(200, {
+                items: [{ iso_a2: 'RU', name: 'Russia', display_name: 'Россия' }],
+            }),
+        )
+        vi.stubGlobal('fetch', fetchMock)
+
+        await expect(searchCountries('Росс', 'ru-RU')).resolves.toEqual([{ code: 'RU', name: 'Россия' }])
+
+        const requestUrl = new URL(fetchMock.mock.calls[0]?.[0] as string)
+        expect(requestUrl.pathname).toBe('/api/v1/geo/countries')
+        expect(requestUrl.searchParams.get('lang')).toBe('ru')
+        expect(requestUrl.searchParams.get('name_ilike')).toBe('%Росс%')
+    })
+
+    it('searches cities with language and localized display names', async () => {
+        const fetchMock = vi.fn<typeof fetch>().mockResolvedValueOnce(
+            jsonResponse(200, {
+                items: [
+                    {
+                        id: 'city-1',
+                        country_code: 'IT',
+                        name: 'Rome',
+                        display_name: 'Рим',
+                    },
+                ],
+            }),
+        )
+        vi.stubGlobal('fetch', fetchMock)
+
+        await expect(searchCities('IT', 'Рим', 'ru')).resolves.toEqual([
+            { id: 'city-1', name: 'Рим', countryCode: 'IT' },
+        ])
+
+        const requestUrl = new URL(fetchMock.mock.calls[0]?.[0] as string)
+        expect(requestUrl.pathname).toBe('/api/v1/geo/cities')
+        expect(requestUrl.searchParams.get('country_code')).toBe('IT')
+        expect(requestUrl.searchParams.get('lang')).toBe('ru')
+        expect(requestUrl.searchParams.get('name_ilike')).toBe('%Рим%')
     })
 })
