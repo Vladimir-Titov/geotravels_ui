@@ -180,19 +180,21 @@ const normalizePlace = (value: unknown): TripPlace => {
 
 export const normalizeCountryOption = (value: unknown): CountryOption => {
     const country = asRecord(value)
+    const displayName = asString(country.display_name)
 
     return {
         code: asString(country.iso_a2).toUpperCase(),
-        name: asString(country.name),
+        name: displayName || asString(country.name),
     }
 }
 
 export const normalizeCityOption = (value: unknown): CityOption => {
     const city = asRecord(value)
+    const displayName = asString(city.display_name)
 
     return {
         id: asString(city.id),
-        name: asString(city.name),
+        name: displayName || asString(city.name),
         countryCode: asString(city.country_code).toUpperCase(),
     }
 }

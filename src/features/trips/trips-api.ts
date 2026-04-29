@@ -51,6 +51,12 @@ const createSearchParams = (payload: Record<string, string | number | undefined>
     return params.toString()
 }
 
+const normalizeGeoLang = (language?: string): 'en' | 'ru' => {
+    return language?.toLowerCase().startsWith('ru') ? 'ru' : 'en'
+}
+
+const toIlikePattern = (query: string): string => `%${query.trim()}%`
+
 export const fetchTripCards = async (status: VisibleTripStatus): Promise<TripCardsResponse> => {
     const params = createSearchParams({ status, limit: 100, offset: 0 })
     const response = await requestJson<unknown>(`${VISITS_ENDPOINT}/cards?${params}`)
@@ -67,22 +73,28 @@ export const fetchTripStatistics = async (): Promise<TripStatistics> => {
     return normalizeTripStatistics(response)
 }
 
-export const searchCountries = async (query: string): Promise<CountryOption[]> => {
+export const searchCountries = async (query: string, language?: string): Promise<CountryOption[]> => {
     const params = createSearchParams({
         limit: 8,
         offset: 0,
-        name_ilike: query,
+        lang: normalizeGeoLang(language),
+        name_ilike: toIlikePattern(query),
     })
     const response = await requestJson<PaginatedResponse<unknown>>(`${COUNTRIES_ENDPOINT}?${params}`)
     return response.items.map(normalizeCountryOption).filter((country) => country.code && country.name)
 }
 
-export const searchCities = async (countryCode: string, query: string): Promise<CityOption[]> => {
+export const searchCities = async (
+    countryCode: string,
+    query: string,
+    language?: string,
+): Promise<CityOption[]> => {
     const params = createSearchParams({
         limit: 8,
         offset: 0,
         country_code: countryCode,
-        name_ilike: query,
+        lang: normalizeGeoLang(language),
+        name_ilike: toIlikePattern(query),
     })
     const response = await requestJson<PaginatedResponse<unknown>>(`${CITIES_ENDPOINT}?${params}`)
     return response.items.map(normalizeCityOption).filter((city) => city.id && city.name)
