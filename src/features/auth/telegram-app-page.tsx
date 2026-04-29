@@ -8,6 +8,27 @@ type TelegramWindow = Window & {
     Telegram?: { WebApp?: { initData?: string; version?: string; platform?: string } }
 }
 
+const TELEGRAM_WEB_APP_SCRIPT_SRC = 'https://telegram.org/js/telegram-web-app.js'
+
+const loadTelegramWebAppScript = (): void => {
+    if ((window as TelegramWindow).Telegram?.WebApp) {
+        return
+    }
+
+    const existingScript = document.querySelector<HTMLScriptElement>(
+        `script[src="${TELEGRAM_WEB_APP_SCRIPT_SRC}"]`,
+    )
+    if (existingScript) {
+        return
+    }
+
+    const script = document.createElement('script')
+    script.src = TELEGRAM_WEB_APP_SCRIPT_SRC
+    script.async = true
+    script.defer = true
+    document.head.appendChild(script)
+}
+
 const waitForInitData = (): Promise<string> =>
     new Promise((resolve) => {
         const deadline = Date.now() + 3000
@@ -25,7 +46,15 @@ export const TelegramAppPage = () => {
     const navigate = useNavigate()
 
     useEffect(() => {
+        loadTelegramWebAppScript()
+
+        let isCancelled = false
+
         waitForInitData().then((initData) => {
+            if (isCancelled) {
+                return
+            }
+
             const tg = (window as TelegramWindow).Telegram?.WebApp
 
             Sentry.addBreadcrumb({
@@ -49,6 +78,9 @@ export const TelegramAppPage = () => {
 
             telegramAppLogin(initData)
                 .then((tokens) => {
+                    if (isCancelled) {
+                        return
+                    }
                     onAuthSuccess({
                         accessToken: tokens.access_token,
                         refreshToken: tokens.refresh_token,
@@ -57,10 +89,17 @@ export const TelegramAppPage = () => {
                     navigate('/visits', { replace: true })
                 })
                 .catch((err) => {
+                    if (isCancelled) {
+                        return
+                    }
                     Sentry.captureException(err, { tags: { context: 'tg-app-login' } })
                     navigate('/auth', { replace: true })
                 })
         })
+
+        return () => {
+            isCancelled = true
+        }
     }, [navigate, onAuthSuccess])
 
     return null

@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { PlansPage, StatisticsPage, TripDetailPage, VisitsPage } from '../../../features/trips'
 
@@ -50,9 +50,20 @@ const plannedCard = {
     placesVisited: 1,
 }
 
+const originalCreateObjectURL = URL.createObjectURL
+const originalRevokeObjectURL = URL.revokeObjectURL
+
 describe('trips pages', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        Object.defineProperty(URL, 'createObjectURL', {
+            configurable: true,
+            value: vi.fn(() => 'blob:protected-image'),
+        })
+        Object.defineProperty(URL, 'revokeObjectURL', {
+            configurable: true,
+            value: vi.fn(),
+        })
         apiMocks.fetchTripCards.mockImplementation(async (status: string) => ({
             items: status === 'planned' ? [plannedCard] : [visitedCard],
             pagination: { limit: 100, offset: 0, total: 1 },
@@ -109,6 +120,18 @@ describe('trips pages', () => {
         })
     })
 
+    afterEach(() => {
+        vi.unstubAllGlobals()
+        Object.defineProperty(URL, 'createObjectURL', {
+            configurable: true,
+            value: originalCreateObjectURL,
+        })
+        Object.defineProperty(URL, 'revokeObjectURL', {
+            configurable: true,
+            value: originalRevokeObjectURL,
+        })
+    })
+
     it('renders visits and opens add trip modal', async () => {
         render(
             <MemoryRouter>
@@ -121,6 +144,38 @@ describe('trips pages', () => {
 
         fireEvent.click(screen.getByRole('button', { name: /add trip/i }))
         expect(screen.getByRole('dialog')).toHaveTextContent('New trip')
+    })
+
+    it('renders protected card covers with lazy async image attributes', async () => {
+        const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(
+            new Response('cover', { status: 200, headers: { 'Content-Type': 'image/webp' } }),
+        )
+        vi.stubGlobal('fetch', fetchMock)
+        apiMocks.fetchTripCards.mockResolvedValueOnce({
+            items: [{ ...visitedCard, coverUrl: '/api/v1/files/cover/download' }],
+            pagination: { limit: 100, offset: 0, total: 1 },
+        })
+
+        const { container } = render(
+            <MemoryRouter>
+                <VisitsPage />
+            </MemoryRouter>,
+        )
+
+        expect(await screen.findByRole('heading', { name: 'Visits' })).toBeInTheDocument()
+        const image = await waitFor(() => {
+            const element = container.querySelector('.trip-card__media img')
+            expect(element).toBeInTheDocument()
+            return element as HTMLImageElement
+        })
+
+        expect(image).toHaveAttribute('src', 'blob:protected-image')
+        expect(image).toHaveAttribute('loading', 'lazy')
+        expect(image).toHaveAttribute('decoding', 'async')
+        expect(fetchMock).toHaveBeenCalledWith(
+            'http://localhost:8000/api/v1/files/cover/download',
+            expect.any(Object),
+        )
     })
 
     it('renders planned trip progress', async () => {
@@ -164,5 +219,67 @@ describe('trips pages', () => {
 
         fireEvent.click(screen.getByRole('button', { name: /louvre/i }))
         await waitFor(() => expect(apiMocks.updateVisitPlace).toHaveBeenCalledWith('place-1', true))
+    })
+
+    it('renders protected detail photos with lazy async image attributes', async () => {
+        const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(
+            new Response('photo', { status: 200, headers: { 'Content-Type': 'image/webp' } }),
+        )
+        vi.stubGlobal('fetch', fetchMock)
+        apiMocks.fetchTripDetails.mockResolvedValueOnce({
+            visit: {
+                id: 'visit-1',
+                status: 'visited',
+                title: 'Paris',
+                description: null,
+                countryCode: 'FR',
+                countryName: 'France',
+                cityId: 'city-1',
+                cityName: 'Paris',
+                cityIds: ['city-1'],
+                dateFrom: null,
+                dateTo: null,
+                coverFileId: null,
+                coverUrl: null,
+                created: '2026-01-01T00:00:00Z',
+                updated: '2026-01-01T00:00:00Z',
+            },
+            photos: [
+                {
+                    id: 'photo-1',
+                    fileUrl: '/api/v1/files/photo-1/download',
+                    filename: 'paris.webp',
+                    fileType: 'image/webp',
+                    isPrivate: true,
+                    isCover: false,
+                },
+            ],
+            checklist: [],
+            places: [],
+            cities: [],
+        })
+
+        const { container } = render(
+            <MemoryRouter initialEntries={['/trips/visit-1']}>
+                <Routes>
+                    <Route path="/trips/:visitId" element={<TripDetailPage />} />
+                </Routes>
+            </MemoryRouter>,
+        )
+
+        expect(await screen.findByRole('heading', { name: 'Paris' })).toBeInTheDocument()
+        const image = await waitFor(() => {
+            const element = container.querySelector('.trip-photo-tile img')
+            expect(element).toBeInTheDocument()
+            return element as HTMLImageElement
+        })
+
+        expect(image).toHaveAttribute('src', 'blob:protected-image')
+        expect(image).toHaveAttribute('loading', 'lazy')
+        expect(image).toHaveAttribute('decoding', 'async')
+        expect(fetchMock).toHaveBeenCalledWith(
+            'http://localhost:8000/api/v1/files/photo-1/download',
+            expect.any(Object),
+        )
     })
 })

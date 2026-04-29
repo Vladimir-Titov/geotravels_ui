@@ -353,7 +353,7 @@ export const TripDetailPage = () => {
                         {data.photos.map((photo) => (
                             <article key={photo.id} className="trip-photo-tile">
                                 {photos[photo.id]?.objectUrl ? (
-                                    <img src={photos[photo.id].objectUrl} alt="" />
+                                    <img src={photos[photo.id].objectUrl} alt="" loading="lazy" decoding="async" />
                                 ) : (
                                     <Camera size={22} />
                                 )}

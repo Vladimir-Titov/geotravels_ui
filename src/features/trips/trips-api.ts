@@ -36,7 +36,6 @@ interface VisitFileResponseDto {
 }
 
 const VISITS_ENDPOINT = '/api/v1/visits'
-const FILES_ENDPOINT = '/api/v1/files'
 const COUNTRIES_ENDPOINT = '/api/v1/geo/countries'
 const CITIES_ENDPOINT = '/api/v1/geo/cities'
 const CHECKLIST_ENDPOINT = '/api/v1/visits/checklist'
@@ -145,18 +144,14 @@ export const updateVisitPlace = async (placeId: string, isVisited: boolean): Pro
 
 export const uploadVisitPhoto = async (visitId: string, file: File): Promise<VisitFileResponseDto> => {
     const formData = new FormData()
-    formData.append('visit_id', visitId)
     formData.append('file', file, file.name)
+    formData.append('visibility', 'private')
 
     if (file.name.trim().length > 0) {
         formData.append('filename', file.name)
     }
 
-    if (file.type.trim().length > 0) {
-        formData.append('file_type', file.type)
-    }
-
-    return requestForm<VisitFileResponseDto>(FILES_ENDPOINT, {
+    return requestForm<VisitFileResponseDto>(`${VISITS_ENDPOINT}/${visitId}/file`, {
         method: 'POST',
         body: formData,
     })

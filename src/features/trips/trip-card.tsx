@@ -49,7 +49,7 @@ export const TripCard = ({ trip, coverUrl, showPlanProgress = false }: TripCardP
             onClick={() => navigate(`/trips/${trip.id}`)}
         >
             <span className="trip-card__media" aria-hidden="true">
-                {coverUrl ? <img src={coverUrl} alt="" /> : <Image size={24} />}
+                {coverUrl ? <img src={coverUrl} alt="" loading="lazy" decoding="async" /> : <Image size={24} />}
                 {showPlanProgress && <span className="trip-card__counter">{progressLabel}</span>}
             </span>
 
