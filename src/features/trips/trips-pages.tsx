@@ -8,6 +8,7 @@ import {
     MapPin,
     Plus,
     RotateCcw,
+    Trash2,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router-dom'
@@ -17,6 +18,7 @@ import { TripCard } from './trip-card'
 import {
     createChecklistItem,
     createVisitPlace,
+    deleteVisit,
     updateChecklistItem,
     updateVisit,
     updateVisitPlace,
@@ -243,6 +245,7 @@ export const TripDetailPage = () => {
     const [newChecklistItem, setNewChecklistItem] = useState('')
     const [newPlace, setNewPlace] = useState('')
     const [actionError, setActionError] = useState<string | null>(null)
+    const [isDeleting, setIsDeleting] = useState(false)
     const language = i18n.resolvedLanguage ?? i18n.language
     const imageSources = useMemo(
         () => data?.photos.map((photo) => ({ id: photo.id, url: photo.fileUrl })) ?? [],
@@ -320,6 +323,27 @@ export const TripDetailPage = () => {
         event.target.value = ''
     }
 
+    const handleDeleteVisit = async (): Promise<void> => {
+        if (isDeleting) {
+            return
+        }
+
+        const confirmed = window.confirm(t('details.deleteConfirm', { title: data.visit.title }))
+        if (!confirmed) {
+            return
+        }
+
+        setActionError(null)
+        setIsDeleting(true)
+        try {
+            await deleteVisit(visitId)
+            navigate(backPath, { replace: true })
+        } catch (requestError) {
+            setIsDeleting(false)
+            setActionError(getErrorText(requestError, t('details.deleteFailed')))
+        }
+    }
+
     return (
         <section className="trips-page trip-detail">
             <header className="trip-detail__header">
@@ -333,6 +357,15 @@ export const TripDetailPage = () => {
                         {period ? ` · ${period}` : ''}
                     </p>
                 </div>
+                <button
+                    type="button"
+                    className="trip-link-button trip-link-button--danger"
+                    onClick={() => void handleDeleteVisit()}
+                    disabled={isDeleting}
+                >
+                    <Trash2 size={16} />
+                    {isDeleting ? t('details.deleting') : t('details.delete')}
+                </button>
             </header>
 
             {actionError && <p className="trip-field-error">{actionError}</p>}

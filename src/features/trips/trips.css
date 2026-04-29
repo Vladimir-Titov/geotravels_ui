@@ -50,11 +50,21 @@
     opacity: 0.55;
 }
 
+.trip-link-button:disabled,
+.trip-icon-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
 .trip-button--ghost,
 .trip-link-button {
     color: var(--tm-text);
     background: var(--tm-surface);
     border-color: var(--tm-border);
+}
+
+.trip-link-button--danger {
+    color: var(--danger);
 }
 
 .trip-link-button input {

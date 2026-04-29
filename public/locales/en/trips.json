@@ -38,6 +38,10 @@
   },
   "details": {
     "back": "Back",
+    "delete": "Delete trip",
+    "deleting": "Deleting...",
+    "deleteConfirm": "Delete {{title}}? This cannot be undone.",
+    "deleteFailed": "Unable to delete trip.",
     "photos": "Photos",
     "addPhoto": "Add photo",
     "noPhotos": "Photos added to this trip will appear here.",

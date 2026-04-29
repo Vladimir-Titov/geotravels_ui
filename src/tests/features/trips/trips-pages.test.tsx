@@ -9,6 +9,7 @@ const apiMocks = vi.hoisted(() => ({
     fetchTripStatistics: vi.fn(),
     createChecklistItem: vi.fn(),
     createVisitPlace: vi.fn(),
+    deleteVisit: vi.fn(),
     updateChecklistItem: vi.fn(),
     updateVisit: vi.fn(),
     updateVisitPlace: vi.fn(),
@@ -219,6 +220,27 @@ describe('trips pages', () => {
 
         fireEvent.click(screen.getByRole('button', { name: /louvre/i }))
         await waitFor(() => expect(apiMocks.updateVisitPlace).toHaveBeenCalledWith('place-1', true))
+    })
+
+    it('deletes trip details after confirmation and returns to the trip list', async () => {
+        apiMocks.deleteVisit.mockResolvedValue(undefined)
+        vi.stubGlobal('confirm', vi.fn(() => true))
+
+        render(
+            <MemoryRouter initialEntries={['/trips/visit-1']}>
+                <Routes>
+                    <Route path="/trips/:visitId" element={<TripDetailPage />} />
+                    <Route path="/visits" element={<p>Visits route</p>} />
+                </Routes>
+            </MemoryRouter>,
+        )
+
+        expect(await screen.findByRole('heading', { name: 'Paris' })).toBeInTheDocument()
+
+        fireEvent.click(screen.getByRole('button', { name: /delete trip/i }))
+
+        await waitFor(() => expect(apiMocks.deleteVisit).toHaveBeenCalledWith('visit-1'))
+        expect(await screen.findByText('Visits route')).toBeInTheDocument()
     })
 
     it('renders protected detail photos with lazy async image attributes', async () => {

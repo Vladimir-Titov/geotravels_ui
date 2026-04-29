@@ -105,6 +105,12 @@ export const updateVisit = async (
     })
 }
 
+export const deleteVisit = async (visitId: string): Promise<void> => {
+    await requestJson<void>(`${VISITS_ENDPOINT}/${visitId}`, {
+        method: 'DELETE',
+    })
+}
+
 export const createChecklistItem = async (visitId: string, content: string): Promise<void> => {
     await requestJson<unknown>(CHECKLIST_ENDPOINT, {
         method: 'POST',
