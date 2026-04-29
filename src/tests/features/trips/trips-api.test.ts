@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { clearSessionTokens } from '../../../features/auth/session'
-import { uploadVisitPhoto } from '../../../features/trips/trips-api'
+import { deleteVisit, uploadVisitPhoto } from '../../../features/trips/trips-api'
 import { resetHttpStateForTests } from '../../../shared/api/http'
 
 const jsonResponse = (status: number, payload: unknown): Response => {
@@ -53,5 +53,19 @@ describe('trips api', () => {
         expect(uploadedFile).toBeInstanceOf(File)
         expect(uploadedFile.name).toBe('cover.jpg')
         expect(uploadedFile.type).toBe('image/jpeg')
+    })
+
+    it('deletes visits through the visit endpoint', async () => {
+        const fetchMock = vi.fn<typeof fetch>().mockResolvedValueOnce(new Response(null, { status: 204 }))
+        vi.stubGlobal('fetch', fetchMock)
+
+        await expect(deleteVisit('visit-1')).resolves.toBeUndefined()
+
+        const requestUrl = fetchMock.mock.calls[0]?.[0]
+        const requestInit = fetchMock.mock.calls[0]?.[1] as RequestInit | undefined
+
+        expect(requestUrl).toBe('http://localhost:8000/api/v1/visits/visit-1')
+        expect(requestInit?.method).toBe('DELETE')
+        expect(requestInit?.body).toBeUndefined()
     })
 })
