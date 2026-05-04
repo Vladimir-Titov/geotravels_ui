@@ -88,7 +88,7 @@ const hasInvalidDateRange = (draft: AddTripDraft): boolean => {
 }
 
 export const AddTripModal = ({ initialStatus, onClose, onSaved }: AddTripModalProps) => {
-    const { t } = useTranslation('trips')
+    const { t, i18n } = useTranslation('trips')
     const [step, setStep] = useState<Step>(1)
     const [draft, setDraft] = useState<AddTripDraft>(() => createInitialDraft(initialStatus))
     const [countryQuery, setCountryQuery] = useState('')
@@ -102,6 +102,7 @@ export const AddTripModal = ({ initialStatus, onClose, onSaved }: AddTripModalPr
     const [isSaving, setIsSaving] = useState(false)
     const photoUrlsRef = useRef<string[]>([])
     const checklistSuggestions = t('modal.details.suggestions', { returnObjects: true }) as string[]
+    const language = i18n.resolvedLanguage ?? i18n.language
 
     useEffect(() => {
         const previous = photoUrlsRef.current
@@ -138,7 +139,7 @@ export const AddTripModal = ({ initialStatus, onClose, onSaved }: AddTripModalPr
         const timeoutId = window.setTimeout(() => {
             void (async () => {
                 try {
-                    const results = await searchCountries(query)
+                    const results = await searchCountries(query, language)
                     if (!isCancelled) {
                         setCountryOptions(results)
                         setCountrySearchDone(true)
@@ -156,7 +157,7 @@ export const AddTripModal = ({ initialStatus, onClose, onSaved }: AddTripModalPr
             isCancelled = true
             window.clearTimeout(timeoutId)
         }
-    }, [countryQuery, step])
+    }, [countryQuery, language, step])
 
     useEffect(() => {
         if (step !== 2 || !draft.country) {
@@ -176,7 +177,7 @@ export const AddTripModal = ({ initialStatus, onClose, onSaved }: AddTripModalPr
         const timeoutId = window.setTimeout(() => {
             void (async () => {
                 try {
-                    const results = await searchCities(draft.country!.code, query)
+                    const results = await searchCities(draft.country!.code, query, language)
                     if (!isCancelled) {
                         setCityOptions(results)
                         setCitySearchDone(true)
@@ -194,7 +195,7 @@ export const AddTripModal = ({ initialStatus, onClose, onSaved }: AddTripModalPr
             isCancelled = true
             window.clearTimeout(timeoutId)
         }
-    }, [cityQuery, draft.country, step])
+    }, [cityQuery, draft.country, language, step])
 
     const stepTitle = useMemo(() => {
         if (step === 1) {
