@@ -248,7 +248,12 @@ export const TripDetailPage = () => {
     const [isDeleting, setIsDeleting] = useState(false)
     const language = i18n.resolvedLanguage ?? i18n.language
     const imageSources = useMemo(
-        () => data?.photos.map((photo) => ({ id: photo.id, url: photo.fileUrl })) ?? [],
+        () =>
+            data?.photos.map((photo) => ({
+                id: photo.id,
+                url: photo.thumbnailUrl ?? photo.fileUrl,
+                fallbackUrl: photo.thumbnailUrl ? photo.fileUrl : null,
+            })) ?? [],
         [data?.photos],
     )
     const photos = useProtectedImages(imageSources)

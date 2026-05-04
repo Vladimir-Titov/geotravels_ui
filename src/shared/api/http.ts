@@ -51,6 +51,10 @@ interface PreparedRequestOptions extends BaseRequestOptions {
 
 let refreshRequest: Promise<boolean> | null = null
 
+const isAbortError = (error: unknown): boolean => {
+    return error instanceof DOMException && error.name === 'AbortError'
+}
+
 const resolvePath = (path: string): string => {
     if (path.startsWith('http://') || path.startsWith('https://')) {
         return path
@@ -182,7 +186,7 @@ const request = async <T>(path: string, options: PreparedRequestOptions = {}): P
     try {
         response = await performRequest(path, options, true)
     } catch (error) {
-        if (!(error instanceof AuthExpiredError)) {
+        if (!(error instanceof AuthExpiredError) && !isAbortError(error)) {
             Sentry.captureException(error)
         }
         throw error
@@ -204,7 +208,7 @@ const requestResponse = async (path: string, options: PreparedRequestOptions = {
     try {
         response = await performRequest(path, options, true)
     } catch (error) {
-        if (!(error instanceof AuthExpiredError)) {
+        if (!(error instanceof AuthExpiredError) && !isAbortError(error)) {
             Sentry.captureException(error)
         }
         throw error

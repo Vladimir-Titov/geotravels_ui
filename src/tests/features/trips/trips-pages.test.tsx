@@ -270,6 +270,8 @@ describe('trips pages', () => {
                 {
                     id: 'photo-1',
                     fileUrl: '/api/v1/files/photo-1/download',
+                    thumbnailUrl: 'http://localhost:8000/api/v1/files/photo-1/download?variant=thumb',
+                    previewUrl: 'http://localhost:8000/api/v1/files/photo-1/download?variant=preview',
                     filename: 'paris.webp',
                     fileType: 'image/webp',
                     isPrivate: true,
@@ -300,7 +302,70 @@ describe('trips pages', () => {
         expect(image).toHaveAttribute('loading', 'lazy')
         expect(image).toHaveAttribute('decoding', 'async')
         expect(fetchMock).toHaveBeenCalledWith(
-            'http://localhost:8000/api/v1/files/photo-1/download',
+            'http://localhost:8000/api/v1/files/photo-1/download?variant=thumb',
+            expect.any(Object),
+        )
+    })
+
+    it('falls back to full detail photo when protected thumbnail loading fails', async () => {
+        const fetchMock = vi
+            .fn<typeof fetch>()
+            .mockResolvedValueOnce(new Response('missing', { status: 404 }))
+            .mockResolvedValueOnce(new Response('photo', { status: 200, headers: { 'Content-Type': 'image/webp' } }))
+        vi.stubGlobal('fetch', fetchMock)
+        apiMocks.fetchTripDetails.mockResolvedValueOnce({
+            visit: {
+                id: 'visit-1',
+                status: 'visited',
+                title: 'Paris',
+                description: null,
+                countryCode: 'FR',
+                countryName: 'France',
+                cityId: 'city-1',
+                cityName: 'Paris',
+                cityIds: ['city-1'],
+                dateFrom: null,
+                dateTo: null,
+                coverFileId: null,
+                coverUrl: null,
+                created: '2026-01-01T00:00:00Z',
+                updated: '2026-01-01T00:00:00Z',
+            },
+            photos: [
+                {
+                    id: 'photo-fallback',
+                    fileUrl: 'http://localhost:8000/api/v1/files/photo-fallback/download',
+                    thumbnailUrl: 'http://localhost:8000/api/v1/files/photo-fallback/download?variant=thumb',
+                    previewUrl: 'http://localhost:8000/api/v1/files/photo-fallback/download?variant=preview',
+                    filename: 'paris.webp',
+                    fileType: 'image/webp',
+                    isPrivate: true,
+                    isCover: false,
+                },
+            ],
+            checklist: [],
+            places: [],
+            cities: [],
+        })
+
+        const { container } = render(
+            <MemoryRouter initialEntries={['/trips/visit-1']}>
+                <Routes>
+                    <Route path="/trips/:visitId" element={<TripDetailPage />} />
+                </Routes>
+            </MemoryRouter>,
+        )
+
+        expect(await screen.findByRole('heading', { name: 'Paris' })).toBeInTheDocument()
+        await waitFor(() => expect(container.querySelector('.trip-photo-tile img')).toBeInTheDocument())
+        expect(fetchMock).toHaveBeenNthCalledWith(
+            1,
+            'http://localhost:8000/api/v1/files/photo-fallback/download?variant=thumb',
+            expect.any(Object),
+        )
+        expect(fetchMock).toHaveBeenNthCalledWith(
+            2,
+            'http://localhost:8000/api/v1/files/photo-fallback/download',
             expect.any(Object),
         )
     })

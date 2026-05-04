@@ -4,6 +4,7 @@ import { requestBlob } from '../../shared/api/http'
 interface ProtectedImageSource {
     id: string
     url: string | null
+    fallbackUrl?: string | null
 }
 
 interface ProtectedImageEntry {
@@ -16,6 +17,9 @@ const canCreateObjectUrl =
     typeof URL.createObjectURL === 'function' &&
     typeof URL.revokeObjectURL === 'function'
 
+const MAX_PARALLEL_IMAGE_LOADS = 4
+const imageBlobCache = new Map<string, Blob>()
+
 export const useProtectedImages = (
     sources: ProtectedImageSource[],
 ): Record<string, ProtectedImageEntry> => {
@@ -27,7 +31,14 @@ export const useProtectedImages = (
             return
         }
 
-        const activeSources = new Map(sources.map((source) => [source.id, source.url]))
+        const getSourceUrls = (source: ProtectedImageSource): string[] => {
+            const urls = [source.url, source.fallbackUrl].filter(
+                (url): url is string => typeof url === 'string' && url.length > 0,
+            )
+            return Array.from(new Set(urls))
+        }
+
+        const activeSources = new Map(sources.map((source) => [source.id, getSourceUrls(source).join('|')]))
         Object.entries(entriesRef.current).forEach(([id, entry]) => {
             if (activeSources.get(id) !== entry.source) {
                 URL.revokeObjectURL(entry.objectUrl)
@@ -36,15 +47,22 @@ export const useProtectedImages = (
         })
 
         let isCancelled = false
+        const abortController = new AbortController()
 
-        const loadImages = async () => {
-            for (const source of sources) {
-                if (!source.url || entriesRef.current[source.id]?.source === source.url) {
-                    continue
-                }
+        const loadImage = async (source: ProtectedImageSource): Promise<void> => {
+            const sourceUrls = getSourceUrls(source)
+            const sourceKey = sourceUrls.join('|')
+            if (sourceUrls.length === 0 || entriesRef.current[source.id]?.source === sourceKey) {
+                return
+            }
 
+            for (const url of sourceUrls) {
                 try {
-                    const blob = await requestBlob(source.url)
+                    const cachedBlob = imageBlobCache.get(url)
+                    const blob = cachedBlob ?? (await requestBlob(url, { signal: abortController.signal }))
+                    if (!cachedBlob) {
+                        imageBlobCache.set(url, blob)
+                    }
                     if (isCancelled) {
                         return
                     }
@@ -56,20 +74,45 @@ export const useProtectedImages = (
                     }
 
                     entriesRef.current[source.id] = {
-                        source: source.url,
+                        source: sourceKey,
                         objectUrl,
                     }
                     setEntries({ ...entriesRef.current })
+                    return
                 } catch {
-                    // Keep the neutral fallback when an image cannot be loaded.
+                    // Try the next source URL before falling back to the neutral placeholder.
                 }
             }
+        }
+
+        const loadImages = async () => {
+            const pendingSources = sources.filter(
+                (source) => {
+                    const sourceKey = getSourceUrls(source).join('|')
+                    return sourceKey && entriesRef.current[source.id]?.source !== sourceKey
+                },
+            )
+            let nextIndex = 0
+            const workerCount = Math.min(MAX_PARALLEL_IMAGE_LOADS, pendingSources.length)
+            const workers = Array.from({ length: workerCount }, async () => {
+                while (!isCancelled) {
+                    const source = pendingSources[nextIndex]
+                    nextIndex += 1
+                    if (!source) {
+                        return
+                    }
+                    await loadImage(source)
+                }
+            })
+
+            await Promise.all(workers)
         }
 
         void loadImages()
 
         return () => {
             isCancelled = true
+            abortController.abort()
         }
     }, [sources])
 
