@@ -145,6 +145,8 @@ const normalizePhoto = (value: unknown): TripPhoto => {
     return {
         id: asString(photo.id),
         fileUrl: toAbsoluteApiUrl(asNullableString(photo.file_url)) ?? '',
+        thumbnailUrl: toAbsoluteApiUrl(asNullableString(photo.thumbnail_url)),
+        previewUrl: toAbsoluteApiUrl(asNullableString(photo.preview_url)),
         filename: asNullableString(photo.filename),
         fileType: asNullableString(photo.file_type),
         isPrivate: asBoolean(photo.is_private),

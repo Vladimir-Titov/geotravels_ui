@@ -63,6 +63,8 @@ export interface TripVisit {
 export interface TripPhoto {
     id: string
     fileUrl: string
+    thumbnailUrl: string | null
+    previewUrl: string | null
     filename: string | null
     fileType: string | null
     isPrivate: boolean

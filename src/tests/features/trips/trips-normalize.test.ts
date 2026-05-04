@@ -49,13 +49,26 @@ describe('trips normalizers', () => {
                 created: '2026-01-01T00:00:00Z',
                 updated: '2026-01-01T00:00:00Z',
             },
-            photos: [{ id: 'file-1', file_url: '/api/v1/files/file-1/download' }],
+            photos: [
+                {
+                    id: 'file-1',
+                    file_url: '/api/v1/files/file-1/download',
+                    thumbnail_url: '/api/v1/files/file-1/download?variant=thumb',
+                    preview_url: '/api/v1/files/file-1/download?variant=preview',
+                },
+            ],
             checklist: [{ id: 'task-1', visit_id: 'visit-1', content: 'Tickets', status: 'done' }],
             places: [{ id: 'place-1', visit_id: 'visit-1', title: 'Colosseum', is_visited: true }],
             cities: [],
         })
 
         expect(details.visit.status).toBe('planned')
+        expect(details.photos[0].thumbnailUrl).toBe(
+            'http://localhost:8000/api/v1/files/file-1/download?variant=thumb',
+        )
+        expect(details.photos[0].previewUrl).toBe(
+            'http://localhost:8000/api/v1/files/file-1/download?variant=preview',
+        )
         expect(details.checklist[0].status).toBe('done')
         expect(details.places[0].isVisited).toBe(true)
     })

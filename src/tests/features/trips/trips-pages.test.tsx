@@ -270,6 +270,8 @@ describe('trips pages', () => {
                 {
                     id: 'photo-1',
                     fileUrl: '/api/v1/files/photo-1/download',
+                    thumbnailUrl: 'http://localhost:8000/api/v1/files/photo-1/download?variant=thumb',
+                    previewUrl: 'http://localhost:8000/api/v1/files/photo-1/download?variant=preview',
                     filename: 'paris.webp',
                     fileType: 'image/webp',
                     isPrivate: true,
@@ -300,7 +302,7 @@ describe('trips pages', () => {
         expect(image).toHaveAttribute('loading', 'lazy')
         expect(image).toHaveAttribute('decoding', 'async')
         expect(fetchMock).toHaveBeenCalledWith(
-            'http://localhost:8000/api/v1/files/photo-1/download',
+            'http://localhost:8000/api/v1/files/photo-1/download?variant=thumb',
             expect.any(Object),
         )
     })
