@@ -4,6 +4,7 @@ import { requestBlob } from '../../shared/api/http'
 interface ProtectedImageSource {
     id: string
     url: string | null
+    fallbackUrl?: string | null
 }
 
 interface ProtectedImageEntry {
@@ -30,7 +31,14 @@ export const useProtectedImages = (
             return
         }
 
-        const activeSources = new Map(sources.map((source) => [source.id, source.url]))
+        const getSourceUrls = (source: ProtectedImageSource): string[] => {
+            const urls = [source.url, source.fallbackUrl].filter(
+                (url): url is string => typeof url === 'string' && url.length > 0,
+            )
+            return Array.from(new Set(urls))
+        }
+
+        const activeSources = new Map(sources.map((source) => [source.id, getSourceUrls(source).join('|')]))
         Object.entries(entriesRef.current).forEach(([id, entry]) => {
             if (activeSources.get(id) !== entry.source) {
                 URL.revokeObjectURL(entry.objectUrl)
@@ -42,39 +50,47 @@ export const useProtectedImages = (
         const abortController = new AbortController()
 
         const loadImage = async (source: ProtectedImageSource): Promise<void> => {
-            if (!source.url || entriesRef.current[source.id]?.source === source.url) {
+            const sourceUrls = getSourceUrls(source)
+            const sourceKey = sourceUrls.join('|')
+            if (sourceUrls.length === 0 || entriesRef.current[source.id]?.source === sourceKey) {
                 return
             }
 
-            try {
-                const cachedBlob = imageBlobCache.get(source.url)
-                const blob = cachedBlob ?? (await requestBlob(source.url, { signal: abortController.signal }))
-                if (!cachedBlob) {
-                    imageBlobCache.set(source.url, blob)
-                }
-                if (isCancelled) {
+            for (const url of sourceUrls) {
+                try {
+                    const cachedBlob = imageBlobCache.get(url)
+                    const blob = cachedBlob ?? (await requestBlob(url, { signal: abortController.signal }))
+                    if (!cachedBlob) {
+                        imageBlobCache.set(url, blob)
+                    }
+                    if (isCancelled) {
+                        return
+                    }
+
+                    const objectUrl = URL.createObjectURL(blob)
+                    const previous = entriesRef.current[source.id]
+                    if (previous) {
+                        URL.revokeObjectURL(previous.objectUrl)
+                    }
+
+                    entriesRef.current[source.id] = {
+                        source: sourceKey,
+                        objectUrl,
+                    }
+                    setEntries({ ...entriesRef.current })
                     return
+                } catch {
+                    // Try the next source URL before falling back to the neutral placeholder.
                 }
-
-                const objectUrl = URL.createObjectURL(blob)
-                const previous = entriesRef.current[source.id]
-                if (previous) {
-                    URL.revokeObjectURL(previous.objectUrl)
-                }
-
-                entriesRef.current[source.id] = {
-                    source: source.url,
-                    objectUrl,
-                }
-                setEntries({ ...entriesRef.current })
-            } catch {
-                // Keep the neutral fallback when an image cannot be loaded.
             }
         }
 
         const loadImages = async () => {
             const pendingSources = sources.filter(
-                (source) => source.url && entriesRef.current[source.id]?.source !== source.url,
+                (source) => {
+                    const sourceKey = getSourceUrls(source).join('|')
+                    return sourceKey && entriesRef.current[source.id]?.source !== sourceKey
+                },
             )
             let nextIndex = 0
             const workerCount = Math.min(MAX_PARALLEL_IMAGE_LOADS, pendingSources.length)
