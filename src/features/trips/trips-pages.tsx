@@ -57,13 +57,18 @@ const formatDate = (date: string | null, language: string): string | null => {
     })
 }
 
-const formatPeriod = (dateFrom: string | null, dateTo: string | null, language: string): string => {
-    const from = formatDate(dateFrom, language)
-    const to = formatDate(dateTo, language)
+const formatPeriod = (tripStart: string | null, tripEnd: string | null, language: string): string => {
+    const from = formatDate(tripStart, language)
+    const to = formatDate(tripEnd, language)
     if (from && to) {
         return `${from} - ${to}`
     }
     return from ?? to ?? ''
+}
+
+const formatCities = (cities: { name: string }[]): string | null => {
+    const names = cities.map((city) => city.name).filter(Boolean)
+    return names.length > 0 ? names.join(', ') : null
 }
 
 const TripsListPage = ({ status }: TripsListPageProps) => {
@@ -279,7 +284,8 @@ export const TripDetailPage = () => {
     }
 
     const backPath = data.visit.status === 'planned' ? '/plans' : '/visits'
-    const period = formatPeriod(data.visit.dateFrom, data.visit.dateTo, language)
+    const period = formatPeriod(data.visit.tripStart, data.visit.tripEnd, language)
+    const place = formatCities(data.cities) ?? data.visit.countryName ?? data.visit.countryCode
 
     const runAction = async (action: () => Promise<void>): Promise<void> => {
         setActionError(null)
@@ -358,7 +364,7 @@ export const TripDetailPage = () => {
                 <div>
                     <h1>{data.visit.title}</h1>
                     <p>
-                        {data.visit.cityName ?? data.visit.countryName ?? data.visit.countryCode}
+                        {place}
                         {period ? ` · ${period}` : ''}
                     </p>
                 </div>

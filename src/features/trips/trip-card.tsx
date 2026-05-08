@@ -27,15 +27,19 @@ const formatTripDate = (date: string | null, language: string): string | null =>
 }
 
 const resolveTripPlace = (trip: TripCardModel): string => {
-    return trip.cityName ?? trip.countryName ?? trip.countryCode
+    const cityNames = trip.cities.map((city) => city.name).filter(Boolean)
+    if (cityNames.length > 0) {
+        return cityNames.join(', ')
+    }
+    return trip.countryName ?? trip.countryCode
 }
 
 export const TripCard = ({ trip, coverUrl, showPlanProgress = false }: TripCardProps) => {
     const navigate = useNavigate()
     const { t, i18n } = useTranslation('trips')
     const language = i18n.resolvedLanguage ?? i18n.language
-    const dateFrom = formatTripDate(trip.dateFrom, language)
-    const dateTo = formatTripDate(trip.dateTo, language)
+    const dateFrom = formatTripDate(trip.tripStart, language)
+    const dateTo = formatTripDate(trip.tripEnd, language)
     const dateLabel = dateFrom && dateTo ? `${dateFrom} - ${dateTo}` : dateFrom ?? dateTo
     const progressLabel = t('cards.planProgress', {
         done: trip.placesVisited,

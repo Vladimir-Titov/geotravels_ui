@@ -25,10 +25,9 @@ export interface TripCard {
     title: string
     countryCode: string
     countryName: string | null
-    cityId: string | null
-    cityName: string | null
-    dateFrom: string | null
-    dateTo: string | null
+    cities: CityOption[]
+    tripStart: string | null
+    tripEnd: string | null
     coverUrl: string | null
     photosCount: number
     checklistTotal: number
@@ -49,11 +48,9 @@ export interface TripVisit {
     description: string | null
     countryCode: string
     countryName: string | null
-    cityId: string | null
-    cityName: string | null
     cityIds: string[]
-    dateFrom: string | null
-    dateTo: string | null
+    tripStart: string | null
+    tripEnd: string | null
     coverFileId: string | null
     coverUrl: string | null
     created: string
@@ -128,8 +125,8 @@ export interface AddTripDraft {
     status: VisibleTripStatus
     country: CountryOption | null
     city: CityOption | null
-    dateFrom: string
-    dateTo: string
+    tripStart: string
+    tripEnd: string
     notes: string
     checklist: string[]
     photos: QueuedTripPhoto[]
@@ -141,14 +138,14 @@ export interface CreateVisitPayload {
     description?: string
     visibility: 'private'
     status: VisibleTripStatus
-    date_from?: string
-    date_to?: string
+    trip_start?: string
+    trip_end?: string
     city_ids?: string[]
 }
 
 export interface UpdateVisitPayload {
     description?: string
     cover_file_id?: string | null
-    date_from?: string | null
-    date_to?: string | null
+    trip_start?: string | null
+    trip_end?: string | null
 }
