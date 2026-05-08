@@ -241,9 +241,11 @@ describe('trips pages', () => {
     })
 
     it('renders protected detail photos with lazy async image attributes', async () => {
-        const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(
-            new Response('photo', { status: 200, headers: { 'Content-Type': 'image/webp' } }),
-        )
+        const fetchMock = vi
+            .fn<typeof fetch>()
+            .mockImplementation(
+                async () => new Response('photo', { status: 200, headers: { 'Content-Type': 'image/webp' } }),
+            )
         vi.stubGlobal('fetch', fetchMock)
         apiMocks.fetchTripDetails.mockResolvedValueOnce({
             visit: {
@@ -360,6 +362,74 @@ describe('trips pages', () => {
             2,
             'http://localhost:8000/api/v1/files/photo-fallback/download',
             expect.any(Object),
+        )
+    })
+
+    it('opens the selected detail photo in full quality', async () => {
+        const fetchMock = vi.fn<typeof fetch>().mockImplementation(
+            async () => new Response('photo', { status: 200, headers: { 'Content-Type': 'image/webp' } }),
+        )
+        vi.stubGlobal('fetch', fetchMock)
+        apiMocks.fetchTripDetails.mockResolvedValueOnce({
+            visit: {
+                id: 'visit-1',
+                status: 'visited',
+                title: 'Paris',
+                description: null,
+                countryCode: 'FR',
+                countryName: 'France',
+                cityIds: ['city-1'],
+                tripStart: null,
+                tripEnd: null,
+                coverFileId: null,
+                coverUrl: null,
+                created: '2026-01-01T00:00:00Z',
+                updated: '2026-01-01T00:00:00Z',
+            },
+            photos: [
+                {
+                    id: 'photo-viewer',
+                    fileUrl: 'http://localhost:8000/api/v1/files/photo-viewer/download',
+                    thumbnailUrl: 'http://localhost:8000/api/v1/files/photo-viewer/download?variant=thumb',
+                    previewUrl: 'http://localhost:8000/api/v1/files/photo-viewer/download?variant=preview',
+                    filename: 'paris-full.webp',
+                    fileType: 'image/webp',
+                    isPrivate: true,
+                    isCover: false,
+                },
+            ],
+            checklist: [],
+            places: [],
+            cities: [{ id: 'city-1', name: 'Paris', countryCode: 'FR' }],
+        })
+
+        render(
+            <MemoryRouter initialEntries={['/trips/visit-1']}>
+                <Routes>
+                    <Route path="/trips/:visitId" element={<TripDetailPage />} />
+                </Routes>
+            </MemoryRouter>,
+        )
+
+        expect(await screen.findByRole('heading', { name: 'Paris' })).toBeInTheDocument()
+        await waitFor(() =>
+            expect(fetchMock).toHaveBeenCalledWith(
+                'http://localhost:8000/api/v1/files/photo-viewer/download?variant=thumb',
+                expect.any(Object),
+            ),
+        )
+
+        fireEvent.click(screen.getByRole('button', { name: /view photo paris-full\.webp/i }))
+
+        expect(await screen.findByRole('dialog', { name: 'Photo viewer' })).toBeInTheDocument()
+        await waitFor(() =>
+            expect(fetchMock).toHaveBeenCalledWith(
+                'http://localhost:8000/api/v1/files/photo-viewer/download',
+                expect.any(Object),
+            ),
+        )
+        await waitFor(() =>
+            expect(screen.getByAltText('paris-full.webp')).toHaveAttribute('src', 'blob:protected-image'),
         )
     })
 })

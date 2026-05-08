@@ -1,4 +1,4 @@
-import { useMemo, useState, type ChangeEvent } from 'react'
+import { useEffect, useMemo, useState, type ChangeEvent } from 'react'
 import {
     CalendarDays,
     Camera,
@@ -9,6 +9,7 @@ import {
     Plus,
     RotateCcw,
     Trash2,
+    X,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router-dom'
@@ -251,6 +252,7 @@ export const TripDetailPage = () => {
     const [newPlace, setNewPlace] = useState('')
     const [actionError, setActionError] = useState<string | null>(null)
     const [isDeleting, setIsDeleting] = useState(false)
+    const [selectedPhotoId, setSelectedPhotoId] = useState<string | null>(null)
     const language = i18n.resolvedLanguage ?? i18n.language
     const imageSources = useMemo(
         () =>
@@ -262,6 +264,30 @@ export const TripDetailPage = () => {
         [data?.photos],
     )
     const photos = useProtectedImages(imageSources)
+    const selectedPhoto = useMemo(
+        () => data?.photos.find((photo) => photo.id === selectedPhotoId) ?? null,
+        [data?.photos, selectedPhotoId],
+    )
+    const fullImageSources = useMemo(
+        () => (selectedPhoto ? [{ id: selectedPhoto.id, url: selectedPhoto.fileUrl }] : []),
+        [selectedPhoto],
+    )
+    const fullPhotos = useProtectedImages(fullImageSources)
+
+    useEffect(() => {
+        if (!selectedPhotoId) {
+            return
+        }
+
+        const handleKeyDown = (event: KeyboardEvent): void => {
+            if (event.key === 'Escape') {
+                setSelectedPhotoId(null)
+            }
+        }
+
+        window.addEventListener('keydown', handleKeyDown)
+        return () => window.removeEventListener('keydown', handleKeyDown)
+    }, [selectedPhotoId])
 
     if (isLoading) {
         return <PageState title={t('states.loading')} text={t('states.loadingText')} />
@@ -395,17 +421,54 @@ export const TripDetailPage = () => {
                 ) : (
                     <div className="trip-photo-grid">
                         {data.photos.map((photo) => (
-                            <article key={photo.id} className="trip-photo-tile">
+                            <button
+                                key={photo.id}
+                                type="button"
+                                className="trip-photo-tile"
+                                onClick={() => setSelectedPhotoId(photo.id)}
+                                aria-label={t('details.viewPhoto', {
+                                    filename: photo.filename ?? t('details.photo'),
+                                })}
+                            >
                                 {photos[photo.id]?.objectUrl ? (
                                     <img src={photos[photo.id].objectUrl} alt="" loading="lazy" decoding="async" />
                                 ) : (
                                     <Camera size={22} />
                                 )}
-                            </article>
+                            </button>
                         ))}
                     </div>
                 )}
             </section>
+
+            {selectedPhoto && (
+                <div
+                    className="trip-photo-viewer"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label={t('details.photoViewer')}
+                    onClick={() => setSelectedPhotoId(null)}
+                >
+                    <button
+                        type="button"
+                        className="trip-photo-viewer__close"
+                        onClick={() => setSelectedPhotoId(null)}
+                        aria-label={t('details.closePhoto')}
+                    >
+                        <X size={20} />
+                    </button>
+                    <div className="trip-photo-viewer__stage" onClick={(event) => event.stopPropagation()}>
+                        {fullPhotos[selectedPhoto.id]?.objectUrl ? (
+                            <img
+                                src={fullPhotos[selectedPhoto.id].objectUrl}
+                                alt={selectedPhoto.filename ?? t('details.photo')}
+                            />
+                        ) : (
+                            <Camera size={28} />
+                        )}
+                    </div>
+                </div>
+            )}
 
             <section className="trip-detail-section">
                 <header>
