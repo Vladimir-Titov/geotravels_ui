@@ -431,5 +431,16 @@ describe('trips pages', () => {
         await waitFor(() =>
             expect(screen.getByAltText('paris-full.webp')).toHaveAttribute('src', 'blob:protected-image'),
         )
+
+        fireEvent.click(screen.getByRole('button', { name: 'Close photo' }))
+        await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Photo viewer' })).not.toBeInTheDocument())
+
+        fireEvent.click(screen.getByRole('button', { name: /view photo paris-full\.webp/i }))
+        await waitFor(() => {
+            const fullImageFetches = fetchMock.mock.calls.filter(
+                ([url]) => url === 'http://localhost:8000/api/v1/files/photo-viewer/download',
+            )
+            expect(fullImageFetches).toHaveLength(2)
+        })
     })
 })

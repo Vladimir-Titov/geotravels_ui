@@ -12,6 +12,10 @@ interface ProtectedImageEntry {
     objectUrl: string
 }
 
+interface ProtectedImagesOptions {
+    cacheBlobs?: boolean
+}
+
 const canCreateObjectUrl =
     typeof URL !== 'undefined' &&
     typeof URL.createObjectURL === 'function' &&
@@ -22,9 +26,11 @@ const imageBlobCache = new Map<string, Blob>()
 
 export const useProtectedImages = (
     sources: ProtectedImageSource[],
+    options: ProtectedImagesOptions = {},
 ): Record<string, ProtectedImageEntry> => {
     const entriesRef = useRef<Record<string, ProtectedImageEntry>>({})
     const [entries, setEntries] = useState<Record<string, ProtectedImageEntry>>({})
+    const cacheBlobs = options.cacheBlobs ?? true
 
     useEffect(() => {
         if (!canCreateObjectUrl) {
@@ -58,9 +64,9 @@ export const useProtectedImages = (
 
             for (const url of sourceUrls) {
                 try {
-                    const cachedBlob = imageBlobCache.get(url)
+                    const cachedBlob = cacheBlobs ? imageBlobCache.get(url) : undefined
                     const blob = cachedBlob ?? (await requestBlob(url, { signal: abortController.signal }))
-                    if (!cachedBlob) {
+                    if (cacheBlobs && !cachedBlob) {
                         imageBlobCache.set(url, blob)
                     }
                     if (isCancelled) {
@@ -114,7 +120,7 @@ export const useProtectedImages = (
             isCancelled = true
             abortController.abort()
         }
-    }, [sources])
+    }, [cacheBlobs, sources])
 
     useEffect(() => {
         return () => {

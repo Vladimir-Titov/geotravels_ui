@@ -272,7 +272,7 @@ export const TripDetailPage = () => {
         () => (selectedPhoto ? [{ id: selectedPhoto.id, url: selectedPhoto.fileUrl }] : []),
         [selectedPhoto],
     )
-    const fullPhotos = useProtectedImages(fullImageSources)
+    const fullPhotos = useProtectedImages(fullImageSources, { cacheBlobs: false })
 
     useEffect(() => {
         if (!selectedPhotoId) {
