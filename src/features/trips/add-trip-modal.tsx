@@ -39,8 +39,8 @@ const createInitialDraft = (status: VisibleTripStatus): AddTripDraft => ({
     status,
     country: null,
     city: null,
-    dateFrom: '',
-    dateTo: '',
+    tripStart: '',
+    tripEnd: '',
     notes: '',
     checklist: [],
     photos: [],
@@ -68,12 +68,12 @@ const buildCreatePayload = (draft: AddTripDraft): CreateVisitPayload => {
         payload.description = description
     }
 
-    if (draft.dateFrom) {
-        payload.date_from = draft.dateFrom
+    if (draft.tripStart) {
+        payload.trip_start = draft.tripStart
     }
 
-    if (draft.dateTo) {
-        payload.date_to = draft.dateTo
+    if (draft.tripEnd) {
+        payload.trip_end = draft.tripEnd
     }
 
     if (draft.city) {
@@ -84,7 +84,7 @@ const buildCreatePayload = (draft: AddTripDraft): CreateVisitPayload => {
 }
 
 const hasInvalidDateRange = (draft: AddTripDraft): boolean => {
-    return Boolean(draft.dateFrom && draft.dateTo && draft.dateTo < draft.dateFrom)
+    return Boolean(draft.tripStart && draft.tripEnd && draft.tripEnd < draft.tripStart)
 }
 
 export const AddTripModal = ({ initialStatus, onClose, onSaved }: AddTripModalProps) => {
@@ -446,16 +446,16 @@ export const AddTripModal = ({ initialStatus, onClose, onSaved }: AddTripModalPr
                                 <span>{t('modal.dates.start')}</span>
                                 <input
                                     type="date"
-                                    value={draft.dateFrom}
-                                    onChange={(event) => setDraft((current) => ({ ...current, dateFrom: event.target.value }))}
+                                    value={draft.tripStart}
+                                    onChange={(event) => setDraft((current) => ({ ...current, tripStart: event.target.value }))}
                                 />
                             </label>
                             <label className="trip-field">
                                 <span>{t('modal.dates.end')}</span>
                                 <input
                                     type="date"
-                                    value={draft.dateTo}
-                                    onChange={(event) => setDraft((current) => ({ ...current, dateTo: event.target.value }))}
+                                    value={draft.tripEnd}
+                                    onChange={(event) => setDraft((current) => ({ ...current, tripEnd: event.target.value }))}
                                 />
                             </label>
                             <p className={hasInvalidDateRange(draft) ? 'trip-field-error' : 'trip-field-note'}>

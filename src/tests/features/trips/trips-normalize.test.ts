@@ -15,10 +15,9 @@ describe('trips normalizers', () => {
                     title: 'Paris',
                     country_code: 'FR',
                     country_name: 'France',
-                    city_id: null,
-                    city_name: null,
-                    date_from: null,
-                    date_to: null,
+                    cities: [{ id: 'city-1', name: 'Paris', country_code: 'FR' }],
+                    trip_start: null,
+                    trip_end: null,
                     cover_url: '/api/v1/files/file-1/download',
                     photos_count: '2',
                     checklist_total: 1,
@@ -32,7 +31,8 @@ describe('trips normalizers', () => {
 
         expect(response.items[0]).toMatchObject({
             id: 'visit-1',
-            dateFrom: null,
+            tripStart: null,
+            cities: [{ id: 'city-1', name: 'Paris', countryCode: 'FR' }],
             photosCount: 2,
             placesVisited: 2,
         })
@@ -46,6 +46,8 @@ describe('trips normalizers', () => {
                 title: 'Rome',
                 country_code: 'IT',
                 city_ids: [],
+                trip_start: '2026-04-10',
+                trip_end: '2026-04-14',
                 created: '2026-01-01T00:00:00Z',
                 updated: '2026-01-01T00:00:00Z',
             },
@@ -59,10 +61,12 @@ describe('trips normalizers', () => {
             ],
             checklist: [{ id: 'task-1', visit_id: 'visit-1', content: 'Tickets', status: 'done' }],
             places: [{ id: 'place-1', visit_id: 'visit-1', title: 'Colosseum', is_visited: true }],
-            cities: [],
+            cities: [{ id: 'city-2', name: 'Rome', country_code: 'IT' }],
         })
 
         expect(details.visit.status).toBe('planned')
+        expect(details.visit.tripStart).toBe('2026-04-10')
+        expect(details.cities[0].name).toBe('Rome')
         expect(details.photos[0].thumbnailUrl).toBe(
             'http://localhost:8000/api/v1/files/file-1/download?variant=thumb',
         )

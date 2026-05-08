@@ -27,10 +27,9 @@ const visitedCard = {
     title: 'Paris',
     countryCode: 'FR',
     countryName: 'France',
-    cityId: 'city-1',
-    cityName: 'Paris',
-    dateFrom: null,
-    dateTo: null,
+    cities: [{ id: 'city-1', name: 'Paris', countryCode: 'FR' }],
+    tripStart: null,
+    tripEnd: null,
     coverUrl: null,
     photosCount: 0,
     checklistTotal: 0,
@@ -46,7 +45,7 @@ const plannedCard = {
     title: 'Rome',
     countryCode: 'IT',
     countryName: 'Italy',
-    cityName: 'Rome',
+    cities: [{ id: 'city-2', name: 'Rome', countryCode: 'IT' }],
     placesTotal: 2,
     placesVisited: 1,
 }
@@ -86,11 +85,9 @@ describe('trips pages', () => {
                 description: null,
                 countryCode: 'FR',
                 countryName: 'France',
-                cityId: 'city-1',
-                cityName: 'Paris',
                 cityIds: ['city-1'],
-                dateFrom: null,
-                dateTo: null,
+                tripStart: null,
+                tripEnd: null,
                 coverFileId: null,
                 coverUrl: null,
                 created: '2026-01-01T00:00:00Z',
@@ -117,7 +114,7 @@ describe('trips pages', () => {
                     updated: '2026-01-01T00:00:00Z',
                 },
             ],
-            cities: [],
+            cities: [{ id: 'city-1', name: 'Paris', countryCode: 'FR' }],
         })
     })
 
@@ -256,11 +253,9 @@ describe('trips pages', () => {
                 description: null,
                 countryCode: 'FR',
                 countryName: 'France',
-                cityId: 'city-1',
-                cityName: 'Paris',
                 cityIds: ['city-1'],
-                dateFrom: null,
-                dateTo: null,
+                tripStart: null,
+                tripEnd: null,
                 coverFileId: null,
                 coverUrl: null,
                 created: '2026-01-01T00:00:00Z',
@@ -280,7 +275,7 @@ describe('trips pages', () => {
             ],
             checklist: [],
             places: [],
-            cities: [],
+            cities: [{ id: 'city-1', name: 'Paris', countryCode: 'FR' }],
         })
 
         const { container } = render(
@@ -321,11 +316,9 @@ describe('trips pages', () => {
                 description: null,
                 countryCode: 'FR',
                 countryName: 'France',
-                cityId: 'city-1',
-                cityName: 'Paris',
                 cityIds: ['city-1'],
-                dateFrom: null,
-                dateTo: null,
+                tripStart: null,
+                tripEnd: null,
                 coverFileId: null,
                 coverUrl: null,
                 created: '2026-01-01T00:00:00Z',
@@ -345,7 +338,7 @@ describe('trips pages', () => {
             ],
             checklist: [],
             places: [],
-            cities: [],
+            cities: [{ id: 'city-1', name: 'Paris', countryCode: 'FR' }],
         })
 
         const { container } = render(

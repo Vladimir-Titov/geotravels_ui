@@ -79,7 +79,7 @@ describe('AddTripModal', () => {
                 }),
             )
         })
-        expect(apiMocks.createVisit.mock.calls[0][0]).not.toHaveProperty('date_from')
+        expect(apiMocks.createVisit.mock.calls[0][0]).not.toHaveProperty('trip_start')
         await waitFor(() => expect(apiMocks.createChecklistItem).toHaveBeenCalledWith('visit-1', 'Book hotel'))
         expect(onSaved).toHaveBeenCalledWith('planned', 'visit-1')
     })
