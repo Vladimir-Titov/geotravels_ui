@@ -397,6 +397,16 @@ describe('trips pages', () => {
                     isPrivate: true,
                     isCover: false,
                 },
+                {
+                    id: 'photo-viewer-next',
+                    fileUrl: 'http://localhost:8000/api/v1/files/photo-viewer-next/download',
+                    thumbnailUrl: 'http://localhost:8000/api/v1/files/photo-viewer-next/download?variant=thumb',
+                    previewUrl: 'http://localhost:8000/api/v1/files/photo-viewer-next/download?variant=preview',
+                    filename: 'rome-full.webp',
+                    fileType: 'image/webp',
+                    isPrivate: true,
+                    isCover: false,
+                },
             ],
             checklist: [],
             places: [],
@@ -442,5 +452,19 @@ describe('trips pages', () => {
             )
             expect(fullImageFetches).toHaveLength(2)
         })
+
+        fireEvent.click(screen.getByRole('button', { name: 'Next photo' }))
+        await waitFor(() =>
+            expect(fetchMock).toHaveBeenCalledWith(
+                'http://localhost:8000/api/v1/files/photo-viewer-next/download',
+                expect.any(Object),
+            ),
+        )
+        await waitFor(() => expect(screen.getByAltText('rome-full.webp')).toHaveAttribute('src', 'blob:protected-image'))
+
+        fireEvent.click(screen.getByRole('button', { name: 'Previous photo' }))
+        await waitFor(() =>
+            expect(screen.getByAltText('paris-full.webp')).toHaveAttribute('src', 'blob:protected-image'),
+        )
     })
 })

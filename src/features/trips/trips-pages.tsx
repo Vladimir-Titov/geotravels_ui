@@ -1,7 +1,9 @@
-import { useEffect, useMemo, useState, type ChangeEvent } from 'react'
+import { useCallback, useEffect, useMemo, useState, type ChangeEvent } from 'react'
 import {
     CalendarDays,
     Camera,
+    ChevronLeft,
+    ChevronRight,
     Check,
     CheckSquare,
     Globe2,
@@ -268,11 +270,27 @@ export const TripDetailPage = () => {
         () => data?.photos.find((photo) => photo.id === selectedPhotoId) ?? null,
         [data?.photos, selectedPhotoId],
     )
+    const selectedPhotoIndex = useMemo(
+        () => data?.photos.findIndex((photo) => photo.id === selectedPhotoId) ?? -1,
+        [data?.photos, selectedPhotoId],
+    )
     const fullImageSources = useMemo(
         () => (selectedPhoto ? [{ id: selectedPhoto.id, url: selectedPhoto.fileUrl }] : []),
         [selectedPhoto],
     )
     const fullPhotos = useProtectedImages(fullImageSources, { cacheBlobs: false })
+    const canBrowsePhotos = (data?.photos.length ?? 0) > 1
+    const selectAdjacentPhoto = useCallback(
+        (direction: -1 | 1): void => {
+            if (!data?.photos.length || selectedPhotoIndex < 0) {
+                return
+            }
+
+            const nextIndex = (selectedPhotoIndex + direction + data.photos.length) % data.photos.length
+            setSelectedPhotoId(data.photos[nextIndex].id)
+        },
+        [data, selectedPhotoIndex],
+    )
 
     useEffect(() => {
         if (!selectedPhotoId) {
@@ -283,11 +301,17 @@ export const TripDetailPage = () => {
             if (event.key === 'Escape') {
                 setSelectedPhotoId(null)
             }
+            if (event.key === 'ArrowLeft') {
+                selectAdjacentPhoto(-1)
+            }
+            if (event.key === 'ArrowRight') {
+                selectAdjacentPhoto(1)
+            }
         }
 
         window.addEventListener('keydown', handleKeyDown)
         return () => window.removeEventListener('keydown', handleKeyDown)
-    }, [selectedPhotoId])
+    }, [selectAdjacentPhoto, selectedPhotoId])
 
     if (isLoading) {
         return <PageState title={t('states.loading')} text={t('states.loadingText')} />
@@ -457,6 +481,32 @@ export const TripDetailPage = () => {
                     >
                         <X size={20} />
                     </button>
+                    {canBrowsePhotos && (
+                        <>
+                            <button
+                                type="button"
+                                className="trip-photo-viewer__nav trip-photo-viewer__nav--previous"
+                                onClick={(event) => {
+                                    event.stopPropagation()
+                                    selectAdjacentPhoto(-1)
+                                }}
+                                aria-label={t('details.previousPhoto')}
+                            >
+                                <ChevronLeft size={24} />
+                            </button>
+                            <button
+                                type="button"
+                                className="trip-photo-viewer__nav trip-photo-viewer__nav--next"
+                                onClick={(event) => {
+                                    event.stopPropagation()
+                                    selectAdjacentPhoto(1)
+                                }}
+                                aria-label={t('details.nextPhoto')}
+                            >
+                                <ChevronRight size={24} />
+                            </button>
+                        </>
+                    )}
                     <div className="trip-photo-viewer__stage" onClick={(event) => event.stopPropagation()}>
                         {fullPhotos[selectedPhoto.id]?.objectUrl ? (
                             <img

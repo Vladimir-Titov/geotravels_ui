@@ -47,6 +47,8 @@
     "photoViewer": "Просмотр фото",
     "viewPhoto": "Открыть фото {{filename}}",
     "closePhoto": "Закрыть фото",
+    "previousPhoto": "Предыдущее фото",
+    "nextPhoto": "Следующее фото",
     "addPhoto": "Добавить фото",
     "noPhotos": "Фотографии этой поездки появятся здесь.",
     "checklist": "Чек-лист",

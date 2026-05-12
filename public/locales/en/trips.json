@@ -47,6 +47,8 @@
     "photoViewer": "Photo viewer",
     "viewPhoto": "View photo {{filename}}",
     "closePhoto": "Close photo",
+    "previousPhoto": "Previous photo",
+    "nextPhoto": "Next photo",
     "addPhoto": "Add photo",
     "noPhotos": "Photos added to this trip will appear here.",
     "checklist": "Checklist",
