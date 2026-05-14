@@ -31,7 +31,7 @@ describe('trips api', () => {
         const fetchMock = vi.fn<typeof fetch>().mockResolvedValueOnce(
             jsonResponse(201, {
                 id: 'file-1',
-                file_url: '/api/v1/files/file-1/download',
+                file_url: '/api/imgproxy/full/plain/source@webp',
                 is_cover: false,
             }),
         )
@@ -41,7 +41,7 @@ describe('trips api', () => {
 
         await expect(uploadVisitPhoto('visit-1', file)).resolves.toEqual({
             id: 'file-1',
-            file_url: '/api/v1/files/file-1/download',
+            file_url: '/api/imgproxy/full/plain/source@webp',
             is_cover: false,
         })
 

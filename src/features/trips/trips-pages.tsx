@@ -28,7 +28,6 @@ import {
     uploadVisitPhoto,
 } from './trips-api'
 import type { TripCard as TripCardModel, VisibleTripStatus } from './trips-types'
-import { useProtectedImages } from './use-protected-images'
 import { useTripCards, useTripDetails, useTripStatistics } from './use-trips-resource'
 import './trips.css'
 
@@ -80,11 +79,6 @@ const TripsListPage = ({ status }: TripsListPageProps) => {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const { data, isLoading, error, refetch } = useTripCards(status)
     const trips = useMemo(() => data?.items ?? [], [data?.items])
-    const imageSources = useMemo(
-        () => trips.map((trip) => ({ id: trip.id, url: trip.coverUrl })),
-        [trips],
-    )
-    const covers = useProtectedImages(imageSources)
     const isPlans = status === 'planned'
 
     const handleSaved = (nextStatus: VisibleTripStatus): void => {
@@ -141,7 +135,7 @@ const TripsListPage = ({ status }: TripsListPageProps) => {
                         <TripCard
                             key={trip.id}
                             trip={trip}
-                            coverUrl={covers[trip.id]?.objectUrl ?? null}
+                            coverUrl={trip.coverUrl}
                             showPlanProgress={isPlans}
                         />
                     ))}
@@ -256,16 +250,6 @@ export const TripDetailPage = () => {
     const [isDeleting, setIsDeleting] = useState(false)
     const [selectedPhotoId, setSelectedPhotoId] = useState<string | null>(null)
     const language = i18n.resolvedLanguage ?? i18n.language
-    const imageSources = useMemo(
-        () =>
-            data?.photos.map((photo) => ({
-                id: photo.id,
-                url: photo.thumbnailUrl ?? photo.fileUrl,
-                fallbackUrl: photo.thumbnailUrl ? photo.fileUrl : null,
-            })) ?? [],
-        [data?.photos],
-    )
-    const photos = useProtectedImages(imageSources)
     const selectedPhoto = useMemo(
         () => data?.photos.find((photo) => photo.id === selectedPhotoId) ?? null,
         [data?.photos, selectedPhotoId],
@@ -274,11 +258,6 @@ export const TripDetailPage = () => {
         () => data?.photos.findIndex((photo) => photo.id === selectedPhotoId) ?? -1,
         [data?.photos, selectedPhotoId],
     )
-    const fullImageSources = useMemo(
-        () => (selectedPhoto ? [{ id: selectedPhoto.id, url: selectedPhoto.fileUrl }] : []),
-        [selectedPhoto],
-    )
-    const fullPhotos = useProtectedImages(fullImageSources, { cacheBlobs: false })
     const canBrowsePhotos = (data?.photos.length ?? 0) > 1
     const selectAdjacentPhoto = useCallback(
         (direction: -1 | 1): void => {
@@ -454,8 +433,8 @@ export const TripDetailPage = () => {
                                     filename: photo.filename ?? t('details.photo'),
                                 })}
                             >
-                                {photos[photo.id]?.objectUrl ? (
-                                    <img src={photos[photo.id].objectUrl} alt="" loading="lazy" decoding="async" />
+                                {photo.thumbnailUrl ? (
+                                    <img src={photo.thumbnailUrl} alt="" loading="lazy" decoding="async" />
                                 ) : (
                                     <Camera size={22} />
                                 )}
@@ -508,9 +487,9 @@ export const TripDetailPage = () => {
                         </>
                     )}
                     <div className="trip-photo-viewer__stage" onClick={(event) => event.stopPropagation()}>
-                        {fullPhotos[selectedPhoto.id]?.objectUrl ? (
+                        {selectedPhoto.fileUrl ? (
                             <img
-                                src={fullPhotos[selectedPhoto.id].objectUrl}
+                                src={selectedPhoto.fileUrl}
                                 alt={selectedPhoto.filename ?? t('details.photo')}
                             />
                         ) : (

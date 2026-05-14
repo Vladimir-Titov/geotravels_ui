@@ -50,20 +50,9 @@ const plannedCard = {
     placesVisited: 1,
 }
 
-const originalCreateObjectURL = URL.createObjectURL
-const originalRevokeObjectURL = URL.revokeObjectURL
-
 describe('trips pages', () => {
     beforeEach(() => {
         vi.clearAllMocks()
-        Object.defineProperty(URL, 'createObjectURL', {
-            configurable: true,
-            value: vi.fn(() => 'blob:protected-image'),
-        })
-        Object.defineProperty(URL, 'revokeObjectURL', {
-            configurable: true,
-            value: vi.fn(),
-        })
         apiMocks.fetchTripCards.mockImplementation(async (status: string) => ({
             items: status === 'planned' ? [plannedCard] : [visitedCard],
             pagination: { limit: 100, offset: 0, total: 1 },
@@ -120,14 +109,6 @@ describe('trips pages', () => {
 
     afterEach(() => {
         vi.unstubAllGlobals()
-        Object.defineProperty(URL, 'createObjectURL', {
-            configurable: true,
-            value: originalCreateObjectURL,
-        })
-        Object.defineProperty(URL, 'revokeObjectURL', {
-            configurable: true,
-            value: originalRevokeObjectURL,
-        })
     })
 
     it('renders visits and opens add trip modal', async () => {
@@ -144,13 +125,9 @@ describe('trips pages', () => {
         expect(screen.getByRole('dialog')).toHaveTextContent('New trip')
     })
 
-    it('renders protected card covers with lazy async image attributes', async () => {
-        const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(
-            new Response('cover', { status: 200, headers: { 'Content-Type': 'image/webp' } }),
-        )
-        vi.stubGlobal('fetch', fetchMock)
+    it('renders direct card cover URLs with lazy async image attributes', async () => {
         apiMocks.fetchTripCards.mockResolvedValueOnce({
-            items: [{ ...visitedCard, coverUrl: '/api/v1/files/cover/download' }],
+            items: [{ ...visitedCard, coverUrl: 'http://localhost:8000/api/imgproxy/cover@webp' }],
             pagination: { limit: 100, offset: 0, total: 1 },
         })
 
@@ -167,13 +144,9 @@ describe('trips pages', () => {
             return element as HTMLImageElement
         })
 
-        expect(image).toHaveAttribute('src', 'blob:protected-image')
+        expect(image).toHaveAttribute('src', 'http://localhost:8000/api/imgproxy/cover@webp')
         expect(image).toHaveAttribute('loading', 'lazy')
         expect(image).toHaveAttribute('decoding', 'async')
-        expect(fetchMock).toHaveBeenCalledWith(
-            'http://localhost:8000/api/v1/files/cover/download',
-            expect.any(Object),
-        )
     })
 
     it('renders planned trip progress', async () => {
@@ -240,13 +213,7 @@ describe('trips pages', () => {
         expect(await screen.findByText('Visits route')).toBeInTheDocument()
     })
 
-    it('renders protected detail photos with lazy async image attributes', async () => {
-        const fetchMock = vi
-            .fn<typeof fetch>()
-            .mockImplementation(
-                async () => new Response('photo', { status: 200, headers: { 'Content-Type': 'image/webp' } }),
-            )
-        vi.stubGlobal('fetch', fetchMock)
+    it('renders direct detail photo URLs with lazy async image attributes', async () => {
         apiMocks.fetchTripDetails.mockResolvedValueOnce({
             visit: {
                 id: 'visit-1',
@@ -266,9 +233,9 @@ describe('trips pages', () => {
             photos: [
                 {
                     id: 'photo-1',
-                    fileUrl: '/api/v1/files/photo-1/download',
-                    thumbnailUrl: 'http://localhost:8000/api/v1/files/photo-1/download?variant=thumb',
-                    previewUrl: 'http://localhost:8000/api/v1/files/photo-1/download?variant=preview',
+                    fileUrl: 'http://localhost:8000/api/imgproxy/photo-1-full@webp',
+                    thumbnailUrl: 'http://localhost:8000/api/imgproxy/photo-1-thumb@webp',
+                    previewUrl: 'http://localhost:8000/api/imgproxy/photo-1-preview@webp',
                     filename: 'paris.webp',
                     fileType: 'image/webp',
                     isPrivate: true,
@@ -295,81 +262,12 @@ describe('trips pages', () => {
             return element as HTMLImageElement
         })
 
-        expect(image).toHaveAttribute('src', 'blob:protected-image')
+        expect(image).toHaveAttribute('src', 'http://localhost:8000/api/imgproxy/photo-1-thumb@webp')
         expect(image).toHaveAttribute('loading', 'lazy')
         expect(image).toHaveAttribute('decoding', 'async')
-        expect(fetchMock).toHaveBeenCalledWith(
-            'http://localhost:8000/api/v1/files/photo-1/download?variant=thumb',
-            expect.any(Object),
-        )
-    })
-
-    it('falls back to full detail photo when protected thumbnail loading fails', async () => {
-        const fetchMock = vi
-            .fn<typeof fetch>()
-            .mockResolvedValueOnce(new Response('missing', { status: 404 }))
-            .mockResolvedValueOnce(new Response('photo', { status: 200, headers: { 'Content-Type': 'image/webp' } }))
-        vi.stubGlobal('fetch', fetchMock)
-        apiMocks.fetchTripDetails.mockResolvedValueOnce({
-            visit: {
-                id: 'visit-1',
-                status: 'visited',
-                title: 'Paris',
-                description: null,
-                countryCode: 'FR',
-                countryName: 'France',
-                cityIds: ['city-1'],
-                tripStart: null,
-                tripEnd: null,
-                coverFileId: null,
-                coverUrl: null,
-                created: '2026-01-01T00:00:00Z',
-                updated: '2026-01-01T00:00:00Z',
-            },
-            photos: [
-                {
-                    id: 'photo-fallback',
-                    fileUrl: 'http://localhost:8000/api/v1/files/photo-fallback/download',
-                    thumbnailUrl: 'http://localhost:8000/api/v1/files/photo-fallback/download?variant=thumb',
-                    previewUrl: 'http://localhost:8000/api/v1/files/photo-fallback/download?variant=preview',
-                    filename: 'paris.webp',
-                    fileType: 'image/webp',
-                    isPrivate: true,
-                    isCover: false,
-                },
-            ],
-            checklist: [],
-            places: [],
-            cities: [{ id: 'city-1', name: 'Paris', countryCode: 'FR' }],
-        })
-
-        const { container } = render(
-            <MemoryRouter initialEntries={['/trips/visit-1']}>
-                <Routes>
-                    <Route path="/trips/:visitId" element={<TripDetailPage />} />
-                </Routes>
-            </MemoryRouter>,
-        )
-
-        expect(await screen.findByRole('heading', { name: 'Paris' })).toBeInTheDocument()
-        await waitFor(() => expect(container.querySelector('.trip-photo-tile img')).toBeInTheDocument())
-        expect(fetchMock).toHaveBeenNthCalledWith(
-            1,
-            'http://localhost:8000/api/v1/files/photo-fallback/download?variant=thumb',
-            expect.any(Object),
-        )
-        expect(fetchMock).toHaveBeenNthCalledWith(
-            2,
-            'http://localhost:8000/api/v1/files/photo-fallback/download',
-            expect.any(Object),
-        )
     })
 
     it('opens the selected detail photo in full quality', async () => {
-        const fetchMock = vi.fn<typeof fetch>().mockImplementation(
-            async () => new Response('photo', { status: 200, headers: { 'Content-Type': 'image/webp' } }),
-        )
-        vi.stubGlobal('fetch', fetchMock)
         apiMocks.fetchTripDetails.mockResolvedValueOnce({
             visit: {
                 id: 'visit-1',
@@ -389,9 +287,9 @@ describe('trips pages', () => {
             photos: [
                 {
                     id: 'photo-viewer',
-                    fileUrl: 'http://localhost:8000/api/v1/files/photo-viewer/download',
-                    thumbnailUrl: 'http://localhost:8000/api/v1/files/photo-viewer/download?variant=thumb',
-                    previewUrl: 'http://localhost:8000/api/v1/files/photo-viewer/download?variant=preview',
+                    fileUrl: 'http://localhost:8000/api/imgproxy/photo-viewer-full@webp',
+                    thumbnailUrl: 'http://localhost:8000/api/imgproxy/photo-viewer-thumb@webp',
+                    previewUrl: 'http://localhost:8000/api/imgproxy/photo-viewer-preview@webp',
                     filename: 'paris-full.webp',
                     fileType: 'image/webp',
                     isPrivate: true,
@@ -399,9 +297,9 @@ describe('trips pages', () => {
                 },
                 {
                     id: 'photo-viewer-next',
-                    fileUrl: 'http://localhost:8000/api/v1/files/photo-viewer-next/download',
-                    thumbnailUrl: 'http://localhost:8000/api/v1/files/photo-viewer-next/download?variant=thumb',
-                    previewUrl: 'http://localhost:8000/api/v1/files/photo-viewer-next/download?variant=preview',
+                    fileUrl: 'http://localhost:8000/api/imgproxy/photo-viewer-next-full@webp',
+                    thumbnailUrl: 'http://localhost:8000/api/imgproxy/photo-viewer-next-thumb@webp',
+                    previewUrl: 'http://localhost:8000/api/imgproxy/photo-viewer-next-preview@webp',
                     filename: 'rome-full.webp',
                     fileType: 'image/webp',
                     isPrivate: true,
@@ -422,49 +320,41 @@ describe('trips pages', () => {
         )
 
         expect(await screen.findByRole('heading', { name: 'Paris' })).toBeInTheDocument()
-        await waitFor(() =>
-            expect(fetchMock).toHaveBeenCalledWith(
-                'http://localhost:8000/api/v1/files/photo-viewer/download?variant=thumb',
-                expect.any(Object),
-            ),
+        expect(screen.getByRole('button', { name: /view photo paris-full\.webp/i }).querySelector('img')).toHaveAttribute(
+            'src',
+            'http://localhost:8000/api/imgproxy/photo-viewer-thumb@webp',
         )
 
         fireEvent.click(screen.getByRole('button', { name: /view photo paris-full\.webp/i }))
 
         expect(await screen.findByRole('dialog', { name: 'Photo viewer' })).toBeInTheDocument()
         await waitFor(() =>
-            expect(fetchMock).toHaveBeenCalledWith(
-                'http://localhost:8000/api/v1/files/photo-viewer/download',
-                expect.any(Object),
+            expect(screen.getByAltText('paris-full.webp')).toHaveAttribute(
+                'src',
+                'http://localhost:8000/api/imgproxy/photo-viewer-full@webp',
             ),
-        )
-        await waitFor(() =>
-            expect(screen.getByAltText('paris-full.webp')).toHaveAttribute('src', 'blob:protected-image'),
         )
 
         fireEvent.click(screen.getByRole('button', { name: 'Close photo' }))
         await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Photo viewer' })).not.toBeInTheDocument())
 
         fireEvent.click(screen.getByRole('button', { name: /view photo paris-full\.webp/i }))
-        await waitFor(() => {
-            const fullImageFetches = fetchMock.mock.calls.filter(
-                ([url]) => url === 'http://localhost:8000/api/v1/files/photo-viewer/download',
-            )
-            expect(fullImageFetches).toHaveLength(2)
-        })
+        expect(await screen.findByRole('dialog', { name: 'Photo viewer' })).toBeInTheDocument()
 
         fireEvent.click(screen.getByRole('button', { name: 'Next photo' }))
         await waitFor(() =>
-            expect(fetchMock).toHaveBeenCalledWith(
-                'http://localhost:8000/api/v1/files/photo-viewer-next/download',
-                expect.any(Object),
+            expect(screen.getByAltText('rome-full.webp')).toHaveAttribute(
+                'src',
+                'http://localhost:8000/api/imgproxy/photo-viewer-next-full@webp',
             ),
         )
-        await waitFor(() => expect(screen.getByAltText('rome-full.webp')).toHaveAttribute('src', 'blob:protected-image'))
 
         fireEvent.click(screen.getByRole('button', { name: 'Previous photo' }))
         await waitFor(() =>
-            expect(screen.getByAltText('paris-full.webp')).toHaveAttribute('src', 'blob:protected-image'),
+            expect(screen.getByAltText('paris-full.webp')).toHaveAttribute(
+                'src',
+                'http://localhost:8000/api/imgproxy/photo-viewer-full@webp',
+            ),
         )
     })
 })
