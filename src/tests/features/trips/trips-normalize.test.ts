@@ -18,7 +18,7 @@ describe('trips normalizers', () => {
                     cities: [{ id: 'city-1', name: 'Paris', country_code: 'FR' }],
                     trip_start: null,
                     trip_end: null,
-                    cover_url: '/api/v1/files/file-1/download',
+                    cover_url: 'http://localhost:8080/signature/rs:fit:480:480:0/q:72/plain/source@webp',
                     photos_count: '2',
                     checklist_total: 1,
                     checklist_done: 1,
@@ -54,9 +54,9 @@ describe('trips normalizers', () => {
             photos: [
                 {
                     id: 'file-1',
-                    file_url: '/api/v1/files/file-1/download',
-                    thumbnail_url: '/api/v1/files/file-1/download?variant=thumb',
-                    preview_url: '/api/v1/files/file-1/download?variant=preview',
+                    file_url: 'http://localhost:8080/full/plain/source@webp',
+                    thumbnail_url: 'http://localhost:8080/thumb/plain/source@webp',
+                    preview_url: 'http://localhost:8080/preview/plain/source@webp',
                 },
             ],
             checklist: [{ id: 'task-1', visit_id: 'visit-1', content: 'Tickets', status: 'done' }],
@@ -68,10 +68,10 @@ describe('trips normalizers', () => {
         expect(details.visit.tripStart).toBe('2026-04-10')
         expect(details.cities[0].name).toBe('Rome')
         expect(details.photos[0].thumbnailUrl).toBe(
-            'http://localhost:8000/api/v1/files/file-1/download?variant=thumb',
+            'http://localhost:8080/thumb/plain/source@webp',
         )
         expect(details.photos[0].previewUrl).toBe(
-            'http://localhost:8000/api/v1/files/file-1/download?variant=preview',
+            'http://localhost:8080/preview/plain/source@webp',
         )
         expect(details.checklist[0].status).toBe('done')
         expect(details.places[0].isVisited).toBe(true)
