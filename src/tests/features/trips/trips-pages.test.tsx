@@ -127,7 +127,7 @@ describe('trips pages', () => {
 
     it('renders direct card cover URLs with lazy async image attributes', async () => {
         apiMocks.fetchTripCards.mockResolvedValueOnce({
-            items: [{ ...visitedCard, coverUrl: 'http://localhost:8000/api/imgproxy/cover@webp' }],
+            items: [{ ...visitedCard, coverUrl: 'http://localhost:8080/cover@webp' }],
             pagination: { limit: 100, offset: 0, total: 1 },
         })
 
@@ -144,7 +144,7 @@ describe('trips pages', () => {
             return element as HTMLImageElement
         })
 
-        expect(image).toHaveAttribute('src', 'http://localhost:8000/api/imgproxy/cover@webp')
+        expect(image).toHaveAttribute('src', 'http://localhost:8080/cover@webp')
         expect(image).toHaveAttribute('loading', 'lazy')
         expect(image).toHaveAttribute('decoding', 'async')
     })
@@ -233,9 +233,9 @@ describe('trips pages', () => {
             photos: [
                 {
                     id: 'photo-1',
-                    fileUrl: 'http://localhost:8000/api/imgproxy/photo-1-full@webp',
-                    thumbnailUrl: 'http://localhost:8000/api/imgproxy/photo-1-thumb@webp',
-                    previewUrl: 'http://localhost:8000/api/imgproxy/photo-1-preview@webp',
+                    fileUrl: 'http://localhost:8080/photo-1-full@webp',
+                    thumbnailUrl: 'http://localhost:8080/photo-1-thumb@webp',
+                    previewUrl: 'http://localhost:8080/photo-1-preview@webp',
                     filename: 'paris.webp',
                     fileType: 'image/webp',
                     isPrivate: true,
@@ -262,7 +262,7 @@ describe('trips pages', () => {
             return element as HTMLImageElement
         })
 
-        expect(image).toHaveAttribute('src', 'http://localhost:8000/api/imgproxy/photo-1-thumb@webp')
+        expect(image).toHaveAttribute('src', 'http://localhost:8080/photo-1-thumb@webp')
         expect(image).toHaveAttribute('loading', 'lazy')
         expect(image).toHaveAttribute('decoding', 'async')
     })
@@ -287,7 +287,7 @@ describe('trips pages', () => {
             photos: [
                 {
                     id: 'photo-without-thumb',
-                    fileUrl: 'http://localhost:8000/api/imgproxy/photo-full@webp',
+                    fileUrl: 'http://localhost:8080/photo-full@webp',
                     thumbnailUrl: null,
                     previewUrl: null,
                     filename: 'paris.webp',
@@ -316,7 +316,7 @@ describe('trips pages', () => {
             return element as HTMLImageElement
         })
 
-        expect(image).toHaveAttribute('src', 'http://localhost:8000/api/imgproxy/photo-full@webp')
+        expect(image).toHaveAttribute('src', 'http://localhost:8080/photo-full@webp')
     })
 
     it('opens the selected detail photo in full quality', async () => {
@@ -339,9 +339,9 @@ describe('trips pages', () => {
             photos: [
                 {
                     id: 'photo-viewer',
-                    fileUrl: 'http://localhost:8000/api/imgproxy/photo-viewer-full@webp',
-                    thumbnailUrl: 'http://localhost:8000/api/imgproxy/photo-viewer-thumb@webp',
-                    previewUrl: 'http://localhost:8000/api/imgproxy/photo-viewer-preview@webp',
+                    fileUrl: 'http://localhost:8080/photo-viewer-full@webp',
+                    thumbnailUrl: 'http://localhost:8080/photo-viewer-thumb@webp',
+                    previewUrl: 'http://localhost:8080/photo-viewer-preview@webp',
                     filename: 'paris-full.webp',
                     fileType: 'image/webp',
                     isPrivate: true,
@@ -349,9 +349,9 @@ describe('trips pages', () => {
                 },
                 {
                     id: 'photo-viewer-next',
-                    fileUrl: 'http://localhost:8000/api/imgproxy/photo-viewer-next-full@webp',
-                    thumbnailUrl: 'http://localhost:8000/api/imgproxy/photo-viewer-next-thumb@webp',
-                    previewUrl: 'http://localhost:8000/api/imgproxy/photo-viewer-next-preview@webp',
+                    fileUrl: 'http://localhost:8080/photo-viewer-next-full@webp',
+                    thumbnailUrl: 'http://localhost:8080/photo-viewer-next-thumb@webp',
+                    previewUrl: 'http://localhost:8080/photo-viewer-next-preview@webp',
                     filename: 'rome-full.webp',
                     fileType: 'image/webp',
                     isPrivate: true,
@@ -374,7 +374,7 @@ describe('trips pages', () => {
         expect(await screen.findByRole('heading', { name: 'Paris' })).toBeInTheDocument()
         expect(screen.getByRole('button', { name: /view photo paris-full\.webp/i }).querySelector('img')).toHaveAttribute(
             'src',
-            'http://localhost:8000/api/imgproxy/photo-viewer-thumb@webp',
+            'http://localhost:8080/photo-viewer-thumb@webp',
         )
 
         fireEvent.click(screen.getByRole('button', { name: /view photo paris-full\.webp/i }))
@@ -383,7 +383,7 @@ describe('trips pages', () => {
         await waitFor(() =>
             expect(screen.getByAltText('paris-full.webp')).toHaveAttribute(
                 'src',
-                'http://localhost:8000/api/imgproxy/photo-viewer-full@webp',
+                'http://localhost:8080/photo-viewer-full@webp',
             ),
         )
 
@@ -397,7 +397,7 @@ describe('trips pages', () => {
         await waitFor(() =>
             expect(screen.getByAltText('rome-full.webp')).toHaveAttribute(
                 'src',
-                'http://localhost:8000/api/imgproxy/photo-viewer-next-full@webp',
+                'http://localhost:8080/photo-viewer-next-full@webp',
             ),
         )
 
@@ -405,7 +405,7 @@ describe('trips pages', () => {
         await waitFor(() =>
             expect(screen.getByAltText('paris-full.webp')).toHaveAttribute(
                 'src',
-                'http://localhost:8000/api/imgproxy/photo-viewer-full@webp',
+                'http://localhost:8080/photo-viewer-full@webp',
             ),
         )
     })
