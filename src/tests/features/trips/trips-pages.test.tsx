@@ -267,6 +267,58 @@ describe('trips pages', () => {
         expect(image).toHaveAttribute('decoding', 'async')
     })
 
+    it('uses the full photo URL in the grid when thumbnail URL is missing', async () => {
+        apiMocks.fetchTripDetails.mockResolvedValueOnce({
+            visit: {
+                id: 'visit-1',
+                status: 'visited',
+                title: 'Paris',
+                description: null,
+                countryCode: 'FR',
+                countryName: 'France',
+                cityIds: ['city-1'],
+                tripStart: null,
+                tripEnd: null,
+                coverFileId: null,
+                coverUrl: null,
+                created: '2026-01-01T00:00:00Z',
+                updated: '2026-01-01T00:00:00Z',
+            },
+            photos: [
+                {
+                    id: 'photo-without-thumb',
+                    fileUrl: 'http://localhost:8000/api/imgproxy/photo-full@webp',
+                    thumbnailUrl: null,
+                    previewUrl: null,
+                    filename: 'paris.webp',
+                    fileType: 'image/webp',
+                    isPrivate: true,
+                    isCover: false,
+                },
+            ],
+            checklist: [],
+            places: [],
+            cities: [{ id: 'city-1', name: 'Paris', countryCode: 'FR' }],
+        })
+
+        const { container } = render(
+            <MemoryRouter initialEntries={['/trips/visit-1']}>
+                <Routes>
+                    <Route path="/trips/:visitId" element={<TripDetailPage />} />
+                </Routes>
+            </MemoryRouter>,
+        )
+
+        expect(await screen.findByRole('heading', { name: 'Paris' })).toBeInTheDocument()
+        const image = await waitFor(() => {
+            const element = container.querySelector('.trip-photo-tile img')
+            expect(element).toBeInTheDocument()
+            return element as HTMLImageElement
+        })
+
+        expect(image).toHaveAttribute('src', 'http://localhost:8000/api/imgproxy/photo-full@webp')
+    })
+
     it('opens the selected detail photo in full quality', async () => {
         apiMocks.fetchTripDetails.mockResolvedValueOnce({
             visit: {

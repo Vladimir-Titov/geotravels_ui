@@ -433,8 +433,13 @@ export const TripDetailPage = () => {
                                     filename: photo.filename ?? t('details.photo'),
                                 })}
                             >
-                                {photo.thumbnailUrl ? (
-                                    <img src={photo.thumbnailUrl} alt="" loading="lazy" decoding="async" />
+                                {(photo.thumbnailUrl ?? photo.fileUrl) ? (
+                                    <img
+                                        src={photo.thumbnailUrl ?? photo.fileUrl}
+                                        alt=""
+                                        loading="lazy"
+                                        decoding="async"
+                                    />
                                 ) : (
                                     <Camera size={22} />
                                 )}
