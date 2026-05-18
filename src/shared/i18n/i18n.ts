@@ -1,21 +1,33 @@
 import i18n from 'i18next'
-import HttpBackend from 'i18next-http-backend'
 import LanguageDetector from 'i18next-browser-languagedetector'
 import { initReactI18next } from 'react-i18next'
-import { APP_VERSION } from '../config/env'
+import authEn from '../../../public/locales/en/auth.json'
+import commonEn from '../../../public/locales/en/common.json'
+import tripsEn from '../../../public/locales/en/trips.json'
+import authRu from '../../../public/locales/ru/auth.json'
+import commonRu from '../../../public/locales/ru/common.json'
+import tripsRu from '../../../public/locales/ru/trips.json'
 
 i18n
-    .use(HttpBackend)
     .use(LanguageDetector)
     .use(initReactI18next)
     .init({
         fallbackLng: 'en',
         supportedLngs: ['en', 'ru'],
+        resources: {
+            en: {
+                common: commonEn,
+                auth: authEn,
+                trips: tripsEn,
+            },
+            ru: {
+                common: commonRu,
+                auth: authRu,
+                trips: tripsRu,
+            },
+        },
         ns: ['common', 'auth', 'trips'],
         defaultNS: 'common',
-        backend: {
-            loadPath: `/locales/{{lng}}/{{ns}}.json?v=${encodeURIComponent(APP_VERSION)}`,
-        },
         detection: {
             order: ['localStorage', 'navigator'],
             caches: ['localStorage'],
