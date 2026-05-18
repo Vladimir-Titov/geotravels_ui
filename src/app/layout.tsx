@@ -1,5 +1,6 @@
 import { Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../features/auth/auth-context'
+import { SupportWidget } from '../features/support'
 import { BottomNavigation, PageContainer, TopNavigation } from '../shared/ui'
 import './layout.css'
 
@@ -22,6 +23,7 @@ export const AppLayout = () => {
                 </PageContainer>
             </main>
 
+            <SupportWidget />
             <BottomNavigation />
         </div>
     )

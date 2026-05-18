@@ -2,6 +2,7 @@ import './auth-page.css'
 import { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import type { TokenPairResponse } from '../../shared/api/types'
+import { SupportWidget } from '../support'
 import { useAuth } from './auth-context'
 import { LoginStep } from './login-step'
 import { OtpForm } from './otp-form'
@@ -54,6 +55,7 @@ export const AuthPage = () => {
                     )}
                 </div>
             </div>
+            <SupportWidget />
         </div>
     )
 }

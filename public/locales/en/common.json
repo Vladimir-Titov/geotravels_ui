@@ -14,5 +14,27 @@
     "home": "Tripmark visits",
     "navigation": "Tripmark navigation",
     "languageSwitcher": "Language switcher"
+  },
+  "support": {
+    "trigger": "Support",
+    "title": "Contact support",
+    "subtitle": "Briefly describe what happened. We will receive it in Tripmark.",
+    "close": "Close support form",
+    "contactLabel": "Contact",
+    "contactPlaceholder": "Email or Telegram username (optional)",
+    "fieldLabel": "Situation description",
+    "placeholder": "What should we check or fix?",
+    "limit": "Up to {{max}} characters",
+    "counter": "{{count}}/{{max}}",
+    "submit": "Send",
+    "sending": "Sending...",
+    "success": "Thanks, your request has been sent.",
+    "validation": {
+      "required": "Describe the situation before sending.",
+      "tooLong": "Keep the description within {{max}} characters."
+    },
+    "errors": {
+      "submitFailed": "Unable to send the request. Please try again."
+    }
   }
 }

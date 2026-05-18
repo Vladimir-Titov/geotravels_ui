@@ -14,5 +14,27 @@
     "home": "Посещения Tripmark",
     "navigation": "Навигация Tripmark",
     "languageSwitcher": "Переключатель языка"
+  },
+  "support": {
+    "trigger": "Поддержка",
+    "title": "Обращение",
+    "subtitle": "Коротко опишите ситуацию. Мы получим обращение в Tripmark.",
+    "close": "Закрыть форму обращения",
+    "contactLabel": "Контакт",
+    "contactPlaceholder": "Email или username в Telegram (необязательно)",
+    "fieldLabel": "Описание ситуации",
+    "placeholder": "Что нам проверить или исправить?",
+    "limit": "До {{max}} символов",
+    "counter": "{{count}}/{{max}}",
+    "submit": "Отправить",
+    "sending": "Отправляем...",
+    "success": "Спасибо, обращение отправлено.",
+    "validation": {
+      "required": "Опишите ситуацию перед отправкой.",
+      "tooLong": "Уложитесь в {{max}} символов."
+    },
+    "errors": {
+      "submitFailed": "Не удалось отправить обращение. Попробуйте ещё раз."
+    }
   }
 }

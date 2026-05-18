@@ -49,6 +49,12 @@ describe('AuthPage', () => {
         expect(getOtpMock).toHaveBeenCalledWith({ contact: 'test@example.com' })
     })
 
+    it('shows the support widget on the auth page', () => {
+        renderAuthPage()
+
+        expect(screen.getByRole('button', { name: /support/i })).toBeInTheDocument()
+    })
+
     it('authenticates and redirects to visits after OTP verify', async () => {
         getOtpMock.mockResolvedValue({ otp_id: 'test-otp-uuid', message: 'OTP sent' })
         confirmOtpMock.mockResolvedValue({
