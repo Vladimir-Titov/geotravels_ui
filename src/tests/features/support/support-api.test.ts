@@ -12,12 +12,31 @@ describe('support-api', () => {
     it('posts support tickets to the backend contract', async () => {
         mockedRequestJson.mockResolvedValue(undefined)
 
-        await createSupportTicket('The page is broken')
+        await createSupportTicket({
+            contact: '  traveler@example.com  ',
+            content: 'The page is broken',
+        })
 
-        expect(mockedRequestJson).toHaveBeenCalledWith('/support/ticket', {
+        expect(mockedRequestJson).toHaveBeenCalledWith('/api/v1/support/ticket', {
             method: 'POST',
             body: {
-                contacts: 'Tripmark web app',
+                contact: 'traveler@example.com',
+                content: 'The page is broken',
+            },
+        })
+    })
+
+    it('keeps requests backend-compatible when contact is empty', async () => {
+        mockedRequestJson.mockResolvedValue(undefined)
+
+        await createSupportTicket({
+            content: 'The page is broken',
+        })
+
+        expect(mockedRequestJson).toHaveBeenCalledWith('/api/v1/support/ticket', {
+            method: 'POST',
+            body: {
+                contact: 'not provided',
                 content: 'The page is broken',
             },
         })

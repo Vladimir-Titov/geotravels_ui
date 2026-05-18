@@ -96,10 +96,9 @@
     font-weight: 750;
 }
 
+.support-widget input,
 .support-widget textarea {
     width: 100%;
-    min-height: 7rem;
-    resize: vertical;
     border: 1px solid var(--tm-border);
     border-radius: 10px;
     padding: 0.66rem 0.72rem;
@@ -108,11 +107,22 @@
     line-height: 1.4;
 }
 
+.support-widget input {
+    min-height: 2.55rem;
+}
+
+.support-widget textarea {
+    min-height: 7rem;
+    resize: vertical;
+}
+
+.support-widget input:focus,
 .support-widget textarea:focus {
     outline: 2px solid rgba(79, 108, 78, 0.24);
     border-color: var(--tm-accent);
 }
 
+.support-widget input[aria-invalid='true'],
 .support-widget textarea[aria-invalid='true'] {
     border-color: var(--danger);
 }

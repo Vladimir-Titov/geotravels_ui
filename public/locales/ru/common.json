@@ -20,6 +20,8 @@
     "title": "Обращение",
     "subtitle": "Коротко опишите ситуацию. Мы получим обращение в Tripmark.",
     "close": "Закрыть форму обращения",
+    "contactLabel": "Контакт",
+    "contactPlaceholder": "Email или username в Telegram (необязательно)",
     "fieldLabel": "Описание ситуации",
     "placeholder": "Что нам проверить или исправить?",
     "limit": "До {{max}} символов",

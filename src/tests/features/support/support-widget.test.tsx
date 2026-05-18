@@ -20,6 +20,7 @@ describe('SupportWidget', () => {
         fireEvent.click(screen.getByRole('button', { name: /support/i }))
 
         expect(screen.getByRole('heading', { name: /contact support/i })).toBeInTheDocument()
+        expect(screen.getByLabelText(/^contact$/i)).toBeInTheDocument()
         expect(screen.getByLabelText(/situation description/i)).toHaveAttribute('maxlength', '1000')
         expect(screen.getByText('Up to 1000 characters')).toBeInTheDocument()
         expect(screen.getByText('0/1000')).toBeInTheDocument()
@@ -30,15 +31,38 @@ describe('SupportWidget', () => {
         render(<SupportWidget />)
 
         fireEvent.click(screen.getByRole('button', { name: /support/i }))
+        fireEvent.change(screen.getByLabelText(/^contact$/i), {
+            target: { value: '  traveler@example.com  ' },
+        })
         fireEvent.change(screen.getByLabelText(/situation description/i), {
             target: { value: '  Need help with my trip archive  ' },
         })
         fireEvent.click(screen.getByRole('button', { name: /send/i }))
 
         await waitFor(() => {
-            expect(mockedCreateSupportTicket).toHaveBeenCalledWith('Need help with my trip archive')
+            expect(mockedCreateSupportTicket).toHaveBeenCalledWith({
+                contact: 'traveler@example.com',
+                content: 'Need help with my trip archive',
+            })
         })
         expect(await screen.findByText(/thanks, your request has been sent/i)).toBeInTheDocument()
+    })
+
+    it('submits support content without contact', async () => {
+        mockedCreateSupportTicket.mockResolvedValue(undefined)
+        render(<SupportWidget />)
+
+        fireEvent.click(screen.getByRole('button', { name: /support/i }))
+        fireEvent.change(screen.getByLabelText(/situation description/i), {
+            target: { value: 'Problem details' },
+        })
+        fireEvent.click(screen.getByRole('button', { name: /send/i }))
+
+        await waitFor(() => {
+            expect(mockedCreateSupportTicket).toHaveBeenCalledWith({
+                content: 'Problem details',
+            })
+        })
     })
 
     it('shows backend validation errors inline', async () => {
@@ -46,6 +70,9 @@ describe('SupportWidget', () => {
         render(<SupportWidget />)
 
         fireEvent.click(screen.getByRole('button', { name: /support/i }))
+        fireEvent.change(screen.getByLabelText(/^contact$/i), {
+            target: { value: 'traveler@example.com' },
+        })
         fireEvent.change(screen.getByLabelText(/situation description/i), {
             target: { value: 'Problem details' },
         })

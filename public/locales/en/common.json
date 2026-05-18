@@ -20,6 +20,8 @@
     "title": "Contact support",
     "subtitle": "Briefly describe what happened. We will receive it in Tripmark.",
     "close": "Close support form",
+    "contactLabel": "Contact",
+    "contactPlaceholder": "Email or Telegram username (optional)",
     "fieldLabel": "Situation description",
     "placeholder": "What should we check or fix?",
     "limit": "Up to {{max}} characters",

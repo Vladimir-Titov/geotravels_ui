@@ -8,15 +8,18 @@ const SUPPORT_CONTENT_MAX_LENGTH = 1000
 
 export const SupportWidget = () => {
     const { t } = useTranslation('common')
-    const fieldId = useId()
+    const contactId = useId()
+    const contentId = useId()
     const descriptionId = useId()
     const errorId = useId()
     const [isOpen, setIsOpen] = useState(false)
+    const [contact, setContact] = useState('')
     const [content, setContent] = useState('')
     const [isSending, setIsSending] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [isSent, setIsSent] = useState(false)
 
+    const trimmedContact = contact.trim()
     const trimmedContent = content.trim()
     const remainingCharacters = SUPPORT_CONTENT_MAX_LENGTH - content.length
     const isNearLimit = remainingCharacters <= 120
@@ -61,7 +64,17 @@ export const SupportWidget = () => {
 
         setIsSending(true)
         try {
-            await createSupportTicket(trimmedContent)
+            await createSupportTicket(
+                trimmedContact
+                    ? {
+                          contact: trimmedContact,
+                          content: trimmedContent,
+                      }
+                    : {
+                          content: trimmedContent,
+                      },
+            )
+            setContact('')
             setContent('')
             setIsSent(true)
         } catch (submitError) {
@@ -97,11 +110,27 @@ export const SupportWidget = () => {
                     </header>
 
                     <form className="support-widget__form" onSubmit={(event) => void submitTicket(event)}>
-                        <label className="support-widget__field" htmlFor={fieldId}>
+                        <label className="support-widget__field" htmlFor={contactId}>
+                            {t('support.contactLabel')}
+                        </label>
+                        <input
+                            id={contactId}
+                            value={contact}
+                            type="text"
+                            autoComplete="email"
+                            placeholder={t('support.contactPlaceholder')}
+                            onChange={(event) => {
+                                setContact(event.target.value)
+                                setError(null)
+                                setIsSent(false)
+                            }}
+                        />
+
+                        <label className="support-widget__field" htmlFor={contentId}>
                             {t('support.fieldLabel')}
                         </label>
                         <textarea
-                            id={fieldId}
+                            id={contentId}
                             value={content}
                             maxLength={SUPPORT_CONTENT_MAX_LENGTH}
                             rows={4}
