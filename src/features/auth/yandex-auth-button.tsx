@@ -140,7 +140,6 @@ export const YandexAuthButton = ({ loadingLabel, onAuth }: Props) => {
         <div className="ya-auth">
             {!isReady && (
                 <button className="ya-auth-placeholder" disabled type="button">
-                    <span className="ya-auth-placeholder__spinner" aria-hidden="true" />
                     {loadingLabel}
                 </button>
             )}

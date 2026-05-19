@@ -200,18 +200,25 @@
 }
 
 .auth-tg-section {
+    --auth-social-button-width: min(276px, 100%);
+    --auth-social-button-height: 44px;
+
     display: flex;
     justify-content: center;
     margin-top: 2px;
     width: 100%;
+    min-height: var(--auth-social-button-height);
     overflow: hidden;
 }
 
 .auth-ya-section {
+    --auth-social-button-width: min(276px, 100%);
+    --auth-social-button-height: 44px;
+
     display: flex;
     justify-content: center;
     width: 100%;
-    min-height: 44px;
+    min-height: var(--auth-social-button-height);
     overflow: hidden;
 }
 
@@ -237,32 +244,34 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 100%;
+    width: var(--auth-social-button-width);
     font-size: 0;
     line-height: 0;
     color: transparent;
 }
 
 .tg-login-widget--ready {
-    min-height: 44px;
+    min-height: var(--auth-social-button-height);
 }
 
 .tg-login-widget iframe {
     display: block;
     margin: 0 auto;
+    transform: scale(1.56);
+    transform-origin: center;
 }
 
 .ya-auth {
-    width: 100%;
-    min-height: 44px;
+    width: var(--auth-social-button-width);
+    min-height: var(--auth-social-button-height);
     display: grid;
     place-items: center;
     position: relative;
 }
 
 .ya-auth-placeholder {
-    min-height: 44px;
-    min-width: 220px;
+    width: 100%;
+    min-height: var(--auth-social-button-height);
     border: 1px solid #d6ded1;
     border-radius: 12px;
     background: #f4f6f2;
@@ -277,20 +286,11 @@
     cursor: wait;
 }
 
-.ya-auth-placeholder__spinner {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    border: 2px solid #d6ded1;
-    border-top-color: #2f6a3f;
-    animation: ya-auth-spin 0.8s linear infinite;
-}
-
 .ya-auth-widget {
     position: absolute;
     inset: 0;
     display: flex;
-    min-height: 44px;
+    min-height: var(--auth-social-button-height);
     width: 100%;
     justify-content: center;
     align-items: center;
@@ -309,12 +309,6 @@
 .ya-auth-widget iframe {
     display: block;
     margin: 0 auto;
-}
-
-@keyframes ya-auth-spin {
-    to {
-        transform: rotate(360deg);
-    }
 }
 
 .auth-back-button {

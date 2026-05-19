@@ -38,9 +38,9 @@ describe('YandexAuthButton', () => {
             init: vi.fn().mockResolvedValue({ status: 'ok', handler }),
         }
 
-        render(<YandexAuthButton loadingLabel="Preparing Yandex sign-in" onAuth={onAuth} />)
+        render(<YandexAuthButton loadingLabel="Yandex" onAuth={onAuth} />)
 
-        expect(screen.getByRole('button', { name: 'Preparing Yandex sign-in' })).toBeDisabled()
+        expect(screen.getByRole('button', { name: 'Yandex' })).toBeDisabled()
 
         const script = await waitFor(() => {
             const element = document.head.querySelector('script')
@@ -72,7 +72,7 @@ describe('YandexAuthButton', () => {
         expect(handler).toHaveBeenCalled()
 
         await waitFor(() => {
-            expect(screen.queryByRole('button', { name: 'Preparing Yandex sign-in' })).not.toBeInTheDocument()
+            expect(screen.queryByRole('button', { name: 'Yandex' })).not.toBeInTheDocument()
         })
 
         resolveAuth({ code: 'code-from-yandex' })
@@ -84,7 +84,7 @@ describe('YandexAuthButton', () => {
 
     it('hides the optional button when the SDK script fails to load', async () => {
         const { container } = render(
-            <YandexAuthButton loadingLabel="Preparing Yandex sign-in" onAuth={vi.fn()} />,
+            <YandexAuthButton loadingLabel="Yandex" onAuth={vi.fn()} />,
         )
 
         const script = await waitFor(() => {
