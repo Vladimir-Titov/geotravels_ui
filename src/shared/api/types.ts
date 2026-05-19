@@ -21,6 +21,19 @@ export interface TelegramAuthData {
     hash: string
 }
 
+export interface YandexAuthData {
+    code?: string
+    error?: string
+    error_description?: string
+    state?: string
+}
+
+export interface YandexAuthRequest {
+    code: string
+    redirect_uri?: string
+    code_verifier?: string
+}
+
 export interface RefreshRequest {
     refresh_token: string
 }

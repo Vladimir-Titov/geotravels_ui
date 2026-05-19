@@ -1,9 +1,11 @@
 import { useEffect, useState, type ChangeEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ApiError } from '../../shared/api/http'
-import type { TelegramAuthData, TokenPairResponse } from '../../shared/api/types'
-import { getOtp, telegramLogin } from './auth-api'
+import { getYandexRedirectUri } from '../../shared/config/env'
+import type { TelegramAuthData, TokenPairResponse, YandexAuthData } from '../../shared/api/types'
+import { getOtp, telegramLogin, yandexLogin } from './auth-api'
 import { TelegramLoginButton } from './telegram-login-button'
+import { YandexAuthButton } from './yandex-auth-button'
 import logo from '../../assets/logo.png'
 
 interface LoginStepProps {
@@ -24,6 +26,7 @@ export const LoginStep = ({ onEmailSuccess, onSocialSuccess }: LoginStepProps) =
     const [error, setError] = useState<string | null>(null)
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [isTelegramPending, setIsTelegramPending] = useState(false)
+    const [isYandexPending, setIsYandexPending] = useState(false)
     const [cooldownSeconds, setCooldownSeconds] = useState(0)
 
     const fallbackError = t('genericError')
@@ -71,6 +74,16 @@ export const LoginStep = ({ onEmailSuccess, onSocialSuccess }: LoginStepProps) =
         return t('telegramFailed')
     }
 
+    const normalizeYandexAuthError = (apiError: ApiError): string => {
+        const sourceMessage = apiError.message || ''
+
+        if (sourceMessage.includes('Yandex') || sourceMessage.includes('yandex')) {
+            return t('yandexFailed')
+        }
+
+        return t('yandexFailed')
+    }
+
     const validate = (): boolean => {
         const nextErrors: FormErrors = {}
 
@@ -90,6 +103,7 @@ export const LoginStep = ({ onEmailSuccess, onSocialSuccess }: LoginStepProps) =
 
     const handleTelegramAuth = async (data: TelegramAuthData): Promise<void> => {
         setIsTelegramPending(true)
+        setError(null)
         try {
             const response = await telegramLogin(data)
             onSocialSuccess(response)
@@ -97,6 +111,29 @@ export const LoginStep = ({ onEmailSuccess, onSocialSuccess }: LoginStepProps) =
             setError(caught instanceof ApiError ? normalizeTelegramAuthError(caught) : t('telegramFailed'))
         } finally {
             setIsTelegramPending(false)
+        }
+    }
+
+    const handleYandexAuth = async (data: YandexAuthData): Promise<void> => {
+        setIsYandexPending(true)
+        setError(null)
+        try {
+            const code = data.code?.trim()
+
+            if (!code) {
+                setError(t('yandexInvalid'))
+                return
+            }
+
+            const response = await yandexLogin({
+                code,
+                redirect_uri: getYandexRedirectUri(),
+            })
+            onSocialSuccess(response)
+        } catch (caught) {
+            setError(caught instanceof ApiError ? normalizeYandexAuthError(caught) : t('yandexFailed'))
+        } finally {
+            setIsYandexPending(false)
         }
     }
 
@@ -182,6 +219,14 @@ export const LoginStep = ({ onEmailSuccess, onSocialSuccess }: LoginStepProps) =
                     <p className="auth-tg-pending">{t('signingInTelegram')}</p>
                 ) : (
                     <TelegramLoginButton onAuth={handleTelegramAuth} />
+                )}
+            </div>
+
+            <div className="auth-ya-section">
+                {isYandexPending ? (
+                    <p className="auth-social-pending">{t('signingInYandex')}</p>
+                ) : (
+                    <YandexAuthButton loadingLabel={t('yandexLoading')} onAuth={handleYandexAuth} />
                 )}
             </div>
         </section>
