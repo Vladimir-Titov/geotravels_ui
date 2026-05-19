@@ -8,11 +8,13 @@ import { clearSessionTokens } from '../../../features/auth/session'
 const getOtpMock = vi.fn()
 const confirmOtpMock = vi.fn()
 const telegramLoginMock = vi.fn()
+const yandexLoginMock = vi.fn()
 
 vi.mock('../../../features/auth/auth-api', () => ({
     getOtp: (...args: unknown[]) => getOtpMock(...args),
     confirmOtp: (...args: unknown[]) => confirmOtpMock(...args),
     telegramLogin: (...args: unknown[]) => telegramLoginMock(...args),
+    yandexLogin: (...args: unknown[]) => yandexLoginMock(...args),
 }))
 
 function renderAuthPage() {
@@ -33,6 +35,7 @@ describe('AuthPage', () => {
         getOtpMock.mockReset()
         confirmOtpMock.mockReset()
         telegramLoginMock.mockReset()
+        yandexLoginMock.mockReset()
         localStorage.clear()
         clearSessionTokens()
     })
