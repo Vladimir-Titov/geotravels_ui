@@ -9,6 +9,7 @@ import './shared/i18n/i18n'
 import './app/app.css'
 
 import * as Sentry from '@sentry/browser'
+import { beforeSend } from './shared/monitoring/sentry-filters'
 
 if (SENTRY_DSN) {
     Sentry.init({
@@ -16,6 +17,7 @@ if (SENTRY_DSN) {
         environment: ENVIRONMENT,
         tracesSampleRate: 1.0,
         release: APP_VERSION,
+        beforeSend: (event, hint) => beforeSend(event, hint) as typeof event | null,
     })
 }
 
