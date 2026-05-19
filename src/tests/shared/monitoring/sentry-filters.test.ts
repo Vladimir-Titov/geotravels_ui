@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import type { ErrorEvent } from '@sentry/browser'
+import type { Event } from '@sentry/browser'
 import { beforeSend, shouldDropSentryEvent } from '../../../shared/monitoring/sentry-filters'
 
 describe('sentry filters', () => {
     it('drops the known Yandex auth SDK metrika counter error', () => {
-        const event: ErrorEvent = {
+        const event: Event = {
             type: undefined,
             exception: {
                 values: [
@@ -27,11 +27,11 @@ describe('sentry filters', () => {
         }
 
         expect(shouldDropSentryEvent(event)).toBe(true)
-        expect(beforeSend(event)).toBeNull()
+        expect(beforeSend(event, {})).toBeNull()
     })
 
     it('keeps app errors even when the message is similar', () => {
-        const event: ErrorEvent = {
+        const event: Event = {
             type: undefined,
             exception: {
                 values: [
@@ -51,11 +51,11 @@ describe('sentry filters', () => {
         }
 
         expect(shouldDropSentryEvent(event)).toBe(false)
-        expect(beforeSend(event)).toBe(event)
+        expect(beforeSend(event, {})).toBe(event)
     })
 
     it('keeps other Yandex SDK errors', () => {
-        const event: ErrorEvent = {
+        const event: Event = {
             type: undefined,
             exception: {
                 values: [
@@ -75,6 +75,6 @@ describe('sentry filters', () => {
         }
 
         expect(shouldDropSentryEvent(event)).toBe(false)
-        expect(beforeSend(event)).toBe(event)
+        expect(beforeSend(event, {})).toBe(event)
     })
 })

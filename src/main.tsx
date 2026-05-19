@@ -17,7 +17,7 @@ if (SENTRY_DSN) {
         environment: ENVIRONMENT,
         tracesSampleRate: 1.0,
         release: APP_VERSION,
-        beforeSend,
+        beforeSend: (event, hint) => beforeSend(event, hint) as typeof event | null,
     })
 }
 

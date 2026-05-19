@@ -1,4 +1,4 @@
-import type { ErrorEvent } from '@sentry/browser'
+import type { Event, EventHint } from '@sentry/browser'
 
 const YANDEX_AUTH_FRAME_MARKERS = [
     '/s3/passport-static/autofill/',
@@ -9,7 +9,7 @@ const YANDEX_AUTH_FRAME_MARKERS = [
 
 const YANDEX_AUTH_ERROR_MARKERS = ['_counter is undefined', 'property "params"']
 
-const hasYandexAuthFrame = (event: ErrorEvent): boolean => {
+const hasYandexAuthFrame = (event: Event): boolean => {
     const frames = event.exception?.values?.flatMap((value) => value.stacktrace?.frames ?? []) ?? []
 
     return frames.some((frame) => {
@@ -18,7 +18,7 @@ const hasYandexAuthFrame = (event: ErrorEvent): boolean => {
     })
 }
 
-const hasYandexAuthMessage = (event: ErrorEvent): boolean => {
+const hasYandexAuthMessage = (event: Event): boolean => {
     const messages = [
         event.message,
         ...(event.exception?.values?.flatMap((value) => [value.value, value.type]) ?? []),
@@ -29,11 +29,13 @@ const hasYandexAuthMessage = (event: ErrorEvent): boolean => {
     )
 }
 
-export const shouldDropSentryEvent = (event: ErrorEvent): boolean => {
+export const shouldDropSentryEvent = (event: Event): boolean => {
     return hasYandexAuthFrame(event) && hasYandexAuthMessage(event)
 }
 
-export const beforeSend = (event: ErrorEvent): ErrorEvent | null => {
+export const beforeSend = (event: Event, hint?: EventHint): Event | null => {
+    void hint
+
     if (shouldDropSentryEvent(event)) {
         return null
     }
