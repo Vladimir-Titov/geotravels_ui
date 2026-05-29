@@ -1,4 +1,4 @@
-import { CalendarDays, CheckSquare, Image, MapPin } from 'lucide-react'
+import { CalendarDays, CheckSquare, MapPin } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import type { TripCard as TripCardModel } from './trips-types'
@@ -7,6 +7,14 @@ interface TripCardProps {
     trip: TripCardModel
     coverUrl?: string | null
     showPlanProgress?: boolean
+}
+
+const PLACEHOLDER_GRADIENTS_COUNT = 6
+
+const getPlaceholderGradientClass = (trip: TripCardModel): string => {
+    const seed = `${trip.id}${trip.title}${trip.countryCode}`
+    const hash = Array.from(seed).reduce((sum, character) => sum + character.charCodeAt(0), 0)
+    return `trip-card__media--gradient-${hash % PLACEHOLDER_GRADIENTS_COUNT}`
 }
 
 const formatTripDate = (date: string | null, language: string): string | null => {
@@ -40,20 +48,23 @@ export const TripCard = ({ trip, coverUrl, showPlanProgress = false }: TripCardP
     const language = i18n.resolvedLanguage ?? i18n.language
     const dateFrom = formatTripDate(trip.tripStart, language)
     const dateTo = formatTripDate(trip.tripEnd, language)
-    const dateLabel = dateFrom && dateTo ? `${dateFrom} - ${dateTo}` : dateFrom ?? dateTo
+    const dateLabel = dateFrom && dateTo ? `${dateFrom} - ${dateTo}` : (dateFrom ?? dateTo)
     const progressLabel = t('cards.planProgress', {
         done: trip.placesVisited,
         total: trip.placesTotal,
     })
 
     return (
-        <button
-            type="button"
-            className="trip-card"
-            onClick={() => navigate(`/trips/${trip.id}`)}
-        >
-            <span className="trip-card__media" aria-hidden="true">
-                {coverUrl ? <img src={coverUrl} alt="" loading="lazy" decoding="async" /> : <Image size={24} />}
+        <button type="button" className="trip-card" onClick={() => navigate(`/trips/${trip.id}`)}>
+            <span
+                className={
+                    coverUrl
+                        ? 'trip-card__media'
+                        : `trip-card__media trip-card__media--placeholder ${getPlaceholderGradientClass(trip)}`
+                }
+                aria-hidden="true"
+            >
+                {coverUrl && <img src={coverUrl} alt="" loading="lazy" decoding="async" />}
                 {showPlanProgress && <span className="trip-card__counter">{progressLabel}</span>}
             </span>
 

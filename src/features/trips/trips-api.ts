@@ -1,5 +1,6 @@
 import { requestForm, requestJson } from '../../shared/api/http'
 import type {
+    AiPlaceSuggestion,
     ChecklistStatus,
     CityOption,
     CountryOption,
@@ -9,6 +10,7 @@ import type {
     TripStatistics,
     TripStatus,
     UpdateVisitPayload,
+    VisitPlaceDraft,
     VisibleTripStatus,
 } from './trips-types'
 import {
@@ -35,6 +37,12 @@ interface VisitFileResponseDto {
     is_cover: boolean
 }
 
+interface AiPlaceSuggestionDto {
+    place?: unknown
+    desc?: unknown
+    address?: unknown
+}
+
 const VISITS_ENDPOINT = '/api/v1/visits'
 const COUNTRIES_ENDPOINT = '/api/v1/geo/countries'
 const CITIES_ENDPOINT = '/api/v1/geo/cities'
@@ -57,6 +65,35 @@ const normalizeGeoLang = (language?: string): 'en' | 'ru' => {
 
 const toIlikePattern = (query: string): string => `%${query.trim()}%`
 
+const asSuggestionText = (value: unknown): string | null => {
+    return typeof value === 'string' && value.trim().length > 0 ? value.trim() : null
+}
+
+const normalizeAiPlaceSuggestion = (value: AiPlaceSuggestionDto): AiPlaceSuggestion => ({
+    title: asSuggestionText(value.place) ?? '',
+    description: asSuggestionText(value.desc),
+    address: asSuggestionText(value.address),
+})
+
+const toCreateVisitPlaceBody = (
+    visitId: string,
+    place: string | VisitPlaceDraft,
+): { visit_id: string; title: string; address?: string; description?: string } => {
+    if (typeof place === 'string') {
+        return {
+            visit_id: visitId,
+            title: place,
+        }
+    }
+
+    return {
+        visit_id: visitId,
+        title: place.title,
+        address: place.address ?? undefined,
+        description: place.description ?? undefined,
+    }
+}
+
 export const fetchTripCards = async (status: VisibleTripStatus): Promise<TripCardsResponse> => {
     const params = createSearchParams({ status, limit: 100, offset: 0 })
     const response = await requestJson<unknown>(`${VISITS_ENDPOINT}/cards?${params}`)
@@ -73,15 +110,22 @@ export const fetchTripStatistics = async (): Promise<TripStatistics> => {
     return normalizeTripStatistics(response)
 }
 
-export const searchCountries = async (query: string, language?: string): Promise<CountryOption[]> => {
+export const searchCountries = async (
+    query: string,
+    language?: string,
+): Promise<CountryOption[]> => {
     const params = createSearchParams({
         limit: 8,
         offset: 0,
         lang: normalizeGeoLang(language),
         name_ilike: toIlikePattern(query),
     })
-    const response = await requestJson<PaginatedResponse<unknown>>(`${COUNTRIES_ENDPOINT}?${params}`)
-    return response.items.map(normalizeCountryOption).filter((country) => country.code && country.name)
+    const response = await requestJson<PaginatedResponse<unknown>>(
+        `${COUNTRIES_ENDPOINT}?${params}`,
+    )
+    return response.items
+        .map(normalizeCountryOption)
+        .filter((country) => country.code && country.name)
 }
 
 export const searchCities = async (
@@ -98,6 +142,17 @@ export const searchCities = async (
     })
     const response = await requestJson<PaginatedResponse<unknown>>(`${CITIES_ENDPOINT}?${params}`)
     return response.items.map(normalizeCityOption).filter((city) => city.id && city.name)
+}
+
+export const suggestCityPlaces = async (
+    cityId: string,
+    language?: string,
+): Promise<AiPlaceSuggestion[]> => {
+    const params = createSearchParams({ lang: normalizeGeoLang(language) })
+    const response = await requestJson<AiPlaceSuggestionDto[]>(
+        `${CITIES_ENDPOINT}/${cityId}/places?${params}`,
+    )
+    return response.map(normalizeAiPlaceSuggestion).filter((place) => place.title.length > 0)
 }
 
 export const createVisit = async (payload: CreateVisitPayload): Promise<VisitResponseDto> => {
@@ -143,12 +198,33 @@ export const updateChecklistItem = async (
     })
 }
 
-export const createVisitPlace = async (visitId: string, title: string): Promise<void> => {
+export const createVisitPlace = async (
+    visitId: string,
+    place: string | VisitPlaceDraft,
+): Promise<void> => {
     await requestJson<unknown>(PLACES_ENDPOINT, {
+        method: 'POST',
+        body: toCreateVisitPlaceBody(visitId, place),
+    })
+}
+
+export const createVisitPlaces = async (
+    visitId: string,
+    places: VisitPlaceDraft[],
+): Promise<void> => {
+    if (places.length === 0) {
+        return
+    }
+
+    await requestJson<unknown>(`${PLACES_ENDPOINT}/bulk`, {
         method: 'POST',
         body: {
             visit_id: visitId,
-            title,
+            places: places.map((place) => ({
+                title: place.title,
+                address: place.address ?? undefined,
+                description: place.description ?? undefined,
+            })),
         },
     })
 }
@@ -160,7 +236,10 @@ export const updateVisitPlace = async (placeId: string, isVisited: boolean): Pro
     })
 }
 
-export const uploadVisitPhoto = async (visitId: string, file: File): Promise<VisitFileResponseDto> => {
+export const uploadVisitPhoto = async (
+    visitId: string,
+    file: File,
+): Promise<VisitFileResponseDto> => {
     const formData = new FormData()
     formData.append('file', file, file.name)
     formData.append('visibility', 'private')

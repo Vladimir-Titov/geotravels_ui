@@ -27,7 +27,14 @@ import {
     updateVisitPlace,
     uploadVisitPhoto,
 } from './trips-api'
-import type { TripCard as TripCardModel, VisibleTripStatus } from './trips-types'
+import type {
+    ChecklistStatus,
+    TripCard as TripCardModel,
+    TripChecklistItem,
+    TripDetails,
+    TripPlace,
+    VisibleTripStatus,
+} from './trips-types'
 import { useTripCards, useTripDetails, useTripStatistics } from './use-trips-resource'
 import './trips.css'
 
@@ -59,7 +66,11 @@ const formatDate = (date: string | null, language: string): string | null => {
     })
 }
 
-const formatPeriod = (tripStart: string | null, tripEnd: string | null, language: string): string => {
+const formatPeriod = (
+    tripStart: string | null,
+    tripEnd: string | null,
+    language: string,
+): string => {
     const from = formatDate(tripStart, language)
     const to = formatDate(tripEnd, language)
     if (from && to) {
@@ -124,7 +135,11 @@ const TripsListPage = ({ status }: TripsListPageProps) => {
                 <div className="trips-empty">
                     <MapPin size={28} />
                     <h2>{isPlans ? t('plans.empty') : t('visits.empty')}</h2>
-                    <button type="button" className="trip-button" onClick={() => setIsModalOpen(true)}>
+                    <button
+                        type="button"
+                        className="trip-button"
+                        onClick={() => setIsModalOpen(true)}
+                    >
                         <Plus size={17} />
                         {isPlans ? t('plans.cta') : t('visits.cta')}
                     </button>
@@ -160,7 +175,10 @@ export const PlansPage = () => <TripsListPage status="planned" />
 export const StatisticsPage = () => {
     const { t } = useTranslation('trips')
     const { data, isLoading, error, refetch } = useTripStatistics()
-    const maxCountryTrips = Math.max(...(data?.tripsByCountry.map((item) => item.tripsCount) ?? [0]), 1)
+    const maxCountryTrips = Math.max(
+        ...(data?.tripsByCountry.map((item) => item.tripsCount) ?? [0]),
+        1,
+    )
 
     if (isLoading) {
         return <PageState title={t('states.loading')} text={t('states.loadingText')} />
@@ -184,10 +202,22 @@ export const StatisticsPage = () => {
 
     const metrics = [
         { icon: <Camera size={18} />, value: data.visitedCount, label: t('statistics.visited') },
-        { icon: <Globe2 size={18} />, value: data.countriesCount, label: t('statistics.countries') },
+        {
+            icon: <Globe2 size={18} />,
+            value: data.countriesCount,
+            label: t('statistics.countries'),
+        },
         { icon: <MapPin size={18} />, value: data.citiesCount, label: t('statistics.cities') },
-        { icon: <RotateCcw size={18} />, value: data.repeatedCountriesCount, label: t('statistics.repeats') },
-        { icon: <CalendarDays size={18} />, value: data.plannedCount, label: t('statistics.planned') },
+        {
+            icon: <RotateCcw size={18} />,
+            value: data.repeatedCountriesCount,
+            label: t('statistics.repeats'),
+        },
+        {
+            icon: <CalendarDays size={18} />,
+            value: data.plannedCount,
+            label: t('statistics.planned'),
+        },
     ]
 
     return (
@@ -213,7 +243,9 @@ export const StatisticsPage = () => {
                 <section className="statistics-panel">
                     <p>{t('statistics.favoriteCity')}</p>
                     <h2>{data.favoriteCity.cityName}</h2>
-                    <span>{t('statistics.visitCount', { count: data.favoriteCity.visitsCount })}</span>
+                    <span>
+                        {t('statistics.visitCount', { count: data.favoriteCity.visitsCount })}
+                    </span>
                 </section>
             )}
 
@@ -227,7 +259,11 @@ export const StatisticsPage = () => {
                             <div key={country.countryName ?? 'unknown'} className="country-bar">
                                 <span>{country.countryName ?? t('statistics.unknownCountry')}</span>
                                 <div>
-                                    <span style={{ width: `${(country.tripsCount / maxCountryTrips) * 100}%` }} />
+                                    <span
+                                        style={{
+                                            width: `${(country.tripsCount / maxCountryTrips) * 100}%`,
+                                        }}
+                                    />
                                 </div>
                                 <strong>{country.tripsCount}</strong>
                             </div>
@@ -244,32 +280,40 @@ export const TripDetailPage = () => {
     const navigate = useNavigate()
     const { t, i18n } = useTranslation('trips')
     const { data, isLoading, error, refetch } = useTripDetails(visitId)
+    const [optimisticDetails, setOptimisticDetails] = useState<TripDetails | null>(null)
     const [newChecklistItem, setNewChecklistItem] = useState('')
     const [newPlace, setNewPlace] = useState('')
     const [actionError, setActionError] = useState<string | null>(null)
     const [isDeleting, setIsDeleting] = useState(false)
     const [selectedPhotoId, setSelectedPhotoId] = useState<string | null>(null)
     const language = i18n.resolvedLanguage ?? i18n.language
+    const currentData = optimisticDetails ?? data
     const selectedPhoto = useMemo(
-        () => data?.photos.find((photo) => photo.id === selectedPhotoId) ?? null,
-        [data?.photos, selectedPhotoId],
+        () => currentData?.photos.find((photo) => photo.id === selectedPhotoId) ?? null,
+        [currentData?.photos, selectedPhotoId],
     )
     const selectedPhotoIndex = useMemo(
-        () => data?.photos.findIndex((photo) => photo.id === selectedPhotoId) ?? -1,
-        [data?.photos, selectedPhotoId],
+        () => currentData?.photos.findIndex((photo) => photo.id === selectedPhotoId) ?? -1,
+        [currentData?.photos, selectedPhotoId],
     )
-    const canBrowsePhotos = (data?.photos.length ?? 0) > 1
+    const canBrowsePhotos = (currentData?.photos.length ?? 0) > 1
     const selectAdjacentPhoto = useCallback(
         (direction: -1 | 1): void => {
-            if (!data?.photos.length || selectedPhotoIndex < 0) {
+            if (!currentData?.photos.length || selectedPhotoIndex < 0) {
                 return
             }
 
-            const nextIndex = (selectedPhotoIndex + direction + data.photos.length) % data.photos.length
-            setSelectedPhotoId(data.photos[nextIndex].id)
+            const nextIndex =
+                (selectedPhotoIndex + direction + currentData.photos.length) %
+                currentData.photos.length
+            setSelectedPhotoId(currentData.photos[nextIndex].id)
         },
-        [data, selectedPhotoIndex],
+        [currentData, selectedPhotoIndex],
     )
+
+    useEffect(() => {
+        setOptimisticDetails(data)
+    }, [data])
 
     useEffect(() => {
         if (!selectedPhotoId) {
@@ -308,13 +352,16 @@ export const TripDetailPage = () => {
         )
     }
 
-    if (!data || !visitId) {
+    if (!currentData || !visitId) {
         return <PageState title={t('states.empty')} text={t('details.notFound')} />
     }
 
-    const backPath = data.visit.status === 'planned' ? '/plans' : '/visits'
-    const period = formatPeriod(data.visit.tripStart, data.visit.tripEnd, language)
-    const place = formatCities(data.cities) ?? data.visit.countryName ?? data.visit.countryCode
+    const backPath = currentData.visit.status === 'planned' ? '/plans' : '/visits'
+    const period = formatPeriod(currentData.visit.tripStart, currentData.visit.tripEnd, language)
+    const place =
+        formatCities(currentData.cities) ??
+        currentData.visit.countryName ??
+        currentData.visit.countryCode
 
     const runAction = async (action: () => Promise<void>): Promise<void> => {
         setActionError(null)
@@ -348,6 +395,50 @@ export const TripDetailPage = () => {
         })
     }
 
+    const toggleChecklistItem = async (item: TripChecklistItem): Promise<void> => {
+        const previousDetails = currentData
+        const nextStatus: ChecklistStatus = item.status === 'done' ? 'to_do' : 'done'
+
+        setActionError(null)
+        setOptimisticDetails({
+            ...previousDetails,
+            checklist: previousDetails.checklist.map((checklistItem) =>
+                checklistItem.id === item.id
+                    ? { ...checklistItem, status: nextStatus }
+                    : checklistItem,
+            ),
+        })
+
+        try {
+            await updateChecklistItem(item.id, nextStatus)
+        } catch (requestError) {
+            setOptimisticDetails(previousDetails)
+            setActionError(getErrorText(requestError, t('details.actionFailed')))
+        }
+    }
+
+    const toggleVisitPlace = async (placeToToggle: TripPlace): Promise<void> => {
+        const previousDetails = currentData
+        const nextIsVisited = !placeToToggle.isVisited
+
+        setActionError(null)
+        setOptimisticDetails({
+            ...previousDetails,
+            places: previousDetails.places.map((placeItem) =>
+                placeItem.id === placeToToggle.id
+                    ? { ...placeItem, isVisited: nextIsVisited }
+                    : placeItem,
+            ),
+        })
+
+        try {
+            await updateVisitPlace(placeToToggle.id, nextIsVisited)
+        } catch (requestError) {
+            setOptimisticDetails(previousDetails)
+            setActionError(getErrorText(requestError, t('details.actionFailed')))
+        }
+    }
+
     const handlePhotoChange = async (event: ChangeEvent<HTMLInputElement>): Promise<void> => {
         const files = event.target.files
         if (!files || files.length === 0) {
@@ -356,7 +447,7 @@ export const TripDetailPage = () => {
 
         await runAction(async () => {
             const uploaded = await uploadVisitPhoto(visitId, files[0])
-            if (data.photos.length === 0) {
+            if (currentData.photos.length === 0) {
                 await updateVisit(visitId, { cover_file_id: uploaded.id })
             }
         })
@@ -368,7 +459,9 @@ export const TripDetailPage = () => {
             return
         }
 
-        const confirmed = window.confirm(t('details.deleteConfirm', { title: data.visit.title }))
+        const confirmed = window.confirm(
+            t('details.deleteConfirm', { title: currentData.visit.title }),
+        )
         if (!confirmed) {
             return
         }
@@ -387,11 +480,15 @@ export const TripDetailPage = () => {
     return (
         <section className="trips-page trip-detail">
             <header className="trip-detail__header">
-                <button type="button" className="trip-link-button" onClick={() => navigate(backPath)}>
+                <button
+                    type="button"
+                    className="trip-link-button"
+                    onClick={() => navigate(backPath)}
+                >
                     {t('details.back')}
                 </button>
                 <div>
-                    <h1>{data.visit.title}</h1>
+                    <h1>{currentData.visit.title}</h1>
                     <p>
                         {place}
                         {period ? ` · ${period}` : ''}
@@ -416,14 +513,18 @@ export const TripDetailPage = () => {
                     <label className="trip-link-button">
                         <Plus size={16} />
                         {t('details.addPhoto')}
-                        <input type="file" accept="image/*" onChange={(event) => void handlePhotoChange(event)} />
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(event) => void handlePhotoChange(event)}
+                        />
                     </label>
                 </header>
-                {data.photos.length === 0 ? (
+                {currentData.photos.length === 0 ? (
                     <p>{t('details.noPhotos')}</p>
                 ) : (
                     <div className="trip-photo-grid">
-                        {data.photos.map((photo) => (
+                        {currentData.photos.map((photo) => (
                             <button
                                 key={photo.id}
                                 type="button"
@@ -491,7 +592,10 @@ export const TripDetailPage = () => {
                             </button>
                         </>
                     )}
-                    <div className="trip-photo-viewer__stage" onClick={(event) => event.stopPropagation()}>
+                    <div
+                        className="trip-photo-viewer__stage"
+                        onClick={(event) => event.stopPropagation()}
+                    >
                         {selectedPhoto.fileUrl ? (
                             <img
                                 src={selectedPhoto.fileUrl}
@@ -519,18 +623,15 @@ export const TripDetailPage = () => {
                     </button>
                 </div>
                 <div className="trip-detail-list">
-                    {data.checklist.length === 0 ? (
+                    {currentData.checklist.length === 0 ? (
                         <p>{t('details.noChecklist')}</p>
                     ) : (
-                        data.checklist.map((item) => (
+                        currentData.checklist.map((item) => (
                             <button
                                 key={item.id}
                                 type="button"
-                                onClick={() =>
-                                    void runAction(() =>
-                                        updateChecklistItem(item.id, item.status === 'done' ? 'to_do' : 'done'),
-                                    )
-                                }
+                                className={item.status === 'done' ? 'is-complete' : ''}
+                                onClick={() => void toggleChecklistItem(item)}
                             >
                                 <span className={item.status === 'done' ? 'is-done' : ''}>
                                     <CheckSquare size={16} />
@@ -558,18 +659,33 @@ export const TripDetailPage = () => {
                     </button>
                 </div>
                 <div className="trip-detail-list">
-                    {data.places.length === 0 ? (
+                    {currentData.places.length === 0 ? (
                         <p>{t('details.noPlaces')}</p>
                     ) : (
-                        data.places.map((place) => (
+                        currentData.places.map((place) => (
                             <button
                                 key={place.id}
                                 type="button"
-                                onClick={() => void runAction(() => updateVisitPlace(place.id, !place.isVisited))}
+                                className={place.isVisited ? 'is-complete' : ''}
+                                onClick={() => void toggleVisitPlace(place)}
                             >
-                                <span className={place.isVisited ? 'is-done' : ''}>
-                                    <MapPin size={16} />
-                                    {place.title}
+                                <span
+                                    className={
+                                        place.isVisited
+                                            ? 'trip-detail-place is-done'
+                                            : 'trip-detail-place'
+                                    }
+                                >
+                                    <span className="trip-detail-place__title">
+                                        <MapPin size={16} />
+                                        {place.title}
+                                    </span>
+                                    {(place.address || place.description) && (
+                                        <span className="trip-detail-place__meta">
+                                            {place.address && <span>{place.address}</span>}
+                                            {place.description && <span>{place.description}</span>}
+                                        </span>
+                                    )}
                                 </span>
                                 {place.isVisited && <Check size={16} />}
                             </button>
