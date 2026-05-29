@@ -96,7 +96,9 @@ const normalizeTripCard = (value: unknown): TripCard => {
         title: asString(card.title),
         countryCode: asString(card.country_code),
         countryName: asNullableString(card.country_name),
-        cities: asArray(card.cities).map(normalizeCityOption).filter((city) => city.id.length > 0),
+        cities: asArray(card.cities)
+            .map(normalizeCityOption)
+            .filter((city) => city.id.length > 0),
         tripStart: asNullableString(card.trip_start),
         tripEnd: asNullableString(card.trip_end),
         coverUrl: toAbsoluteApiUrl(asNullableString(card.cover_url)),
@@ -111,7 +113,9 @@ const normalizeTripCard = (value: unknown): TripCard => {
 export const normalizeTripCardsResponse = (value: unknown): TripCardsResponse => {
     const response = asRecord(value)
     return {
-        items: asArray(response.items).map(normalizeTripCard).filter((card) => card.id.length > 0),
+        items: asArray(response.items)
+            .map(normalizeTripCard)
+            .filter((card) => card.id.length > 0),
         pagination: normalizePagination(response.pagination),
     }
 }
@@ -126,7 +130,9 @@ const normalizeTripVisit = (value: unknown): TripVisit => {
         description: asNullableString(visit.description),
         countryCode: asString(visit.country_code),
         countryName: asNullableString(visit.country_name),
-        cityIds: asArray(visit.city_ids).map((item) => asString(item)).filter(Boolean),
+        cityIds: asArray(visit.city_ids)
+            .map((item) => asString(item))
+            .filter(Boolean),
         tripStart: asNullableString(visit.trip_start),
         tripEnd: asNullableString(visit.trip_end),
         coverFileId: asNullableString(visit.cover_file_id),
@@ -171,6 +177,8 @@ const normalizePlace = (value: unknown): TripPlace => {
         id: asString(place.id),
         visitId: asString(place.visit_id),
         title: asString(place.title),
+        address: asNullableString(place.address),
+        description: asNullableString(place.description),
         isVisited: asBoolean(place.is_visited),
         created: asString(place.created),
         updated: asString(place.updated),
@@ -203,12 +211,18 @@ export const normalizeTripDetails = (value: unknown): TripDetails => {
 
     return {
         visit: normalizeTripVisit(details.visit),
-        photos: asArray(details.photos).map(normalizePhoto).filter((photo) => photo.id.length > 0),
+        photos: asArray(details.photos)
+            .map(normalizePhoto)
+            .filter((photo) => photo.id.length > 0),
         checklist: asArray(details.checklist)
             .map(normalizeChecklistItem)
             .filter((item) => item.id.length > 0),
-        places: asArray(details.places).map(normalizePlace).filter((place) => place.id.length > 0),
-        cities: asArray(details.cities).map(normalizeCityOption).filter((city) => city.id.length > 0),
+        places: asArray(details.places)
+            .map(normalizePlace)
+            .filter((place) => place.id.length > 0),
+        cities: asArray(details.cities)
+            .map(normalizeCityOption)
+            .filter((city) => city.id.length > 0),
     }
 }
 

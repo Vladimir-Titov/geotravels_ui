@@ -98,6 +98,8 @@ describe('trips pages', () => {
                     id: 'place-1',
                     visitId: 'visit-1',
                     title: 'Louvre',
+                    address: 'Rue de Rivoli',
+                    description: 'Large museum with classic collections.',
                     isVisited: false,
                     created: '2026-01-01T00:00:00Z',
                     updated: '2026-01-01T00:00:00Z',
@@ -112,7 +114,7 @@ describe('trips pages', () => {
     })
 
     it('renders visits and opens add trip modal', async () => {
-        render(
+        const { container } = render(
             <MemoryRouter>
                 <VisitsPage />
             </MemoryRouter>,
@@ -120,6 +122,9 @@ describe('trips pages', () => {
 
         expect(await screen.findByRole('heading', { name: 'Visits' })).toBeInTheDocument()
         expect(screen.getAllByText('Paris')).not.toHaveLength(0)
+        const placeholder = container.querySelector('.trip-card__media--placeholder')
+        expect(placeholder).toBeInTheDocument()
+        expect(placeholder?.className).toMatch(/trip-card__media--gradient-\d/)
 
         fireEvent.click(screen.getByRole('button', { name: /add trip/i }))
         expect(screen.getByRole('dialog')).toHaveTextContent('New trip')
@@ -184,17 +189,30 @@ describe('trips pages', () => {
         )
 
         expect(await screen.findByRole('heading', { name: 'Paris' })).toBeInTheDocument()
+        expect(screen.getByText('Rue de Rivoli')).toBeInTheDocument()
+        expect(screen.getByText('Large museum with classic collections.')).toBeInTheDocument()
 
-        fireEvent.click(screen.getByRole('button', { name: /tickets/i }))
-        await waitFor(() => expect(apiMocks.updateChecklistItem).toHaveBeenCalledWith('task-1', 'to_do'))
+        const checklistButton = screen.getByRole('button', { name: /tickets/i })
+        expect(checklistButton).toHaveClass('is-complete')
+        fireEvent.click(checklistButton)
+        expect(checklistButton).not.toHaveClass('is-complete')
+        await waitFor(() =>
+            expect(apiMocks.updateChecklistItem).toHaveBeenCalledWith('task-1', 'to_do'),
+        )
 
-        fireEvent.click(screen.getByRole('button', { name: /louvre/i }))
+        const placeButton = screen.getByRole('button', { name: /louvre/i })
+        expect(placeButton).not.toHaveClass('is-complete')
+        fireEvent.click(placeButton)
+        expect(placeButton).toHaveClass('is-complete')
         await waitFor(() => expect(apiMocks.updateVisitPlace).toHaveBeenCalledWith('place-1', true))
     })
 
     it('deletes trip details after confirmation and returns to the trip list', async () => {
         apiMocks.deleteVisit.mockResolvedValue(undefined)
-        vi.stubGlobal('confirm', vi.fn(() => true))
+        vi.stubGlobal(
+            'confirm',
+            vi.fn(() => true),
+        )
 
         render(
             <MemoryRouter initialEntries={['/trips/visit-1']}>
@@ -372,10 +390,11 @@ describe('trips pages', () => {
         )
 
         expect(await screen.findByRole('heading', { name: 'Paris' })).toBeInTheDocument()
-        expect(screen.getByRole('button', { name: /view photo paris-full\.webp/i }).querySelector('img')).toHaveAttribute(
-            'src',
-            'http://localhost:8080/photo-viewer-thumb@webp',
-        )
+        expect(
+            screen
+                .getByRole('button', { name: /view photo paris-full\.webp/i })
+                .querySelector('img'),
+        ).toHaveAttribute('src', 'http://localhost:8080/photo-viewer-thumb@webp')
 
         fireEvent.click(screen.getByRole('button', { name: /view photo paris-full\.webp/i }))
 
@@ -388,7 +407,9 @@ describe('trips pages', () => {
         )
 
         fireEvent.click(screen.getByRole('button', { name: 'Close photo' }))
-        await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Photo viewer' })).not.toBeInTheDocument())
+        await waitFor(() =>
+            expect(screen.queryByRole('dialog', { name: 'Photo viewer' })).not.toBeInTheDocument(),
+        )
 
         fireEvent.click(screen.getByRole('button', { name: /view photo paris-full\.webp/i }))
         expect(await screen.findByRole('dialog', { name: 'Photo viewer' })).toBeInTheDocument()

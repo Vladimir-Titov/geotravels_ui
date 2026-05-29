@@ -4,13 +4,16 @@ import { useTranslation } from 'react-i18next'
 import {
     createChecklistItem,
     createVisit,
+    createVisitPlaces,
     searchCities,
     searchCountries,
+    suggestCityPlaces,
     updateVisit,
     uploadVisitPhoto,
 } from './trips-api'
 import type {
     AddTripDraft,
+    AiPlaceSuggestion,
     CityOption,
     CountryOption,
     CreateVisitPayload,
@@ -44,6 +47,7 @@ const createInitialDraft = (status: VisibleTripStatus): AddTripDraft => ({
     notes: '',
     checklist: [],
     photos: [],
+    places: [],
 })
 
 const normalizeOptionalText = (value: string): string | undefined => {
@@ -98,6 +102,10 @@ export const AddTripModal = ({ initialStatus, onClose, onSaved }: AddTripModalPr
     const [countrySearchDone, setCountrySearchDone] = useState(false)
     const [citySearchDone, setCitySearchDone] = useState(false)
     const [newChecklistItem, setNewChecklistItem] = useState('')
+    const [newPlaceListItem, setNewPlaceListItem] = useState('')
+    const [aiPlaceSuggestions, setAiPlaceSuggestions] = useState<AiPlaceSuggestion[]>([])
+    const [isAiSuggestionsOpen, setIsAiSuggestionsOpen] = useState(false)
+    const [isSuggestingPlaces, setIsSuggestingPlaces] = useState(false)
     const [requestError, setRequestError] = useState<string | null>(null)
     const [isSaving, setIsSaving] = useState(false)
     const photoUrlsRef = useRef<string[]>([])
@@ -251,6 +259,68 @@ export const AddTripModal = ({ initialStatus, onClose, onSaved }: AddTripModalPr
         setNewChecklistItem('')
     }
 
+    const addPlaceListItem = (): void => {
+        const value = newPlaceListItem.trim()
+        if (!value || draft.places.some((place) => place.title === value)) {
+            return
+        }
+        setDraft((current) => ({
+            ...current,
+            places: [...current.places, { title: value, address: null, description: null }],
+        }))
+        setNewPlaceListItem('')
+    }
+
+    const addAiPlaceSuggestion = (suggestion: AiPlaceSuggestion): void => {
+        if (draft.places.some((place) => place.title === suggestion.title)) {
+            return
+        }
+        setDraft((current) => ({
+            ...current,
+            places: [
+                ...current.places,
+                {
+                    title: suggestion.title,
+                    address: suggestion.address,
+                    description: suggestion.description,
+                },
+            ],
+        }))
+    }
+
+    const removePlaceListItem = (title: string): void => {
+        setDraft((current) => ({
+            ...current,
+            places: current.places.filter((item) => item.title !== title),
+        }))
+    }
+
+    const askAiForPlace = async (): Promise<void> => {
+        if (isSuggestingPlaces) {
+            return
+        }
+        if (!draft.city) {
+            setRequestError(t('modal.errors.cityRequiredForAi'))
+            return
+        }
+
+        setIsSuggestingPlaces(true)
+        setRequestError(null)
+        try {
+            const suggestions = await suggestCityPlaces(draft.city.id, language)
+            setAiPlaceSuggestions(suggestions)
+            setIsAiSuggestionsOpen(true)
+        } catch (error) {
+            if (error instanceof Error && error.message.trim().length > 0) {
+                setRequestError(error.message)
+            } else {
+                setRequestError(t('modal.errors.aiPlacesFailed'))
+            }
+        } finally {
+            setIsSuggestingPlaces(false)
+        }
+    }
+
     const addSuggestedChecklistItem = (value: string): void => {
         if (draft.checklist.includes(value)) {
             return
@@ -317,6 +387,8 @@ export const AddTripModal = ({ initialStatus, onClose, onSaved }: AddTripModalPr
                 }
             }
 
+            await createVisitPlaces(created.id, draft.places)
+
             onSaved(draft.status, created.id)
         } catch (error) {
             if (error instanceof Error && error.message.trim().length > 0) {
@@ -341,7 +413,13 @@ export const AddTripModal = ({ initialStatus, onClose, onSaved }: AddTripModalPr
     }
 
     return (
-        <div className="trip-modal" role="dialog" aria-modal="true" aria-labelledby="trip-modal-title">
+        <div
+            className="trip-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="trip-modal-title"
+            aria-busy={isSuggestingPlaces}
+        >
             <div className="trip-modal__backdrop" onClick={onClose} />
             <section className="trip-modal__panel">
                 <header className="trip-modal__header">
@@ -349,7 +427,13 @@ export const AddTripModal = ({ initialStatus, onClose, onSaved }: AddTripModalPr
                         <h2 id="trip-modal-title">{t('modal.title')}</h2>
                         <p>{stepTitle}</p>
                     </div>
-                    <button type="button" className="trip-icon-button" onClick={onClose} aria-label={t('modal.close')}>
+                    <button
+                        type="button"
+                        className="trip-icon-button"
+                        onClick={onClose}
+                        aria-label={t('modal.close')}
+                        disabled={isSuggestingPlaces}
+                    >
                         <X size={18} />
                     </button>
                 </header>
@@ -365,7 +449,11 @@ export const AddTripModal = ({ initialStatus, onClose, onSaved }: AddTripModalPr
                         <div className="trip-type-grid">
                             <button
                                 type="button"
-                                className={draft.status === 'visited' ? 'trip-choice is-selected' : 'trip-choice'}
+                                className={
+                                    draft.status === 'visited'
+                                        ? 'trip-choice is-selected'
+                                        : 'trip-choice'
+                                }
                                 onClick={() => setStatus('visited')}
                             >
                                 <Plane size={28} />
@@ -374,7 +462,11 @@ export const AddTripModal = ({ initialStatus, onClose, onSaved }: AddTripModalPr
                             </button>
                             <button
                                 type="button"
-                                className={draft.status === 'planned' ? 'trip-choice is-selected' : 'trip-choice'}
+                                className={
+                                    draft.status === 'planned'
+                                        ? 'trip-choice is-selected'
+                                        : 'trip-choice'
+                                }
                                 onClick={() => setStatus('planned')}
                             >
                                 <Map size={28} />
@@ -392,7 +484,11 @@ export const AddTripModal = ({ initialStatus, onClose, onSaved }: AddTripModalPr
                                     value={countryQuery}
                                     onChange={(event) => {
                                         setCountryQuery(event.target.value)
-                                        setDraft((current) => ({ ...current, country: null, city: null }))
+                                        setDraft((current) => ({
+                                            ...current,
+                                            country: null,
+                                            city: null,
+                                        }))
                                     }}
                                     placeholder={t('modal.destination.countryPlaceholder')}
                                 />
@@ -400,15 +496,24 @@ export const AddTripModal = ({ initialStatus, onClose, onSaved }: AddTripModalPr
                             {countryOptions.length > 0 && (
                                 <div className="trip-suggestions">
                                     {countryOptions.map((country) => (
-                                        <button key={country.code} type="button" onClick={() => selectCountry(country)}>
+                                        <button
+                                            key={country.code}
+                                            type="button"
+                                            onClick={() => selectCountry(country)}
+                                        >
                                             {country.name}
                                         </button>
                                     ))}
                                 </div>
                             )}
-                            {countrySearchDone && countryQuery.trim().length >= 2 && countryOptions.length === 0 && !draft.country && (
-                                <p className="trip-field-note">{t('modal.destination.noCountries')}</p>
-                            )}
+                            {countrySearchDone &&
+                                countryQuery.trim().length >= 2 &&
+                                countryOptions.length === 0 &&
+                                !draft.country && (
+                                    <p className="trip-field-note">
+                                        {t('modal.destination.noCountries')}
+                                    </p>
+                                )}
 
                             <label className="trip-field">
                                 <span>{t('modal.destination.city')}</span>
@@ -425,17 +530,28 @@ export const AddTripModal = ({ initialStatus, onClose, onSaved }: AddTripModalPr
                             {cityOptions.length > 0 && (
                                 <div className="trip-suggestions">
                                     {cityOptions.map((city) => (
-                                        <button key={city.id} type="button" onClick={() => selectCity(city)}>
+                                        <button
+                                            key={city.id}
+                                            type="button"
+                                            onClick={() => selectCity(city)}
+                                        >
                                             {city.name}
                                         </button>
                                     ))}
                                 </div>
                             )}
-                            {citySearchDone && cityQuery.trim().length >= 2 && cityOptions.length === 0 && !draft.city && (
-                                <p className="trip-field-note">{t('modal.destination.noCities')}</p>
-                            )}
+                            {citySearchDone &&
+                                cityQuery.trim().length >= 2 &&
+                                cityOptions.length === 0 &&
+                                !draft.city && (
+                                    <p className="trip-field-note">
+                                        {t('modal.destination.noCities')}
+                                    </p>
+                                )}
                             {!draft.country && step === 2 && (
-                                <p className="trip-field-note">{t('modal.validation.countryRequired')}</p>
+                                <p className="trip-field-note">
+                                    {t('modal.validation.countryRequired')}
+                                </p>
                             )}
                         </div>
                     )}
@@ -447,7 +563,12 @@ export const AddTripModal = ({ initialStatus, onClose, onSaved }: AddTripModalPr
                                 <input
                                     type="date"
                                     value={draft.tripStart}
-                                    onChange={(event) => setDraft((current) => ({ ...current, tripStart: event.target.value }))}
+                                    onChange={(event) =>
+                                        setDraft((current) => ({
+                                            ...current,
+                                            tripStart: event.target.value,
+                                        }))
+                                    }
                                 />
                             </label>
                             <label className="trip-field">
@@ -455,10 +576,21 @@ export const AddTripModal = ({ initialStatus, onClose, onSaved }: AddTripModalPr
                                 <input
                                     type="date"
                                     value={draft.tripEnd}
-                                    onChange={(event) => setDraft((current) => ({ ...current, tripEnd: event.target.value }))}
+                                    onChange={(event) =>
+                                        setDraft((current) => ({
+                                            ...current,
+                                            tripEnd: event.target.value,
+                                        }))
+                                    }
                                 />
                             </label>
-                            <p className={hasInvalidDateRange(draft) ? 'trip-field-error' : 'trip-field-note'}>
+                            <p
+                                className={
+                                    hasInvalidDateRange(draft)
+                                        ? 'trip-field-error'
+                                        : 'trip-field-note'
+                                }
+                            >
                                 {hasInvalidDateRange(draft)
                                     ? t('modal.validation.dateRange')
                                     : t('modal.dates.optional')}
@@ -472,11 +604,70 @@ export const AddTripModal = ({ initialStatus, onClose, onSaved }: AddTripModalPr
                                 <span>{t('modal.details.notes')}</span>
                                 <textarea
                                     value={draft.notes}
-                                    onChange={(event) => setDraft((current) => ({ ...current, notes: event.target.value }))}
+                                    onChange={(event) =>
+                                        setDraft((current) => ({
+                                            ...current,
+                                            notes: event.target.value,
+                                        }))
+                                    }
                                     placeholder={t('modal.details.notesPlaceholder')}
                                     rows={3}
                                 />
                             </label>
+
+                            <section className="trip-inline-section">
+                                <div className="trip-inline-section__title">
+                                    <MapPin size={16} />
+                                    <strong>{t('modal.details.places')}</strong>
+                                </div>
+                                <div className="trip-add-row trip-place-add-row">
+                                    <input
+                                        value={newPlaceListItem}
+                                        onChange={(event) =>
+                                            setNewPlaceListItem(event.target.value)
+                                        }
+                                        onKeyDown={(event) => {
+                                            if (event.key === 'Enter') {
+                                                event.preventDefault()
+                                                addPlaceListItem()
+                                            }
+                                        }}
+                                        placeholder={t('modal.details.placePlaceholder')}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={addPlaceListItem}
+                                        aria-label={t('modal.details.addPlace')}
+                                    >
+                                        <Plus size={16} />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="trip-link-button trip-place-ai-button"
+                                        onClick={() => void askAiForPlace()}
+                                        disabled={isSuggestingPlaces}
+                                    >
+                                        {isSuggestingPlaces
+                                            ? t('modal.details.askingAi')
+                                            : t('modal.details.askAi')}
+                                    </button>
+                                </div>
+                                {draft.places.length > 0 && (
+                                    <ul className="trip-draft-list">
+                                        {draft.places.map((item) => (
+                                            <li key={item.title}>
+                                                <span>{item.title}</span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removePlaceListItem(item.title)}
+                                                >
+                                                    <X size={14} />
+                                                </button>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </section>
 
                             {draft.status === 'planned' && (
                                 <section className="trip-inline-section">
@@ -487,7 +678,9 @@ export const AddTripModal = ({ initialStatus, onClose, onSaved }: AddTripModalPr
                                     <div className="trip-add-row">
                                         <input
                                             value={newChecklistItem}
-                                            onChange={(event) => setNewChecklistItem(event.target.value)}
+                                            onChange={(event) =>
+                                                setNewChecklistItem(event.target.value)
+                                            }
                                             onKeyDown={(event) => {
                                                 if (event.key === 'Enter') {
                                                     event.preventDefault()
@@ -496,13 +689,21 @@ export const AddTripModal = ({ initialStatus, onClose, onSaved }: AddTripModalPr
                                             }}
                                             placeholder={t('modal.details.taskPlaceholder')}
                                         />
-                                        <button type="button" onClick={addChecklistItem} aria-label={t('modal.details.addTask')}>
+                                        <button
+                                            type="button"
+                                            onClick={addChecklistItem}
+                                            aria-label={t('modal.details.addTask')}
+                                        >
                                             <Plus size={16} />
                                         </button>
                                     </div>
                                     <div className="trip-suggestion-pills">
                                         {checklistSuggestions.map((item) => (
-                                            <button key={item} type="button" onClick={() => addSuggestedChecklistItem(item)}>
+                                            <button
+                                                key={item}
+                                                type="button"
+                                                onClick={() => addSuggestedChecklistItem(item)}
+                                            >
                                                 + {item}
                                             </button>
                                         ))}
@@ -512,7 +713,10 @@ export const AddTripModal = ({ initialStatus, onClose, onSaved }: AddTripModalPr
                                             {draft.checklist.map((item) => (
                                                 <li key={item}>
                                                     <span>{item}</span>
-                                                    <button type="button" onClick={() => removeChecklistItem(item)}>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => removeChecklistItem(item)}
+                                                    >
                                                         <X size={14} />
                                                     </button>
                                                 </li>
@@ -531,7 +735,10 @@ export const AddTripModal = ({ initialStatus, onClose, onSaved }: AddTripModalPr
                                     {draft.photos.map((photo) => (
                                         <span key={photo.id} className="trip-photo-preview">
                                             <img src={photo.previewUrl} alt="" />
-                                            <button type="button" onClick={() => removePhoto(photo.id)}>
+                                            <button
+                                                type="button"
+                                                onClick={() => removePhoto(photo.id)}
+                                            >
                                                 <X size={14} />
                                             </button>
                                         </span>
@@ -540,7 +747,12 @@ export const AddTripModal = ({ initialStatus, onClose, onSaved }: AddTripModalPr
                                         <label className="trip-photo-add">
                                             <Camera size={18} />
                                             <span>{t('modal.details.addPhoto')}</span>
-                                            <input type="file" accept="image/*" multiple onChange={handlePhotoChange} />
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                multiple
+                                                onChange={handlePhotoChange}
+                                            />
                                         </label>
                                     )}
                                 </div>
@@ -552,22 +764,128 @@ export const AddTripModal = ({ initialStatus, onClose, onSaved }: AddTripModalPr
                 </div>
 
                 <footer className="trip-modal__footer">
-                    <button type="button" className="trip-button trip-button--ghost" onClick={step === 1 ? onClose : goBack}>
+                    <button
+                        type="button"
+                        className="trip-button trip-button--ghost"
+                        onClick={step === 1 ? onClose : goBack}
+                        disabled={isSuggestingPlaces}
+                    >
                         {step === 1 ? t('modal.cancel') : t('modal.back')}
                     </button>
                     {step < 4 ? (
-                        <button type="button" className="trip-button" disabled={!canContinue()} onClick={goNext}>
+                        <button
+                            type="button"
+                            className="trip-button"
+                            disabled={isSuggestingPlaces || !canContinue()}
+                            onClick={goNext}
+                        >
                             {t('modal.next')}
                             <MapPin size={16} />
                         </button>
                     ) : (
-                        <button type="button" className="trip-button" disabled={isSaving || !canContinue()} onClick={() => void saveTrip()}>
+                        <button
+                            type="button"
+                            className="trip-button"
+                            disabled={isSuggestingPlaces || isSaving || !canContinue()}
+                            onClick={() => void saveTrip()}
+                        >
                             <Check size={16} />
                             {isSaving ? t('modal.saving') : t('modal.save')}
                         </button>
                     )}
                 </footer>
             </section>
+            {isSuggestingPlaces && (
+                <div className="trip-ai-loading-overlay" role="status" aria-live="polite">
+                    <div className="trip-ai-loading">
+                        <div className="trip-ai-loading__stars" aria-hidden="true">
+                            <span>*</span>
+                            <span>*</span>
+                            <span>*</span>
+                        </div>
+                        <span>{t('modal.details.aiThinking')}</span>
+                    </div>
+                </div>
+            )}
+            {isAiSuggestionsOpen && !isSuggestingPlaces && (
+                <div
+                    className="trip-ai-dialog"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="trip-ai-dialog-title"
+                >
+                    <div
+                        className="trip-ai-dialog__backdrop"
+                        onClick={() => setIsAiSuggestionsOpen(false)}
+                    />
+                    <section className="trip-ai-dialog__panel">
+                        <header className="trip-ai-dialog__header">
+                            <h3 id="trip-ai-dialog-title">
+                                {t('modal.details.aiSuggestionsTitle')}
+                            </h3>
+                            <button
+                                type="button"
+                                className="trip-icon-button"
+                                onClick={() => setIsAiSuggestionsOpen(false)}
+                                aria-label={t('modal.details.closeAiSuggestions')}
+                            >
+                                <X size={18} />
+                            </button>
+                        </header>
+                        <div className="trip-ai-dialog__body">
+                            {aiPlaceSuggestions.length === 0 ? (
+                                <p className="trip-field-note">
+                                    {t('modal.details.aiSuggestionsEmpty')}
+                                </p>
+                            ) : (
+                                <div className="trip-ai-suggestions">
+                                    {aiPlaceSuggestions.map((suggestion) => {
+                                        const isAdded = draft.places.some(
+                                            (place) => place.title === suggestion.title,
+                                        )
+
+                                        return (
+                                            <article
+                                                key={`${suggestion.title}-${suggestion.address ?? ''}`}
+                                                className="trip-ai-suggestion"
+                                            >
+                                                <div>
+                                                    <strong>{suggestion.title}</strong>
+                                                    {suggestion.address && (
+                                                        <span>{suggestion.address}</span>
+                                                    )}
+                                                    {suggestion.description && (
+                                                        <p>{suggestion.description}</p>
+                                                    )}
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    className="trip-link-button"
+                                                    onClick={() => addAiPlaceSuggestion(suggestion)}
+                                                    disabled={isAdded}
+                                                >
+                                                    {isAdded
+                                                        ? t('modal.details.placeAdded')
+                                                        : t('modal.details.addSuggestedPlace')}
+                                                </button>
+                                            </article>
+                                        )
+                                    })}
+                                </div>
+                            )}
+                        </div>
+                        <footer className="trip-ai-dialog__footer">
+                            <button
+                                type="button"
+                                className="trip-button"
+                                onClick={() => setIsAiSuggestionsOpen(false)}
+                            >
+                                {t('modal.details.closeAiSuggestions')}
+                            </button>
+                        </footer>
+                    </section>
+                </div>
+            )}
         </div>
     )
 }

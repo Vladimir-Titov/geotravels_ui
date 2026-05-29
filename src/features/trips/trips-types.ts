@@ -81,6 +81,8 @@ export interface TripPlace {
     id: string
     visitId: string
     title: string
+    address: string | null
+    description: string | null
     isVisited: boolean
     created: string
     updated: string
@@ -121,6 +123,18 @@ export interface QueuedTripPhoto {
     previewUrl: string
 }
 
+export interface VisitPlaceDraft {
+    title: string
+    address: string | null
+    description: string | null
+}
+
+export interface AiPlaceSuggestion {
+    title: string
+    address: string | null
+    description: string | null
+}
+
 export interface AddTripDraft {
     status: VisibleTripStatus
     country: CountryOption | null
@@ -130,6 +144,7 @@ export interface AddTripDraft {
     notes: string
     checklist: string[]
     photos: QueuedTripPhoto[]
+    places: VisitPlaceDraft[]
 }
 
 export interface CreateVisitPayload {
